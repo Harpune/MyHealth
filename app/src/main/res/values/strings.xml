@@ -45,4 +45,9 @@
     <string name="firstrun">firstrun</string>
     <string name="showSpotifyLoginDialog">showSpotifyLoginDialog</string>
     <string name="showSpotifyDownloadDialog">showSpotifyDownloadDialog</string>
+    <string name="services_header">Services</string>
+    <string name="google_fit_key">googleFit</string>
+    <string name="google_fit">Google Fit</string>
+    <string name="spotify_key">spotify</string>
+    <string name="spotify">Spotify</string>
 </resources>

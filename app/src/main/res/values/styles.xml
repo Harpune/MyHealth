@@ -25,7 +25,7 @@
         <item name="colorOnPrimary">@color/white</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/cyan_50</item>
+        <item name="colorSecondary">@color/light_blue_700_light</item>
         <item name="colorSecondaryVariant">@color/cyan_50_dark</item>
         <item name="colorOnSecondary">@color/black</item>
 

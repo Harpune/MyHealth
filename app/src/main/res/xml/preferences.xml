@@ -3,19 +3,37 @@
     <PreferenceCategory app:title="@string/design_header">
 
         <SwitchPreference
-            app:key="@string/dark_mode_key"
-            app:title="@string/dark_mode_title"
             app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_invert_colors_24"
+            app:key="@string/dark_mode_key"
             app:summary="Click to switch on or off"
+            app:title="@string/dark_mode_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            app:defaultValue="@string/green_theme_key"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_entries_keys"
+            app:icon="@drawable/ic_baseline_color_lens_24"
             app:key="@string/theme_key"
             app:title="@string/theme_title"
-            app:defaultValue="@string/green_theme_key"
-            app:useSimpleSummaryProvider="true"
-            app:entryValues="@array/theme_entries_keys"
-            app:entries="@array/theme_entries"/>
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/services_header">
+
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_directions_run_24"
+            app:key="@string/google_fit_key"
+            app:title="@string/google_fit" />
+
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_music_note_24"
+            app:key="@string/spotify_key"
+            app:title="@string/spotify" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
