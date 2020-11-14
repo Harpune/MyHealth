@@ -1,0 +1,13 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="theme_entries">
+        <item>@string/green_theme</item>
+        <item>@string/blue_theme</item>
+        <item>@string/red_theme</item>
+    </string-array>
+    <string-array name="theme_entries_keys">
+        <item>@string/green_theme_key</item>
+        <item>@string/blue_theme_key</item>
+        <item>@string/red_theme_key</item>
+    </string-array>
+</resources>

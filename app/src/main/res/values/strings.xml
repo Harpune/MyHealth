@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">MyHealth</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">MyHealth</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Menu Items -->
+    <string name="menu_home">Home</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_questionnaires">Questionnaires</string>
+    <string name="start">Start</string>
+
+    <!-- Preference Titles -->
+    <string name="design_header">Design</string>
+    <string name="questionnaires_header">Questionnaires</string>
+    <string name="music_header">Music</string>
+
+    <!-- Design Preferences -->
+    <string name="dark_mode_title">Dark Mode</string>
+    <string name="theme_title">Theme</string>
+    <string name="dark_mode_key">dark</string>
+    <string name="theme_key">theme</string>
+
+    <!-- Questionnaires Preferences -->
+    <string name="type_title">Type</string>
+    <string name="type_key">type</string>
+
+    <!-- Music Preferences -->
+    <string name="music_title">Player</string>
+    <string name="music_key">player</string>
+
+    <!-- Themes -->
+    <string name="green_theme">Green</string>
+    <string name="green_theme_key">green</string>
+    <string name="blue_theme">Blue</string>
+    <string name="blue_theme_key">blue</string>
+    <string name="red_theme">Red</string>
+    <string name="red_theme_key">red</string>
+    
+    <!-- rankable key -->
+    <string name="questionnaires_label">Questionnaires</string>
+    <string name="music_label">Music</string>
+    <string name="firstrun">firstrun</string>
+    <string name="showSpotifyLoginDialog">showSpotifyLoginDialog</string>
+    <string name="showSpotifyDownloadDialog">showSpotifyDownloadDialog</string>
+</resources>
