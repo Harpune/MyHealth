@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -59,8 +61,6 @@ public class HomeFragment extends Fragment {
         this.pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
-                Log.d("HomeFragement", "Ha");
-
                 if (((PieEntry) e).getLabel().equals(getString(R.string.questionnaires_label))) {
                     Toast.makeText(getContext(), "You already answered " + (int) e.getY() + " questionnaires.", Toast.LENGTH_SHORT).show();
                 }
@@ -75,7 +75,6 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        //this.pieChart.setDrawHoleEnabled(false);
 
         // update with data
         this.setPieChartData();

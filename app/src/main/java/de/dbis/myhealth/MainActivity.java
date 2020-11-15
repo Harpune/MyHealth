@@ -1,52 +1,38 @@
 package de.dbis.myhealth;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.FitnessOptions;
-import com.google.android.gms.fitness.SessionsClient;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.request.SessionReadRequest;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
+import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.util.GoogleFitConnector;
+import de.dbis.myhealth.util.SpotifyConnector;
 
 public class MainActivity extends AppCompatActivity {
+    private final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 123;
+
+    // View Models
+    private GoogleFitConnector mGoogleFitConnector;
+    private SpotifyConnector mSpotifyConnector;
 
     // Views
     private FloatingActionButton fab;
@@ -54,16 +40,36 @@ public class MainActivity extends AppCompatActivity {
     // Android
     private AppBarConfiguration mAppBarConfiguration;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.initDrawerLayout();
 
+        // fab
         this.fab = findViewById(R.id.fab);
         this.fab.setOnClickListener(view -> {
-            Snackbar.make(view, "hello", Snackbar.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Helo", Toast.LENGTH_SHORT).show();
+        });
+
+        // Google Fit
+        this.mGoogleFitConnector = new GoogleFitConnector(this);
+        if (this.mGoogleFitConnector.isEnabled()) {
+            this.mGoogleFitConnector.connect();
+        }
+
+        this.mGoogleFitConnector.getSessionClient().observe(this, sessionsClient -> {
+            Log.d("MainActivity", "SessionClient changed");
+        });
+
+        // Spotify
+        this.mSpotifyConnector = new SpotifyConnector(this);
+        if (this.mSpotifyConnector.isEnabled()) {
+            this.mSpotifyConnector.connect();
+        }
+
+        this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
+            Log.d("MainActivity", "Spotify changed");
         });
     }
 
@@ -109,5 +115,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return theme;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
+                this.mGoogleFitConnector.connect();
+            }
+        } else {
+            Toast.makeText(this, "Please grant permission", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.mSpotifyConnector.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.mSpotifyConnector.disconnect();
+        if (this.mSpotifyConnector.isEnabled()) {
+            this.mSpotifyConnector.connect();
+        }
     }
 }

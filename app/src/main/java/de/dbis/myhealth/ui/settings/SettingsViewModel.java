@@ -4,16 +4,33 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.fitness.SessionsClient;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
 public class SettingsViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private MutableLiveData<SessionsClient> mSessionsClient;
+    private MutableLiveData<SpotifyAppRemote> mSpotify;
 
     public SettingsViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+        this.mSessionsClient = new MutableLiveData<>();
+        this.mSpotify = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<SessionsClient> getSessionClient() {
+        return this.mSessionsClient;
+    }
+
+    public void setSessionsClient(SessionsClient sessionsClient) {
+        this.mSessionsClient.setValue(sessionsClient);
+    }
+
+    public LiveData<SpotifyAppRemote> getSpotify() {
+        return this.mSpotify;
+    }
+
+    public void setSpotify(SpotifyAppRemote spotify) {
+        this.mSpotify.setValue(spotify);
     }
 }
