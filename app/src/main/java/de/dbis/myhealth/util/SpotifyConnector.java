@@ -34,6 +34,16 @@ public class SpotifyConnector {
         this.mSettingsViewModel = new ViewModelProvider((ViewModelStoreOwner) activity).get(SettingsViewModel.class);
     }
 
+    public void play() {
+        SpotifyAppRemote spotifyAppRemote = this.getSpotify().getValue();
+        spotifyAppRemote.getPlayerApi().setShuffle(false);
+        spotifyAppRemote.getPlayerApi().play("spotify:album:1cLEpY3zVvw0zV6WwVoAEB");
+    }
+
+    public void pause() {
+        this.getSpotify().getValue().getPlayerApi().pause();
+    }
+
     public boolean isEnabled() {
         return PreferenceManager.getDefaultSharedPreferences(mActivity).getBoolean(mActivity.getString(R.string.spotify_key), false);
     }
@@ -43,6 +53,9 @@ public class SpotifyConnector {
     }
 
     public void disconnect() {
+        if(this.getSpotify().getValue() != null){
+            this.getSpotify().getValue().getPlayerApi().pause();
+        }
         SpotifyAppRemote.disconnect(this.mSettingsViewModel.getSpotify().getValue());
     }
 

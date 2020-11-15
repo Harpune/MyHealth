@@ -4,10 +4,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -30,7 +30,9 @@ public class QuestionnairesAdapter extends RecyclerView.Adapter<QuestionnairesAd
             title = itemView.findViewById(R.id.questionnaireTitle);
             description = itemView.findViewById(R.id.questionnaireDescription);
 
-            root.setOnClickListener(view -> Toast.makeText(itemView.getContext(), "asdasd", Toast.LENGTH_SHORT).show());
+            root.setOnClickListener(view -> {
+                Navigation.findNavController(view).navigate(R.id.nav_questionnaire);
+            });
         }
     }
 

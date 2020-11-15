@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:hideOnScroll="true"
+        app:fabCradleRoundedCornerRadius="15dp"
         app:layout_scrollFlags="scroll|enterAlways"
         app:navigationIcon="@drawable/ic_baseline_menu_24" />
 

@@ -46,7 +46,7 @@ public class QuestionnairesFragment extends Fragment {
 
     private List<Questionnaire> generateData(){
         List<Questionnaire> questionnaires = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 20; i++) {
             questionnaires.add(new Questionnaire(i));
         }
 

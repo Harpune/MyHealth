@@ -4,14 +4,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.print.PrintAttributes;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -21,24 +27,26 @@ import androidx.preference.PreferenceManager;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
 
-import de.dbis.myhealth.ui.settings.SettingsViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
 
 public class MainActivity extends AppCompatActivity {
-    private final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 123;
+    private final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1;
+    private final static int MENU_ITEM_ITEM_SPOTIFY = 2;
 
     // View Models
     private GoogleFitConnector mGoogleFitConnector;
     private SpotifyConnector mSpotifyConnector;
 
     // Views
-    private FloatingActionButton fab;
+    private FloatingActionButton mFab;
+    private BottomAppBar mBottomAppBar;
 
     // Android
     private AppBarConfiguration mAppBarConfiguration;
+
+    private MenuItem spotifyMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
         this.initDrawerLayout();
 
         // fab
-        this.fab = findViewById(R.id.fab);
-        this.fab.setOnClickListener(view -> {
-            Toast.makeText(getApplicationContext(), "Helo", Toast.LENGTH_SHORT).show();
+        this.mFab = findViewById(R.id.fab);
+        this.mFab.setOnClickListener(view -> {
+
         });
 
         // Google Fit
@@ -69,6 +77,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
+            this.mSpotifyConnector.play();
+
+            spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
+                if (playerState.isPaused) {
+                    spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
+                } else {
+                    spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
+                }
+            });
+
             Log.d("MainActivity", "Spotify changed");
         });
     }
@@ -76,16 +94,43 @@ public class MainActivity extends AppCompatActivity {
     private void initDrawerLayout() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        BottomAppBar bottomAppBar = findViewById(R.id.bottomAppBar);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+        this.mBottomAppBar = findViewById(R.id.bottomAppBar);
+        setSupportActionBar(this.mBottomAppBar);
+
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_questionnaires, R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
-        NavigationUI.setupWithNavController(bottomAppBar, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(this.mBottomAppBar, navController, mAppBarConfiguration);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (this.mSpotifyConnector.isEnabled()) {
+            spotifyMenuItem = menu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
+            spotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            spotifyMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == MENU_ITEM_ITEM_SPOTIFY) {
+            this.mSpotifyConnector.getSpotify().getValue().getPlayerApi().getPlayerState().setResultCallback(playerState -> {
+                if (playerState.isPaused) {
+                    mSpotifyConnector.play();
+                } else {
+                    mSpotifyConnector.pause();
+                }
+            });
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

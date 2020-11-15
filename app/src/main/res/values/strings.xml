@@ -38,7 +38,7 @@
     <string name="blue_theme_key">blue</string>
     <string name="red_theme">Red</string>
     <string name="red_theme_key">red</string>
-    
+
     <!-- rankable key -->
     <string name="questionnaires_label">Questionnaires</string>
     <string name="music_label">Music</string>
@@ -50,4 +50,8 @@
     <string name="google_fit">Google Fit</string>
     <string name="spotify_key">spotify</string>
     <string name="spotify">Spotify</string>
+    <string name="sleep_tracking_header">Sleep tracking</string>
+    <string name="playlist">Playlist</string>
+    <string name="spotify_playlist_key">playlist</string>
+    <string name="menu_questionnaire">Questionnaire</string>
 </resources>
