@@ -8,8 +8,8 @@
         <item name="colorOnPrimary">@color/white</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/light_blue_700</item>
-        <item name="colorSecondaryVariant">@color/light_blue_700_dark</item>
+        <item name="colorSecondary">@color/cyan_900</item>
+        <item name="colorSecondaryVariant">@color/cyan_900_dark</item>
         <item name="colorOnSecondary">@color/white</item>
 
         <!-- Status bar color. -->
@@ -25,8 +25,25 @@
         <item name="colorOnPrimary">@color/white</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/light_blue_700_light</item>
+        <item name="colorSecondary">@color/cyan_900_light</item>
         <item name="colorSecondaryVariant">@color/cyan_50_dark</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+    </style>
+
+    <!-- Red application theme. -->
+    <style name="Theme.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/red_900</item>
+        <item name="colorPrimaryVariant">@color/red_900_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/orange_200</item>
+        <item name="colorSecondaryVariant">@color/orange_200_dark</item>
         <item name="colorOnSecondary">@color/black</item>
 
         <!-- Status bar color. -->

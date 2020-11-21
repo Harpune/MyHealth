@@ -10,9 +10,9 @@
     <color name="green_900">#004d40</color>
     <color name="green_900_light">#39796b</color>
     <color name="green_900_dark">#00251a</color>
-    <color name="light_blue_700">#0288d1</color>
-    <color name="light_blue_700_light">#5eb8ff</color>
-    <color name="light_blue_700_dark">#005b9f</color>
+    <color name="cyan_900">#006064</color>
+    <color name="cyan_900_light">#428e92</color>
+    <color name="cyan_900_dark">#00363a</color>
 
     <!-- Blue theme -->
     <color name="blue_900">#01579b</color>
@@ -21,4 +21,12 @@
     <color name="cyan_50">#e0f7fa</color>
     <color name="cyan_50_light">#ffffff</color>
     <color name="cyan_50_dark">#aec4c7</color>
+
+    <!-- Red theme -->
+    <color name="red_900">#b71c1c</color>
+    <color name="red_900_light">#f05545</color>
+    <color name="red_900_dark">#7f0000</color>
+    <color name="orange_200">#ffcc80</color>
+    <color name="orange_200_light">#ffffb0</color>
+    <color name="orange_200_dark">#ca9b52</color>
 </resources>

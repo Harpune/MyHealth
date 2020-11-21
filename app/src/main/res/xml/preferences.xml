@@ -21,7 +21,7 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sleep_tracking_header">
+    <PreferenceCategory app:title="@string/sleep_tracking">
 
         <CheckBoxPreference
             app:defaultValue="false"
@@ -31,13 +31,20 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/music_header">
+    <PreferenceCategory app:title="@string/music">
 
         <CheckBoxPreference
             app:defaultValue="false"
             app:icon="@drawable/ic_baseline_music_note_24"
             app:key="@string/spotify_key"
             app:title="@string/spotify" />
+
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:dependency="@string/spotify_key"
+            app:icon="@drawable/ic_baseline_play_arrow_24"
+            app:key="@string/spotify_autoplay_key"
+            app:title="@string/spotify_autoplay" />
 
         <ListPreference
             app:dependency="@string/spotify_key"

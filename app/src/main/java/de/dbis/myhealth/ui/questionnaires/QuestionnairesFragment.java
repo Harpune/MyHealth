@@ -28,8 +28,10 @@ public class QuestionnairesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         questionnairesViewModel = new QuestionnairesViewModel();
 
+        // Create fragment
         View root = inflater.inflate(R.layout.fragment_questionnaires, container, false);
 
+        // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         questionnairesAdapter = new QuestionnairesAdapter(generateData());
 

@@ -2,6 +2,7 @@ package de.dbis.myhealth.ui.questionnaire;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 
 public class QuestionnaireFragment extends Fragment {

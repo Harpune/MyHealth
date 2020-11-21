@@ -10,6 +10,7 @@
     <string name="menu_home">Home</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_questionnaires">Questionnaires</string>
+    <string name="menu_questionnaire">Questionnaire</string>
     <string name="start">Start</string>
 
     <!-- Preference Titles -->
@@ -28,8 +29,20 @@
     <string name="type_key">type</string>
 
     <!-- Music Preferences -->
+    <string name="music">Music</string>
     <string name="music_title">Player</string>
     <string name="music_key">player</string>
+    <string name="spotify">Spotify</string>
+    <string name="spotify_key">spotify</string>
+    <string name="playlist">Playlist</string>
+    <string name="spotify_playlist_key">playlist</string>
+    <string name="spotify_autoplay">Autoplay on start</string>
+    <string name="spotify_autoplay_key">autoplay</string>
+
+    <!-- Sleep Preferences -->
+    <string name="sleep_tracking">Sleep tracking</string>
+    <string name="google_fit">Google Fit</string>
+    <string name="google_fit_key">googleFit</string>
 
     <!-- Themes -->
     <string name="green_theme">Green</string>
@@ -41,17 +54,8 @@
 
     <!-- rankable key -->
     <string name="questionnaires_label">Questionnaires</string>
-    <string name="music_label">Music</string>
     <string name="firstrun">firstrun</string>
     <string name="showSpotifyLoginDialog">showSpotifyLoginDialog</string>
     <string name="showSpotifyDownloadDialog">showSpotifyDownloadDialog</string>
     <string name="services_header">Services</string>
-    <string name="google_fit_key">googleFit</string>
-    <string name="google_fit">Google Fit</string>
-    <string name="spotify_key">spotify</string>
-    <string name="spotify">Spotify</string>
-    <string name="sleep_tracking_header">Sleep tracking</string>
-    <string name="playlist">Playlist</string>
-    <string name="spotify_playlist_key">playlist</string>
-    <string name="menu_questionnaire">Questionnaire</string>
 </resources>

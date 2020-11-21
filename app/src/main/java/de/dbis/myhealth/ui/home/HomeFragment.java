@@ -65,7 +65,7 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "You already answered " + (int) e.getY() + " questionnaires.", Toast.LENGTH_SHORT).show();
                 }
 
-                if (((PieEntry) e).getLabel().equals(getString(R.string.music_label))) {
+                if (((PieEntry) e).getLabel().equals(getString(R.string.music))) {
                     Toast.makeText(getContext(), "You already listened to " + e.getY() + " minutes of music.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -91,7 +91,7 @@ public class HomeFragment extends Fragment {
         Drawable icon = ContextCompat.getDrawable(getActivity(), R.drawable.ic_baseline_home_24);
 
         entries.add(new PieEntry(homeViewModel.getNumberOne().getValue(), getString(R.string.questionnaires_label), icon));
-        entries.add(new PieEntry(homeViewModel.getNumberTwo().getValue(), getString(R.string.music_label), icon));
+        entries.add(new PieEntry(homeViewModel.getNumberTwo().getValue(), getString(R.string.music), icon));
 
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(ColorTemplate.PASTEL_COLORS);

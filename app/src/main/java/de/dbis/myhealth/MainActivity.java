@@ -18,15 +18,19 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
@@ -47,18 +51,18 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
     private MenuItem spotifyMenuItem;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.initDrawerLayout();
 
         // fab
         this.mFab = findViewById(R.id.fab);
         this.mFab.setOnClickListener(view -> {
-
         });
+        this.initDrawerLayout();
 
         // Google Fit
         this.mGoogleFitConnector = new GoogleFitConnector(this);
@@ -77,8 +81,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
-            this.mSpotifyConnector.play();
+            // play on autoplay
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.spotify_autoplay_key), false)) {
+                this.mSpotifyConnector.play();
+            }
 
+            // set bottom app bar icon
             spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
                 if (playerState.isPaused) {
                     spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("MainActivity", "Spotify changed");
         });
+
     }
 
     private void initDrawerLayout() {
@@ -105,30 +114,55 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
         NavigationUI.setupWithNavController(this.mBottomAppBar, navController, mAppBarConfiguration);
+
+        // check for current fragment
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            Log.d("onDestinationChanged", "Destination: " + destination.getLabel());
+            HideBottomViewOnScrollBehavior behavior = mBottomAppBar.getBehavior();
+            if (destination.getId() == R.id.nav_home) {
+                mFab.show();
+            } else {
+                mFab.hide();
+            }
+            behavior.slideUp(mBottomAppBar);
+        });
     }
 
+    public void showMusicIcon(boolean visible) {
+        if (this.mMenu != null) {
+            this.mMenu.clear();
+
+            if (visible) {
+                this.spotifyMenuItem = this.mMenu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
+                this.spotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
+            } else {
+                this.spotifyMenuItem = null;
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (this.mSpotifyConnector.isEnabled()) {
-            spotifyMenuItem = menu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
-            spotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            spotifyMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
-        }
+        this.mMenu = menu;
+        this.showMusicIcon(this.mSpotifyConnector.isEnabled());
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == MENU_ITEM_ITEM_SPOTIFY) {
-            this.mSpotifyConnector.getSpotify().getValue().getPlayerApi().getPlayerState().setResultCallback(playerState -> {
-                if (playerState.isPaused) {
-                    mSpotifyConnector.play();
-                } else {
-                    mSpotifyConnector.pause();
-                }
-            });
-
+            // play or stop
+            SpotifyAppRemote spotifyAppRemote = this.mSpotifyConnector.getSpotify().getValue();
+            if (spotifyAppRemote != null) {
+                spotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(playerState -> {
+                    if (playerState.isPaused) {
+                        mSpotifyConnector.play();
+                    } else {
+                        mSpotifyConnector.pause();
+                    }
+                });
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -150,6 +184,8 @@ public class MainActivity extends AppCompatActivity {
             theme.applyStyle(R.style.Theme_Green, true);
         } else if (currentTheme.equalsIgnoreCase(getString(R.string.blue_theme_key))) {
             theme.applyStyle(R.style.Theme_Blue, true);
+        } else if (currentTheme.equalsIgnoreCase(getString(R.string.red_theme_key))) {
+            theme.applyStyle(R.style.Theme_Red, true);
         }
 
         boolean darkMode = sharedPreferences.getBoolean(getString(R.string.dark_mode_key), false);
