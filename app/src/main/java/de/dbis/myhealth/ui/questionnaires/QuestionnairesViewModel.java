@@ -85,7 +85,7 @@ public class QuestionnairesViewModel extends ViewModel {
         questions.add(new Question("Question 4", Question.QuestionType.YES_NO));
         questions.add(new Question("Question 5", Question.QuestionType.YES_NO));
         Questionnaire questionnaire = new Questionnaire("Title 1", "Beschreibung 1", questions);
-        this.ref.document("Q1").set(questionnaire);
+        this.ref.document("Q2").set(questionnaire);
 
     }
 }
