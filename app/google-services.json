@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "228887234153",
+    "firebase_url": "https://myhealth-fa529.firebaseio.com",
+    "project_id": "myhealth-fa529",
+    "storage_bucket": "myhealth-fa529.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228887234153:android:b724c8f4af8e6a7d1884f8",
+        "android_client_info": {
+          "package_name": "de.dbis.myhealth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "228887234153-8nl1ar2r03hvhhlprnkg17qugv02rci6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHH8X5qytLhTcWvTCYtJ-a1VPTx_2n1Lg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "228887234153-8nl1ar2r03hvhhlprnkg17qugv02rci6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

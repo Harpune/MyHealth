@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import de.dbis.myhealth.ui.questionnaire.QuestionnaireFragment;
+import de.dbis.myhealth.ui.questionnaires.QuestionnaireFragment;
 
 public class QuestionnaireActivity extends AppCompatActivity {
 

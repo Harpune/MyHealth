@@ -4,36 +4,33 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionnairesAdapter;
-import de.dbis.myhealth.models.Questionnaire;
 
 public class QuestionnairesFragment extends Fragment {
 
-    private QuestionnairesViewModel questionnairesViewModel;
-    private QuestionnairesAdapter questionnairesAdapter;
+    private QuestionnairesViewModel mQuestionnairesViewModel;
+    private QuestionnairesAdapter mQuestionnairesAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        questionnairesViewModel = new QuestionnairesViewModel();
+        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
 
         // Create fragment
         View root = inflater.inflate(R.layout.fragment_questionnaires, container, false);
 
         // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        questionnairesAdapter = new QuestionnairesAdapter(generateData());
+        this.mQuestionnairesAdapter = new QuestionnairesAdapter(requireActivity(), new ArrayList<>());
 
         RecyclerView recyclerView = root.findViewById(R.id.questionnairesRecyclerView);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
@@ -41,17 +38,14 @@ public class QuestionnairesFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        recyclerView.setAdapter(questionnairesAdapter);
+        recyclerView.setAdapter(this.mQuestionnairesAdapter);
+
+        // handle Firestore data
+        this.mQuestionnairesViewModel.getQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
+            this.mQuestionnairesAdapter.setData(questionnaires);
+            this.mQuestionnairesAdapter.notifyDataSetChanged();
+        });
 
         return root;
-    }
-
-    private List<Questionnaire> generateData(){
-        List<Questionnaire> questionnaires = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            questionnaires.add(new Questionnaire(i));
-        }
-
-        return questionnaires;
     }
 }

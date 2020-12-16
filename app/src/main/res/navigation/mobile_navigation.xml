@@ -14,11 +14,12 @@
     <fragment
         android:id="@+id/nav_questionnaires"
         android:name="de.dbis.myhealth.ui.questionnaires.QuestionnairesFragment"
-        android:label="@string/menu_questionnaires"
-        tools:layout="@layout/fragment_questionnaires">
+        android:label="@string/menu_questionnaires">
         <action
             android:id="@+id/action_nav_questionnaires_to_nav_questionnaire"
-            app:destination="@id/nav_questionnaire" />
+            app:destination="@id/nav_questionnaire"
+            app:popUpTo="@id/nav_home">
+        </action>
     </fragment>
 
     <fragment
@@ -29,8 +30,13 @@
 
     <fragment
         android:id="@+id/nav_questionnaire"
-        android:name="de.dbis.myhealth.ui.questionnaire.QuestionnaireFragment"
+        android:name="de.dbis.myhealth.ui.questionnaires.QuestionnaireFragment"
         android:label="@string/menu_questionnaire"
-        tools:layout="@layout/fragment_questionnaire" />
+        tools:layout="@layout/fragment_questionnaire" >
+        <argument
+            android:name="questionnaire_id"
+            android:defaultValue="asdasd"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

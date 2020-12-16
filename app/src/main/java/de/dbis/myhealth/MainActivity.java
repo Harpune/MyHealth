@@ -4,23 +4,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.print.PrintAttributes;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -32,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
 
@@ -97,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("MainActivity", "Spotify changed");
         });
-
     }
 
     private void initDrawerLayout() {
@@ -223,5 +219,12 @@ public class MainActivity extends AppCompatActivity {
         if (this.mSpotifyConnector.isEnabled()) {
             this.mSpotifyConnector.connect();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+        viewModel.generateQuestionnaire();
     }
 }
