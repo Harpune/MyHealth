@@ -1,22 +1,20 @@
 package de.dbis.myhealth.ui.questionnaires;
 
+import android.app.Activity;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 
@@ -48,6 +46,15 @@ public class QuestionnairesViewModel extends ViewModel {
         return this.mQuestionnaire;
     }
 
+    public void updateQuestion(Question question) {
+        this.getSelected().getValue().getQuestions().forEach(tmp -> {
+            if (tmp.equals(question)) {
+                tmp.setResult(question.getResult());
+            }
+        });
+
+    }
+
     private void subscribeToQuestionnaires() {
         this.ref.addSnapshotListener((task, error) -> {
             Log.d(TAG, "Something changed!");
@@ -77,15 +84,40 @@ public class QuestionnairesViewModel extends ViewModel {
         });
     }
 
-    public void generateQuestionnaire() {
+    public void generateTFI(Activity activity) {
         List<Question> questions = new ArrayList<>();
-        questions.add(new Question("Question 1", Question.QuestionType.YES_NO));
-        questions.add(new Question("Question 2", Question.QuestionType.YES_NO));
-        questions.add(new Question("Question 3", Question.QuestionType.YES_NO));
-        questions.add(new Question("Question 4", Question.QuestionType.YES_NO));
-        questions.add(new Question("Question 5", Question.QuestionType.YES_NO));
-        Questionnaire questionnaire = new Questionnaire("Title 1", "Beschreibung 1", questions);
-        this.ref.document("Q2").set(questionnaire);
+        String[] tfiQuestions = activity.getResources().getStringArray(R.array.tfi_survey_questions);
+        for (String question : tfiQuestions) {
+            questions.add(new Question(question, Question.QuestionType.SLIDER_0_100));
+        }
+
+        Questionnaire questionnaire = new Questionnaire(
+                "Tinnitus Functional Index",
+                "The Tinnitus Functional Index (TFI) is the " +
+                        "first tinnitus questionnaire documented for " +
+                        "responsiveness, and has the potential to become " +
+                        "the new standard for evaluating the effects of " +
+                        "intervention for tinnitus, with clinical patients " +
+                        "and in research studies.",
+                questions);
+        this.ref.document("TFI").set(questionnaire);
+
+    }
+
+    public void generateTHI(Activity activity) {
+        List<Question> questions = new ArrayList<>();
+        String[] tfiQuestions = activity.getResources().getStringArray(R.array.thi_survey_questions);
+        for (String question : tfiQuestions) {
+            questions.add(new Question(question, Question.QuestionType.YES_NO_SOMETIMES));
+        }
+
+        Questionnaire questionnaire = new Questionnaire(
+                "Tinnitus Handicap Inventory",
+                "The purpose of this questionnaire is to identify the problems your " +
+                        "tinnitus may be causing you. Check \"Yes\", \"Sometimes\", or \"No\" for each " +
+                        "question. Please answer all questions.",
+                questions);
+        this.ref.document("THI").set(questionnaire);
 
     }
 }

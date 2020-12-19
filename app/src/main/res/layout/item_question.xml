@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="question"
+            type="de.dbis.myhealth.models.Question" />
+
+        <import type="de.dbis.myhealth.models.Question.QuestionType" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/question_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="@{question.text}"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+
+        <ViewStub
+            android:id="@+id/layout_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+</layout>

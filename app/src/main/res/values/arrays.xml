@@ -10,4 +10,65 @@
         <item>@string/blue_theme_key</item>
         <item>@string/red_theme_key</item>
     </string-array>
+    <string-array name="questionnaire_entries_keys">
+        <item>@string/q1</item>
+        <item>@string/q2</item>
+    </string-array>
+    <string-array name="tfi_survey_questions">
+        <item>@string/tfiQuestionnaireAwareOf</item>
+        <item>@string/tfiQuestionnaireStrongLoud</item>
+        <item>@string/tfiQuestionnaireAnnoyed</item>
+        <item>@string/tfiQuestionnaireInControl</item>
+        <item>@string/tfiQuestionnaireCope</item>
+        <item>@string/tfiQuestionnaireIgnore</item>
+        <item>@string/tfiQuestionnaireConcentrate</item>
+        <item>@string/tfiQuestionnaireThinkClearly</item>
+        <item>@string/tfiQuestionnaireFocusAttention</item>
+        <item>@string/tfiQuestionnaireFallAsleepStayAsleep</item>
+        <item>@string/tfiQuestionnaireAsMuchSleep</item>
+        <item>@string/tfiQuestionnaireSleepingDeeplyPeacefully</item>
+        <item>@string/tfiQuestionnaireHearClearly</item>
+        <item>@string/tfiQuestionnaireUnderstandPeople</item>
+        <item>@string/tfiQuestionnaireFollowConversations</item>
+        <item>@string/tfiQuestionnaireQuietRestingActivities</item>
+        <item>@string/tfiQuestionnaireRelax</item>
+        <item>@string/tfiQuestionnairePeaceAndQuiet</item>
+        <item>@string/tfiQuestionnaireSocialActivities</item>
+        <item>@string/tfiQuestionnaireEnjoymentOfLife</item>
+        <item>@string/tfiQuestionnaireRelationships</item>
+        <item>@string/tfiQuestionnaireWorkOtherTasks</item>
+        <item>@string/tfiQuestionnaireAnxiousWorried</item>
+        <item>@string/tfiQuestionnaireBotheredUpset</item>
+        <item>@string/tfiQuestionnaireDepressed</item>
+    </string-array>
+
+    <string-array name="thi_survey_questions">
+        <item>@string/thiQuestionnaire1</item>
+        <item>@string/thiQuestionnaire2</item>
+        <item>@string/thiQuestionnaire3</item>
+        <item>@string/thiQuestionnaire4</item>
+        <item>@string/thiQuestionnaire5</item>
+        <item>@string/thiQuestionnaire6</item>
+        <item>@string/thiQuestionnaire7</item>
+        <item>@string/thiQuestionnaire8</item>
+        <item>@string/thiQuestionnaire9</item>
+        <item>@string/thiQuestionnaire10</item>
+        <item>@string/thiQuestionnaire11</item>
+        <item>@string/thiQuestionnaire12</item>
+        <item>@string/thiQuestionnaire13</item>
+        <item>@string/thiQuestionnaire14</item>
+        <item>@string/thiQuestionnaire15</item>
+        <item>@string/thiQuestionnaire16</item>
+        <item>@string/thiQuestionnaire17</item>
+        <item>@string/thiQuestionnaire18</item>
+        <item>@string/thiQuestionnaire19</item>
+        <item>@string/thiQuestionnaire20</item>
+        <item>@string/thiQuestionnaire21</item>
+        <item>@string/thiQuestionnaire22</item>
+        <item>@string/thiQuestionnaire23</item>
+        <item>@string/thiQuestionnaire24</item>
+        <item>@string/thiQuestionnaire25</item>
+    </string-array>
+
+
 </resources>

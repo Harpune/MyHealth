@@ -4,13 +4,21 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
+import de.dbis.myhealth.models.Questionnaire;
+import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
 
@@ -22,13 +30,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private MainActivity mMainActivity;
 
     // View Model
-    private SettingsViewModel settingsViewModel;
-
-    // Preferences
-    private SwitchPreference darkModePreference;
-    private ListPreference themePreference;
-    private CheckBoxPreference googleFitPreference;
-    private CheckBoxPreference spotifyPreference;
+    private QuestionnairesViewModel mQuestionnairesViewModel;
 
     // Services
     private SpotifyConnector mSpotifyConnector;
@@ -38,20 +40,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
         this.mMainActivity = (MainActivity) getActivity();
+        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
 
-        this.mSpotifyConnector = new SpotifyConnector(mMainActivity);
-        this.mGoogleFitConnector = new GoogleFitConnector(mMainActivity);
+
+        this.mSpotifyConnector = new SpotifyConnector(this.mMainActivity);
+        this.mGoogleFitConnector = new GoogleFitConnector(this.mMainActivity);
 
         this.setupDarkMode();
+        this.setupQuestionnaire();
         this.setupTheme();
         this.setupGoogleFit();
         this.setupSpotify();
     }
 
     private void setupDarkMode() {
-        this.darkModePreference = findPreference(getString(R.string.dark_mode_key));
-        if (this.darkModePreference != null) {
-            this.darkModePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+        // Preferences
+        SwitchPreference darkModePreference = findPreference(getString(R.string.dark_mode_key));
+        if (darkModePreference != null) {
+            darkModePreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if ((Boolean) newValue) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 } else {
@@ -62,23 +68,34 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
+    private void setupQuestionnaire() {
+        ListPreference fastStartQuestionnaire = findPreference(getString(R.string.questionnaire_fast_start_key));
+        this.mQuestionnairesViewModel.getQuestionnaires().observe(this.mMainActivity, questionnaires -> {
+
+            // setup entries
+            String[] entries = questionnaires.stream().map(Questionnaire::getTitle).toArray(String[]::new);
+            fastStartQuestionnaire.setEntries(entries);
+
+            // setup entry values
+            String[] entryValue = questionnaires.stream().map(Questionnaire::getId).toArray(String[]::new);
+            fastStartQuestionnaire.setEntryValues(entryValue);
+        });
+    }
+
     private void setupTheme() {
-        this.themePreference = findPreference(getString(R.string.theme_key));
-        if (this.themePreference != null) {
-            this.themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                Activity activity = getActivity();
-                if (activity != null) {
-                    activity.recreate();
-                }
+        ListPreference themePreference = findPreference(getString(R.string.theme_key));
+        if (themePreference != null) {
+            themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                this.mMainActivity.recreate();
                 return true;
             });
         }
     }
 
     private void setupGoogleFit() {
-        this.googleFitPreference = findPreference(getString(R.string.google_fit_key));
-        if (this.googleFitPreference != null) {
-            this.googleFitPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+        CheckBoxPreference googleFitPreference = findPreference(getString(R.string.google_fit_key));
+        if (googleFitPreference != null) {
+            googleFitPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if ((Boolean) newValue) {
                     this.mGoogleFitConnector.connect();
                 } else {
@@ -91,9 +108,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void setupSpotify() {
         // Connect on listener
-        this.spotifyPreference = findPreference(getString(R.string.spotify_key));
-        if (this.spotifyPreference != null) {
-            this.spotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+        CheckBoxPreference spotifyPreference = findPreference(getString(R.string.spotify_key));
+        if (spotifyPreference != null) {
+            spotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if ((Boolean) newValue) {
                     this.mSpotifyConnector.connect();
                 } else {

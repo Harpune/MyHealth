@@ -21,6 +21,18 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/questionnaires">
+
+        <ListPreference
+            app:entries="@array/questionnaire_entries_keys"
+            app:entryValues="@array/questionnaire_entries_keys"
+            app:icon="@drawable/ic_baseline_question_answer_24"
+            app:key="@string/questionnaire_fast_start_key"
+            app:title="@string/questionnaire_fast_start"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/sleep_tracking">
 
         <CheckBoxPreference

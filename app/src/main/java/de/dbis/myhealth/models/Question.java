@@ -1,18 +1,21 @@
 package de.dbis.myhealth.models;
 
 
+import com.google.firebase.firestore.Exclude;
+
 import org.jetbrains.annotations.NotNull;
 
 public class Question {
     private String text;
-    private QuestionType type;
+    private QuestionType questionType;
+    private Integer result;
 
     public Question() {
     }
 
-    public Question(String text, QuestionType type) {
+    public Question(String text, QuestionType questionType) {
         this.text = text;
-        this.type = type;
+        this.questionType = questionType;
     }
 
     public String getText() {
@@ -23,26 +26,45 @@ public class Question {
         this.text = text;
     }
 
-    public QuestionType getType() {
-        return type;
+    public QuestionType getQuestionType() {
+        return questionType;
     }
 
-    public void setType(QuestionType type) {
-        this.type = type;
+    public void setQuestionType(QuestionType questionType) {
+        this.questionType = questionType;
     }
+
+    @Exclude
+    public Integer getResult() {
+        return result;
+    }
+
+    public void setResult(Integer result) {
+        this.result = result;
+    }
+
+    @Exclude
+
 
     @NotNull
     @Override
     public String toString() {
         return "Question{" +
                 "text='" + text + '\'' +
-                ", type=" + type +
+                ", questionType=" + questionType +
                 '}';
     }
 
     public enum QuestionType {
         YES_NO,
+        YES_NO_SOMETIMES,
+        SLIDER_0_10,
+        SLIDER_0_100;
+    }
+
+    public enum ResultType {
+        YES_NO,
         YES_NO_MAYBE,
-        SLIDER_1_10
+        SCALED
     }
 }

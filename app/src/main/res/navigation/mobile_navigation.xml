@@ -13,12 +13,11 @@
 
     <fragment
         android:id="@+id/nav_questionnaires"
-        android:name="de.dbis.myhealth.ui.questionnaires.QuestionnairesFragment"
+        android:name="de.dbis.myhealth.ui.questionnaires.QuestionnaireOverviewFragment"
         android:label="@string/menu_questionnaires">
         <action
             android:id="@+id/action_nav_questionnaires_to_nav_questionnaire"
-            app:destination="@id/nav_questionnaire"
-            app:popUpTo="@id/nav_home">
+            app:destination="@id/nav_questionnaire">
         </action>
     </fragment>
 

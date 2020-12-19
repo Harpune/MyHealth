@@ -1,5 +1,6 @@
 package de.dbis.myhealth;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -7,12 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,10 +27,15 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+import java.util.List;
+import java.util.Optional;
+
+import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
@@ -35,6 +43,7 @@ import de.dbis.myhealth.util.SpotifyConnector;
 public class MainActivity extends AppCompatActivity {
     private final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1;
     private final static int MENU_ITEM_ITEM_SPOTIFY = 2;
+    private static final String TAG = "MainActivity";
 
     // View Models
     private GoogleFitConnector mGoogleFitConnector;
@@ -43,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     // Views
     private FloatingActionButton mFab;
     private BottomAppBar mBottomAppBar;
+    public CoordinatorLayout mCoordinatorLayout;
 
     // Android
     private AppBarConfiguration mAppBarConfiguration;
@@ -55,11 +65,45 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // fab
+        // navigation
+        this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
-        this.mFab.setOnClickListener(view -> {
-        });
         this.initDrawerLayout();
+        this.mFab.setOnClickListener(view -> {
+            // View Holder
+            QuestionnairesViewModel viewHolder = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+            List<Questionnaire> questionnaires = viewHolder.getQuestionnaires().getValue();
+
+            // Check Fragment
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            if (navController.getCurrentDestination().getId() == R.id.nav_questionnaire) {
+                Questionnaire questionnaire = viewHolder.getSelected().getValue();
+                Log.d(TAG, "WTF");
+
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("Done")
+                        .setMessage("Are you done qith this questionnaire?")
+                        .setPositiveButton("Yes", (dialogInterface, i) -> {
+                            Toast.makeText(this, "DONE!!", Toast.LENGTH_SHORT).show();
+                            navController.popBackStack();
+                        })
+                        .setNegativeButton("No", (dialogInterface, i) -> {
+                            Toast.makeText(this, "Ok then finish", Toast.LENGTH_SHORT).show();
+                        }).show();
+            } else {
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                String questionnairePref = sharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
+
+                Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
+                if (questionnaire.isPresent()) {
+                    viewHolder.select(questionnaire.get());
+                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                } else {
+                    Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         // Google Fit
         this.mGoogleFitConnector = new GoogleFitConnector(this);
@@ -113,12 +157,22 @@ public class MainActivity extends AppCompatActivity {
 
         // check for current fragment
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            Log.d("onDestinationChanged", "Destination: " + destination.getLabel());
             HideBottomViewOnScrollBehavior behavior = mBottomAppBar.getBehavior();
+
+            // setup fab
             if (destination.getId() == R.id.nav_home) {
+                mFab.show();
+            } else if (destination.getId() == R.id.nav_questionnaire) {
                 mFab.show();
             } else {
                 mFab.hide();
+            }
+
+            // setup bottomAppBar
+            if (destination.getId() == R.id.nav_questionnaire) {
+                mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
+            } else {
+                mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
             }
             behavior.slideUp(mBottomAppBar);
         });
@@ -225,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
-        viewModel.generateQuestionnaire();
+        viewModel.generateTFI(this);
+        viewModel.generateTHI(this);
     }
 }

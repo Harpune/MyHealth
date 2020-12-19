@@ -10,7 +10,7 @@
 
         <variable
             name="fragment"
-            type="de.dbis.myhealth.ui.questionnaires.QuestionnairesFragment" />
+            type="de.dbis.myhealth.ui.questionnaires.QuestionnaireOverviewFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

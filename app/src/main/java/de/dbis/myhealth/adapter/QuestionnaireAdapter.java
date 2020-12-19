@@ -2,7 +2,6 @@ package de.dbis.myhealth.adapter;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -15,19 +14,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import de.dbis.myhealth.R;
-import de.dbis.myhealth.databinding.ItemQuestionnairesBinding;
+import de.dbis.myhealth.databinding.ItemQuestionnaireBinding;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 
-public class QuestionnairesAdapter extends RecyclerView.Adapter<QuestionnairesAdapter.QuestionnairesViewHolder> {
+public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdapter.QuestionnairesViewHolder> {
 
-    private List<Questionnaire> questionnaireList;
-    private QuestionnairesViewModel mViewHolder;
+    private List<Questionnaire> mQuestionnaires;
+    private final QuestionnairesViewModel mViewHolder;
 
     public static class QuestionnairesViewHolder extends RecyclerView.ViewHolder {
-        private final ItemQuestionnairesBinding binding;
+        private final ItemQuestionnaireBinding binding;
 
-        public QuestionnairesViewHolder(@NonNull ItemQuestionnairesBinding binding) {
+        public QuestionnairesViewHolder(@NonNull ItemQuestionnaireBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -38,13 +37,13 @@ public class QuestionnairesAdapter extends RecyclerView.Adapter<QuestionnairesAd
         }
     }
 
-    public QuestionnairesAdapter(Activity activity) {
+    public QuestionnaireAdapter(Activity activity) {
         this.mViewHolder = new ViewModelProvider((ViewModelStoreOwner) activity).get(QuestionnairesViewModel.class);
         this.mViewHolder.getQuestionnaires().observe((LifecycleOwner) activity, this::setData);
     }
 
-    public void setData(List<Questionnaire> questionnaireList) {
-        this.questionnaireList = questionnaireList;
+    public void setData(List<Questionnaire> questionnaires) {
+        this.mQuestionnaires = questionnaires;
         notifyDataSetChanged();
     }
 
@@ -52,8 +51,9 @@ public class QuestionnairesAdapter extends RecyclerView.Adapter<QuestionnairesAd
     @Override
     public QuestionnairesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        ItemQuestionnairesBinding itemBinding = ItemQuestionnairesBinding.inflate(layoutInflater, parent, false);
+        ItemQuestionnaireBinding itemBinding = ItemQuestionnaireBinding.inflate(layoutInflater, parent, false);
 
+        // on Click
         itemBinding.questionnaireRoot.setOnClickListener(view -> {
             this.mViewHolder.select(itemBinding.getQuestionnaires());
             Navigation.findNavController(view).navigate(R.id.action_nav_questionnaires_to_nav_questionnaire);
@@ -63,12 +63,12 @@ public class QuestionnairesAdapter extends RecyclerView.Adapter<QuestionnairesAd
 
     @Override
     public void onBindViewHolder(@NonNull QuestionnairesViewHolder holder, int position) {
-        Questionnaire questionnaire = this.questionnaireList.get(position);
+        Questionnaire questionnaire = this.mQuestionnaires.get(position);
         holder.bind(questionnaire);
     }
 
     @Override
     public int getItemCount() {
-        return this.questionnaireList != null ? this.questionnaireList.size() : 0;
+        return this.mQuestionnaires != null ? this.mQuestionnaires.size() : 0;
     }
 }

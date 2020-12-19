@@ -27,6 +27,12 @@
     <!-- Questionnaires Preferences -->
     <string name="type_title">Type</string>
     <string name="type_key">type</string>
+    <string name="questionnaires">Questionnaire</string>
+    <string name="questionnaire_fast_start_key">fast_start</string>
+    <string name="questionnaire_fast_start">Fast start</string>
+
+    <string name="q1">Q1</string>
+    <string name="q2">Q2</string>
 
     <!-- Music Preferences -->
     <string name="music">Music</string>
@@ -58,4 +64,85 @@
     <string name="showSpotifyLoginDialog">showSpotifyLoginDialog</string>
     <string name="showSpotifyDownloadDialog">showSpotifyDownloadDialog</string>
     <string name="services_header">Services</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="maybe">Sometimes</string>
+    <string name="sometimes">Sometimes</string>
+
+    <!-- THI-Survey -->
+    <string name="overThePastWeek">Over the past week…</string>
+    <string name="overThePastWeekInterfered">Over the past week, how much has your tinnitus interfered with…</string>
+
+    <string name="tfiQuestionnaireAwareOf">1. What percentage of your time awake were you consciously <b>AWARE OF</b> your tinnitus?</string>
+    <string name="tfiQuestionnaireStrongLoud">2. How STRONG or LOUD was your tinnitus?</string>
+    <string name="tfiQuestionnaireAnnoyed">3. What percentage of your time awake were you ANNOYED by your tinnitus?</string>
+    <string name="tfiQuestionnaireInControl">4. Did you feel IN CONTROL in regard to your tinnitus?</string>
+    <string name="tfiQuestionnaireCope">5. How easy was it for you to COPE with your tinnitus?</string>
+    <string name="tfiQuestionnaireIgnore">6. How easy was it for you to IGNORE your tinnitus?</string>
+    <string name="tfiQuestionnaireConcentrate">7. Your ability to CONCENTRATE?</string>
+    <string name="tfiQuestionnaireThinkClearly">8. Your ability to THINK CLEARLY?</string>
+    <string name="tfiQuestionnaireFocusAttention">9. Your ability to FOCUS ATTENTION on other things besides your tinnitus?</string>
+    <string name="tfiQuestionnaireFallAsleepStayAsleep">10. How often did your tinnitus make it difficult to FALL ASLEEP or STAY ASLEEP?</string>
+    <string name="tfiQuestionnaireAsMuchSleep">11. How often did your tinnitus cause you difficulty in getting AS MUCH SLEEP as you needed?</string>
+    <string name="tfiQuestionnaireSleepingDeeplyPeacefully">12. How much of the time did your tinnitus keep you from SLEEPING as DEEPLY or as PEACEFULLY as you would have liked?</string>
+    <string name="tfiQuestionnaireHearClearly">13. Your ability to HEAR CLEARLY?</string>
+    <string name="tfiQuestionnaireUnderstandPeople">14. Your ability to UNDERSTAND PEOPLE who are talking?</string>
+    <string name="tfiQuestionnaireFollowConversations">15. Your ability to FOLLOW CONVERSATIONS in a group or at meetings?</string>
+    <string name="tfiQuestionnaireQuietRestingActivities">16. Your QUIET RESTING ACTIVITIES?</string>
+    <string name="tfiQuestionnaireRelax">17. Your ability to RELAX?</string>
+    <string name="tfiQuestionnairePeaceAndQuiet">18. Your ability to enjoy “PEACE AND QUIET”?</string>
+    <string name="tfiQuestionnaireSocialActivities">19. Your enjoyment of SOCIAL ACTIVITIES?</string>
+    <string name="tfiQuestionnaireEnjoymentOfLife">20. Your ENJOYMENT OF LIFE?</string>
+    <string name="tfiQuestionnaireRelationships">21. Your RELATIONSHIPS with family, friends and other people?</string>
+    <string name="tfiQuestionnaireWorkOtherTasks">22. How often did your tinnitus cause you to have difficulty performing your WORK OR OTHER TASKS, such as home maintenance, school work, or caring for children or others?</string>
+    <string name="tfiQuestionnaireAnxiousWorried">23. How ANXIOUS or WORRIED has your tinnitus made you feel?</string>
+    <string name="tfiQuestionnaireBotheredUpset">24. How BOTHERED or UPSET have you been because of your tinnitus?</string>
+    <string name="tfiQuestionnaireDepressed">25. How DEPRESSED were you because of your tinnitus?</string>
+    <string name="tfiQuestionnaireNever">Never</string>
+    <string name="tfiQuestionnaireNotAtAll">Not at all</string>
+    <string name="tfiQuestionnaireNoneOfTheTime">None of the time</string>
+    <string name="tfiQuestionnaireVeryMuch">Very much</string>
+    <string name="tfiQuestionnaireVeryEasy">Very easy</string>
+    <string name="tfiQuestionnaireDidNotInterfere">Did not interfere</string>
+    <string name="tfiQuestionnaireAlways">Always</string>
+    <string name="tfiQuestionnaireExtremely">Extremely</string>
+    <string name="tfiQuestionnaireAllOfTheTime">All of the time</string>
+    <string name="tfiQuestionnaireImpossible">Impossible</string>
+    <string name="tfiQuestionnaireCompletelyInterfered">Completely interfered</string>
+
+    <!-- THI-Survey -->
+    <string name="thiQuestionnaire1">Because of your tinnitus, is it difficult for you to concentrate?</string>
+    <string name="thiQuestionnaire2">Does the loudness of your tinnitus make it difficult for you to hear people?</string>
+    <string name="thiQuestionnaire3">Does your tinnitus make you angry?</string>
+    <string name="thiQuestionnaire4">Does your tinnitus make you feel confused? </string>
+    <string name="thiQuestionnaire5">Because of your tinnitus, do you feel desperate?</string>
+    <string name="thiQuestionnaire6">Do you complain a great deal about your tinnitus? </string>
+    <string name="thiQuestionnaire7">Because of your tinnitus, do you have trouble falling to sleep at night?</string>
+    <string name="thiQuestionnaire8">Do you feel as though you cannot escape your tinnitus? </string>
+    <string name="thiQuestionnaire9">Does your tinnitus interfere with your ability to enjoy your social activities (such as going out to dinner, to the movies)? </string>
+    <string name="thiQuestionnaire10">Because of your tinnitus, do you feel frustrated?</string>
+    <string name="thiQuestionnaire11">Because of your tinnitus, do you feel that you have a terrible disease?</string>
+    <string name="thiQuestionnaire12">Does your tinnitus make it difficult for you to enjoy life?</string>
+    <string name="thiQuestionnaire13">Does your tinnitus interfere with your job or household responsibilities?</string>
+    <string name="thiQuestionnaire14">Because of your tinnitus, do you find that you are often irritable?</string>
+    <string name="thiQuestionnaire15">Because of your tinnitus, is it difficult for you to read?</string>
+    <string name="thiQuestionnaire16">Does your tinnitus make you upset?</string>
+    <string name="thiQuestionnaire17">Do you feel that your tinnitus problem has placed stress on your relationships with members of your family and friends?</string>
+    <string name="thiQuestionnaire18">Do you find it difficult to focus your attention away from your tinnitus and on other things?</string>
+    <string name="thiQuestionnaire19">Do you feel that you have no control over your tinnitus?</string>
+    <string name="thiQuestionnaire20">Because of your tinnitus, do you often feel tired?</string>
+    <string name="thiQuestionnaire21">Because of your tinnitus, do you feel depressed?</string>
+    <string name="thiQuestionnaire22">Does your tinnitus make you feel anxious?</string>
+    <string name="thiQuestionnaire23">Do you feel that you can no longer cope with your tinnitus?</string>
+    <string name="thiQuestionnaire24">Does your tinnitus get worse when you are under stress?</string>
+    <string name="thiQuestionnaire25">Does your tinnitus make you feel insecure?</string>
+
+    <string name="thiResultSlight">Slight: Only heard in quiet environment, very easily masked. No interference with sleep or daily activities.</string>
+    <string name="thiResultMild">Mild: Easily masked by environmental sounds and easily forgotten with activities. May occasionally interfere with sleep but not daily activities.</string>
+    <string name="thiResultModerate">Moderate: May be noticed, even in the presence of background or environmental noise, although daily activities may still be performed.</string>
+    <string name="thiResultSevere">Severe: Almost always heard, rarely, if ever, masked. Leads to disturbed sleep pattern and can interfere with ability to carry out normal daily activities. Quiet activities affected adversely.</string>
+    <string name="thiResultCatastrophic">Catastrophic: Always heard, disturbed sleep patterns, difficulty with any activity.</string>
+    <string name="thiResultUnknown">Unknown: Could not calculate result</string>
+
+
 </resources>
