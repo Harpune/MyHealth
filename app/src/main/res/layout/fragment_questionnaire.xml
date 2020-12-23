@@ -70,6 +70,15 @@
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
+        <!-- <ListView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/appbar"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/item_question" /> -->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/questionRecyclerView"
             android:layout_width="match_parent"
@@ -77,7 +86,7 @@
             android:layout_below="@+id/appbar"
             android:scrollbars="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_questionnaire" />
+            tools:listitem="@layout/item_question" />
 
     </de.dbis.myhealth.components.NestedCoordinatorLayout>
 </layout>

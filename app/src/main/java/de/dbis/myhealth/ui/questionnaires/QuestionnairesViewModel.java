@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.dbis.myhealth.R;
@@ -46,13 +47,11 @@ public class QuestionnairesViewModel extends ViewModel {
         return this.mQuestionnaire;
     }
 
-    public void updateQuestion(Question question) {
-        this.getSelected().getValue().getQuestions().forEach(tmp -> {
-            if (tmp.equals(question)) {
-                tmp.setResult(question.getResult());
-            }
-        });
-
+    public void updateQuestion(int position, Question question) {
+        Questionnaire questionnaire = this.getSelected().getValue();
+        if (questionnaire != null) {
+            questionnaire.getQuestions().set(position, question);
+        }
     }
 
     private void subscribeToQuestionnaires() {

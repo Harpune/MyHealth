@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/tools">
 
     <data>
 
@@ -9,6 +9,9 @@
             type="de.dbis.myhealth.models.Question" />
 
         <import type="de.dbis.myhealth.models.Question.QuestionType" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <LinearLayout
@@ -24,13 +27,35 @@
             android:text="@{question.text}"
             android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
+        <!--        <include-->
+        <!--            android:id="@+id/layout_yes_no"-->
+        <!--            layout="@layout/item_question_yes_no"-->
+        <!--            bind:isVisible="@{question.questionType == QuestionType.YES_NO}"-->
+        <!--            bind:question="@{question}" />-->
+
+        <!--        <include-->
+        <!--            android:id="@+id/layout_yes_no_sometimes"-->
+        <!--            layout="@layout/item_question_yes_no_sometimes"-->
+        <!--            bind:isVisible="@{question.questionType == QuestionType.YES_NO_SOMETIMES}"-->
+        <!--            bind:question="@{question}" />-->
+
+        <!--        <include-->
+        <!--            android:id="@+id/layout_slider_0_10"-->
+        <!--            layout="@layout/item_question_slider_0_10"-->
+        <!--            bind:isVisible="@{question.questionType == QuestionType.SLIDER_0_10}"-->
+        <!--            bind:question="@{question}" />-->
+
+        <!--        <include-->
+        <!--            android:id="@+id/layout_slider_0_100"-->
+        <!--            layout="@layout/item_question_slider_0_100"-->
+        <!--            bind:isVisible="@{question.questionType == QuestionType.SLIDER_0_100}"-->
+        <!--            bind:question="@{question}" />-->
+
         <ViewStub
-            android:id="@+id/layout_stub"
+            android:id="@+id/view_stub"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_height="wrap_content"
+            bind:question="@{question}" />
 
     </LinearLayout>
 </layout>
