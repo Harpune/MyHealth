@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,10 +21,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.slider.Slider;
+
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemQuestionBinding;
+import de.dbis.myhealth.databinding.ItemQuestionSlider0100Binding;
+import de.dbis.myhealth.databinding.ItemQuestionSlider010Binding;
+import de.dbis.myhealth.databinding.ItemQuestionYesNoBinding;
 import de.dbis.myhealth.databinding.ItemQuestionYesNoSometimesBinding;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
@@ -29,19 +39,80 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
     private static final String TAG = "QuestionAdapter";
     private List<Question> mQuestions;
+    public QuestionnairesViewModel mQuestionnairesViewModel;
 
-    public static class QuestionViewHolder extends RecyclerView.ViewHolder {
+    public class QuestionViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemQuestionBinding binding;
         private final LinearLayout questionLayout;
-        private boolean isInflated;
+        private final ViewStubProxy viewStubProxy;
 
         public QuestionViewHolder(@NonNull ItemQuestionBinding binding) {
             super(binding.getRoot());
-            this.questionLayout = binding.getRoot().findViewById(R.id.question_layout);
+            // Current binding
             this.binding = binding;
-            this.binding.viewStub.setOnInflateListener((viewStub, view) -> {
 
+            // Views
+            this.questionLayout = this.binding.getRoot().findViewById(R.id.question_layout);
+            ViewStub viewStub = this.binding.getRoot().findViewById(R.id.view_stub);
+            this.viewStubProxy = new ViewStubProxy(viewStub);
+            this.viewStubProxy.setOnInflateListener((inflatedViewStub, inflatedView) -> {
+                switch (this.binding.getQuestion().getQuestionType()) {
+                    case YES_NO:
+                        RadioGroup yesNoRadioGroup = inflatedView.findViewById(R.id.group_yes_no);
+                        yesNoRadioGroup.setOnCheckedChangeListener((radioGroup, id) -> {
+                            if (id == R.id.yes) {
+                                this.updateValue(1);
+                            } else if (id == R.id.no) {
+                                this.updateValue(2);
+                            } else {
+                                this.updateValue(-1);
+                            }
+                        });
+                        break;
+                    case YES_NO_SOMETIMES:
+                        RadioGroup yesNoSometimesRadioGroup = inflatedView.findViewById(R.id.group_yes_no_sometimes);
+                        yesNoSometimesRadioGroup.setOnCheckedChangeListener((radioGroup, id) -> {
+                            if (id == R.id.yes) {
+                                this.updateValue(1);
+                            } else if (id == R.id.no) {
+                                this.updateValue(2);
+                            } else if (id == R.id.sometimes) {
+                                this.updateValue(0);
+                            } else {
+                                this.updateValue(-1);
+                            }
+                        });
+                        break;
+                    case SLIDER_0_10:
+                        Slider slider010 = inflatedView.findViewById(R.id.slider_0_10);
+                        slider010.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                            @Override
+                            public void onStartTrackingTouch(@NonNull Slider slider) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                updateValue(Math.round(slider.getValue()));
+                            }
+                        });
+                        break;
+                    case SLIDER_0_100:
+                        Slider slider0100 = inflatedView.findViewById(R.id.slider_0_100);
+                        slider0100.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                            @Override
+                            public void onStartTrackingTouch(@NonNull Slider slider) {
+
+                            }
+
+                            @Override
+                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                updateValue(Math.round(slider.getValue()));
+                            }
+                        });
+                        break;
+                }
             });
         }
 
@@ -51,39 +122,57 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         }
 
         public void inflateResult(Question.QuestionType questionType) {
-            ViewStub viewStub = this.binding.getRoot().findViewById(R.id.view_stub);
-            if (viewStub != null) {
-                switch (questionType){
+            if (this.viewStubProxy.getViewStub() != null) {
+                switch (questionType) {
                     case YES_NO:
-                        viewStub.setLayoutResource(R.layout.item_question_yes_no);
+                        this.viewStubProxy.getViewStub().setLayoutResource(R.layout.item_question_yes_no);
+
+                        ItemQuestionYesNoBinding yesNoBinding = ItemQuestionYesNoBinding.inflate(LayoutInflater.from(this.binding.getRoot().getContext()));
+                        yesNoBinding.setQuestion(this.binding.getQuestion());
+                        yesNoBinding.executePendingBindings();
+                        this.viewStubProxy.setContainingBinding(yesNoBinding);
                         break;
                     case YES_NO_SOMETIMES:
-                        viewStub.setLayoutResource(R.layout.item_question_yes_no_sometimes);
+                        this.viewStubProxy.getViewStub().setLayoutResource(R.layout.item_question_yes_no_sometimes);
+
+                        ItemQuestionYesNoSometimesBinding yesNoSometimesBinding = ItemQuestionYesNoSometimesBinding.inflate(LayoutInflater.from(this.binding.getRoot().getContext()));
+                        yesNoSometimesBinding.setQuestion(this.binding.getQuestion());
+                        yesNoSometimesBinding.executePendingBindings();
+                        this.viewStubProxy.setContainingBinding(yesNoSometimesBinding);
                         break;
                     case SLIDER_0_10:
-                        viewStub.setLayoutResource(R.layout.item_question_slider_0_10);
+                        this.viewStubProxy.getViewStub().setLayoutResource(R.layout.item_question_slider_0_10);
+
+                        ItemQuestionSlider010Binding slider010Binding = ItemQuestionSlider010Binding.inflate(LayoutInflater.from(this.binding.getRoot().getContext()));
+                        slider010Binding.setQuestion(this.binding.getQuestion());
+                        slider010Binding.executePendingBindings();
+                        this.viewStubProxy.setContainingBinding(slider010Binding);
                         break;
                     case SLIDER_0_100:
-                        viewStub.setLayoutResource(R.layout.item_question_slider_0_100);
+                        this.viewStubProxy.getViewStub().setLayoutResource(R.layout.item_question_slider_0_100);
+
+                        ItemQuestionSlider0100Binding slider0100Binding = ItemQuestionSlider0100Binding.inflate(LayoutInflater.from(this.binding.getRoot().getContext()));
+                        slider0100Binding.setQuestion(this.binding.getQuestion());
+                        slider0100Binding.executePendingBindings();
+                        this.viewStubProxy.setContainingBinding(slider0100Binding);
                         break;
                 }
 
-                ItemQuestionYesNoSometimesBinding yesNoSometimesBinding = ItemQuestionYesNoSometimesBinding.inflate(LayoutInflater.from(this.binding.getRoot().getContext()));
-                yesNoSometimesBinding.setQuestion(this.binding.getQuestion());
-
-                ViewStubProxy viewStubProxy = new ViewStubProxy(viewStub);
-                viewStubProxy.setContainingBinding(yesNoSometimesBinding);
-
-                if (!viewStubProxy.isInflated()) {
-                    viewStubProxy.getViewStub().inflate();
+                if (!this.viewStubProxy.isInflated()) {
+                    this.viewStubProxy.getViewStub().inflate();
                 }
             }
+        }
+
+        private void updateValue(int value) {
+            this.binding.getQuestion().setResult(value);
+            mQuestionnairesViewModel.updateQuestion(this.binding.getQuestion());
         }
     }
 
     public QuestionAdapter(Activity activity) {
-        QuestionnairesViewModel mQuestionnairesViewModel = new ViewModelProvider((ViewModelStoreOwner) activity).get(QuestionnairesViewModel.class);
-        mQuestionnairesViewModel.getSelected().observe((LifecycleOwner) activity, questionnaire -> this.setData(questionnaire.getQuestions()));
+        this.mQuestionnairesViewModel = new ViewModelProvider((ViewModelStoreOwner) activity).get(QuestionnairesViewModel.class);
+        this.mQuestionnairesViewModel.getSelected().observe((LifecycleOwner) activity, questionnaire -> this.setData(questionnaire.getQuestions()));
     }
 
     public void setData(List<Question> questions) {
@@ -117,5 +206,15 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     @Override
     public int getItemCount() {
         return this.mQuestions != null ? this.mQuestions.size() : 0;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 }

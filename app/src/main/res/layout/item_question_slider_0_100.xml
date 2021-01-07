@@ -2,9 +2,14 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+
         <variable
             name="question"
             type="de.dbis.myhealth.models.Question" />
+
+        <variable
+            name="questionnairesViewModel"
+            type="de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel" />
     </data>
 
     <LinearLayout
@@ -21,6 +26,7 @@
             android:layout_height="wrap_content"
             android:stepSize="10"
             android:valueFrom="0"
+
             android:valueTo="100" />
 
     </LinearLayout>

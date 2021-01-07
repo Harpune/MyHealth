@@ -13,7 +13,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Question;
@@ -47,10 +50,23 @@ public class QuestionnairesViewModel extends ViewModel {
         return this.mQuestionnaire;
     }
 
-    public void updateQuestion(int position, Question question) {
-        Questionnaire questionnaire = this.getSelected().getValue();
-        if (questionnaire != null) {
-            questionnaire.getQuestions().set(position, question);
+    public void updateQuestion(Question question) {
+        // Get questionnaire and questions
+        Questionnaire questionnaire = this.mQuestionnaire.getValue();
+        List<Question> questions = questionnaire.getQuestions();
+
+        // Get index of question
+        OptionalInt index = IntStream.range(0, questions.size())
+                .filter(i -> questions.get(i).getText().equals(question.getText()))
+                .findFirst();
+
+        // update item in questions-list
+        if (index.isPresent()) {
+            questions.set(index.getAsInt(), question);
+            questionnaire.setQuestions(questions);
+
+            // save
+            this.mQuestionnaire.setValue(questionnaire);
         }
     }
 

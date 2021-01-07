@@ -1,6 +1,8 @@
 package de.dbis.myhealth.models;
 
 
+import android.util.Log;
+
 import com.google.firebase.firestore.Exclude;
 
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +42,7 @@ public class Question {
     }
 
     public void setResult(Integer result) {
+        Log.d("Result", result.toString());
         this.result = result;
     }
 
