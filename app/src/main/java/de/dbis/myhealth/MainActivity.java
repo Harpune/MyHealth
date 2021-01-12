@@ -1,6 +1,5 @@
 package de.dbis.myhealth;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,18 +23,22 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.android.volley.VolleyError;
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
+import com.spotify.protocol.types.PlayerState;
 
 import java.util.List;
 import java.util.Optional;
 
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
+import de.dbis.myhealth.util.AppDatabase;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import de.dbis.myhealth.util.SpotifyConnector;
 
@@ -57,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
     // Android
     private AppBarConfiguration mAppBarConfiguration;
 
-    private MenuItem spotifyMenuItem;
     private Menu mMenu;
+    private MenuItem spotifyMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,32 +78,31 @@ public class MainActivity extends AppCompatActivity {
 
             // Check Fragment
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            if (navController.getCurrentDestination().getId() == R.id.nav_questionnaire) {
+            if (navController.getCurrentDestination().getId() == R.id.nav_home) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                String questionnairePref = sharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
+
+                if (questionnaires != null) {
+                    Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
+                    if (questionnaire.isPresent()) {
+                        viewHolder.select(questionnaire.get());
+                        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                    } else {
+                        Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            } else if (navController.getCurrentDestination().getId() == R.id.nav_questionnaire) {
                 Questionnaire questionnaire = viewHolder.getSelected().getValue();
-                Log.d(TAG, "WTF");
+                Log.d(TAG, "WTF" + questionnaire.toString());
 
                 new MaterialAlertDialogBuilder(this)
                         .setTitle("Done")
-                        .setMessage("Are you done qith this questionnaire?")
+                        .setMessage("Are you done with this questionnaire?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
                             Toast.makeText(this, "DONE!!", Toast.LENGTH_SHORT).show();
                             navController.popBackStack();
                         })
-                        .setNegativeButton("No", (dialogInterface, i) -> {
-                            Toast.makeText(this, "Ok then finish", Toast.LENGTH_SHORT).show();
-                        }).show();
-            } else {
-
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                String questionnairePref = sharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
-
-                Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
-                if (questionnaire.isPresent()) {
-                    viewHolder.select(questionnaire.get());
-                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
-                } else {
-                    Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
-                }
+                        .setNegativeButton("No", null).show();
             }
         });
 
@@ -114,30 +115,6 @@ public class MainActivity extends AppCompatActivity {
         this.mGoogleFitConnector.getSessionClient().observe(this, sessionsClient -> {
             Log.d("MainActivity", "SessionClient changed");
         });
-
-        // Spotify
-        this.mSpotifyConnector = new SpotifyConnector(this);
-        if (this.mSpotifyConnector.isEnabled()) {
-            this.mSpotifyConnector.connect();
-        }
-
-        this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
-            // play on autoplay
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.spotify_autoplay_key), false)) {
-                this.mSpotifyConnector.play();
-            }
-
-            // set bottom app bar icon
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
-                if (playerState.isPaused) {
-                    spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
-                } else {
-                    spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
-                }
-            });
-
-            Log.d("MainActivity", "Spotify changed");
-        });
     }
 
     private void initDrawerLayout() {
@@ -146,57 +123,110 @@ public class MainActivity extends AppCompatActivity {
         this.mBottomAppBar = findViewById(R.id.bottomAppBar);
         setSupportActionBar(this.mBottomAppBar);
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
+        this.mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_questionnaires, R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
-        NavigationUI.setupWithNavController(this.mBottomAppBar, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(this.mBottomAppBar, navController, this.mAppBarConfiguration);
 
         // check for current fragment
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            HideBottomViewOnScrollBehavior behavior = mBottomAppBar.getBehavior();
+            HideBottomViewOnScrollBehavior behavior = this.mBottomAppBar.getBehavior();
 
             // setup fab
             if (destination.getId() == R.id.nav_home) {
-                mFab.show();
+                this.mFab.show();
             } else if (destination.getId() == R.id.nav_questionnaire) {
-                mFab.show();
+                this.mFab.show();
             } else {
-                mFab.hide();
+                this.mFab.hide();
             }
 
             // setup bottomAppBar
             if (destination.getId() == R.id.nav_questionnaire) {
-                mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
+                this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
             } else {
-                mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
+                this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
             }
-            behavior.slideUp(mBottomAppBar);
+            behavior.slideUp(this.mBottomAppBar);
         });
     }
 
-    public void showMusicIcon(boolean visible) {
+    private final CallResult.ResultCallback<PlayerState> resultIconCallback = playerState -> {
+        if (playerState.isPaused) {
+            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
+        } else {
+            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
+        }
+    };
+
+    private final CallResult.ResultCallback<PlayerState> resultPlayCallback = playerState -> {
+        if (playerState.isPaused) {
+            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
+        } else {
+            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
+        }
+    };
+
+    private void setupSpotifyConnection() {
+        // Spotify
+        this.mSpotifyConnector = new SpotifyConnector(this);
+        if (this.mSpotifyConnector.isEnabled() && !this.mSpotifyConnector.isConnected()) {
+            this.mSpotifyConnector.connect();
+        }
+
+        this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
+
+            spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
+                if (playerState.isPaused) {
+                    this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
+                } else {
+                    this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
+                }
+            });
+
+            // Play if autoplay enabled
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.spotify_autoplay_key), false)) {
+                this.mSpotifyConnector.play();
+            }
+
+            // get title info
+            this.mSpotifyConnector.getAudioFeatures("6DmCWLs4VxDhVfYLJWeULl", new SpotifyConnector.VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    Log.d(TAG, "Success: " + result);
+                }
+
+                @Override
+                public void onRequestError(VolleyError errorMessage) {
+                    Log.d(TAG, "Error: " + errorMessage.toString());
+                }
+            });
+
+            Log.d("MainActivity", "Spotify changed");
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.mMenu = menu;
+        this.setupMusicMenuIcon(this.mSpotifyConnector.isEnabled());
+        return true;
+    }
+
+    public void setupMusicMenuIcon(boolean visible) {
         if (this.mMenu != null) {
             this.mMenu.clear();
 
             if (visible) {
                 this.spotifyMenuItem = this.mMenu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
                 this.spotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_baseline_play_arrow_24));
-            } else {
-                this.spotifyMenuItem = null;
+                this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.mMenu = menu;
-        this.showMusicIcon(this.mSpotifyConnector.isEnabled());
-        return true;
     }
 
     @Override
@@ -220,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+        return NavigationUI.navigateUp(navController, this.mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
 
@@ -267,19 +297,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        this.mSpotifyConnector.disconnect();
-        if (this.mSpotifyConnector.isEnabled()) {
-            this.mSpotifyConnector.connect();
-        }
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
-        QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
-        viewModel.generateTFI(this);
-        viewModel.generateTHI(this);
+        this.setupSpotifyConnection();
+//        QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+//        viewModel.generateTFI(this);
+//        viewModel.generateTHI(this);
     }
 }

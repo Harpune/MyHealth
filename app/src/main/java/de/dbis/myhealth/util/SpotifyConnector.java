@@ -9,6 +9,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -16,11 +21,23 @@ import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
 import com.spotify.android.appremote.api.error.NotLoggedInException;
 import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
 
 public class SpotifyConnector {
+
+    //    private final static String TAG = "SpotifyConnector";
+//
+//    private final static String CLIENT_ID = "da07627d8dba46a88700c9ee8acb1832";
+//    private final static String CLIENT_SECRET = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
+    private final static String AUTH = "ODBiYzk3Y2RkZjlhNGEwZmExZmE1ZGYzMGM2ZjFjZDg6ZGEwNzYyN2Q4ZGJhNDZhODg3MDBjOWVlOGFjYjE4MzI=";
 
     private final static String SPOTIFY_CLIENT_ID = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
     private final static String SPOTIFY_REDIRECT_URI = "https://de.dbis.myhealth/callback";
@@ -28,9 +45,28 @@ public class SpotifyConnector {
     private final MainActivity mMainActivity;
     private final SettingsViewModel mSettingsViewModel;
 
+    private String accessToken = null;
+    private boolean isConnected = false;
+
     public SpotifyConnector(MainActivity mainActivity) {
         this.mMainActivity = mainActivity;
         this.mSettingsViewModel = new ViewModelProvider(mainActivity).get(SettingsViewModel.class);
+
+        this.getAccessToken(new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                try {
+                    accessToken = new JSONObject(result).get("access_token").toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onRequestError(VolleyError errorMessage) {
+                accessToken = null;
+            }
+        });
     }
 
     public void play() {
@@ -53,7 +89,8 @@ public class SpotifyConnector {
     }
 
     public void connect() {
-        SpotifyAppRemote.connect(mMainActivity, this.mConnectionParams, this.mConnectionListener);
+        SpotifyAppRemote.connect(this.mMainActivity, this.mConnectionParams, this.mConnectionListener);
+        this.isConnected = true;
     }
 
     public void disconnect() {
@@ -61,10 +98,65 @@ public class SpotifyConnector {
             this.getSpotify().getValue().getPlayerApi().pause();
         }
         SpotifyAppRemote.disconnect(this.mSettingsViewModel.getSpotify().getValue());
+        this.isConnected = false;
     }
 
     public LiveData<SpotifyAppRemote> getSpotify() {
         return this.mSettingsViewModel.getSpotify();
+    }
+
+    public void getAudioFeatures(String id, final VolleyCallback callback) {
+        RequestQueue queue = Volley.newRequestQueue(mMainActivity);
+        String url = "https://api.spotify.com/v1/audio-features?ids=" + id;
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                callback::onSuccess,
+                callback::onRequestError
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+                params.put("Content-Type", "application/json");
+                params.put("Authorization", "Bearer " + accessToken);
+                return params;
+            }
+        };
+
+        queue.add(stringRequest);
+    }
+
+    private void getAccessToken(final VolleyCallback callback) {
+        RequestQueue queue = Volley.newRequestQueue(mMainActivity);
+
+        String url = "https://accounts.spotify.com/api/token";
+        String body = "grant_type=client_credentials";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                callback::onSuccess,
+                callback::onRequestError
+        ) {
+            @Override
+            public byte[] getBody() {
+                return body.getBytes();
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("grant_type", "client_credentials");
+                params.put("Authorization", "Basic " + AUTH);
+                return params;
+            }
+        };
+
+        queue.add(stringRequest);
+    }
+
+    public interface VolleyCallback {
+        void onSuccess(String result);
+
+        void onRequestError(VolleyError errorMessage);
     }
 
     private final ConnectionParams mConnectionParams = new ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
@@ -75,20 +167,22 @@ public class SpotifyConnector {
     private final Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
         @Override
         public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-            Log.d("SettingsFragment", "Connected to Spotify!");
+            Log.d("SpotifyConnector", "Connected to Spotify!");
+            isConnected = true;
             mSettingsViewModel.setSpotify(spotifyAppRemote);
-            mMainActivity.showMusicIcon(true);
+            mMainActivity.setupMusicMenuIcon(true);
         }
 
         @Override
         public void onFailure(Throwable throwable) {
             Log.e("MainActivity", throwable.getMessage(), throwable);
+            isConnected = false;
             if (throwable instanceof NotLoggedInException || throwable instanceof UserNotAuthorizedException) {
                 openSpotifyLoginDialog();
             } else if (throwable instanceof CouldNotFindSpotifyApp) {
                 openDownloadSpotifyDialog();
             }
-            mMainActivity.showMusicIcon(false);
+            mMainActivity.setupMusicMenuIcon(false);
         }
     };
 
@@ -103,12 +197,10 @@ public class SpotifyConnector {
                         this.mMainActivity.startActivity(launchIntent);
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, i) -> {
-                    PreferenceManager.getDefaultSharedPreferences(this.mMainActivity)
-                            .edit()
-                            .putBoolean(this.mMainActivity.getString(R.string.spotify_key), false)
-                            .apply();
-                });
+                .setNegativeButton("Cancel", (dialog, i) -> PreferenceManager.getDefaultSharedPreferences(this.mMainActivity)
+                        .edit()
+                        .putBoolean(this.mMainActivity.getString(R.string.spotify_key), false)
+                        .apply());
 
         builder.show();
     }
@@ -125,12 +217,14 @@ public class SpotifyConnector {
                         this.mMainActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music")));
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, i) -> {
-                    PreferenceManager.getDefaultSharedPreferences(this.mMainActivity)
-                            .edit()
-                            .putBoolean(this.mMainActivity.getString(R.string.spotify_key), false)
-                            .apply();
-                });
+                .setNegativeButton("Cancel", (dialog, i) -> PreferenceManager.getDefaultSharedPreferences(this.mMainActivity)
+                        .edit()
+                        .putBoolean(this.mMainActivity.getString(R.string.spotify_key), false)
+                        .apply());
         builder.show();
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 }

@@ -3,13 +3,19 @@ package de.dbis.myhealth.models;
 
 import android.util.Log;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.firebase.firestore.Exclude;
 
 import org.jetbrains.annotations.NotNull;
 
+@Entity(tableName = "question_table")
 public class Question {
+    @PrimaryKey
     private String text;
     private QuestionType questionType;
+    @Exclude
     private Integer result;
 
     public Question() {

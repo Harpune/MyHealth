@@ -1,19 +1,13 @@
 package de.dbis.myhealth.ui.settings;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
@@ -115,7 +109,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     this.mSpotifyConnector.connect();
                 } else {
                     this.mSpotifyConnector.disconnect();
-                    this.mMainActivity.showMusicIcon(false);
+                    this.mMainActivity.setupMusicMenuIcon(false);
                 }
                 return true;
             });
