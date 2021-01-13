@@ -9,6 +9,8 @@ import androidx.room.PrimaryKey;
 public class Record {
     @PrimaryKey
     @NonNull
+    @ColumnInfo(name = "user_id")
+    public String userId;
     @ColumnInfo(name = "questionnaire_id")
     public String questionnaireId;
     @ColumnInfo(name = "answered_questionnaires")

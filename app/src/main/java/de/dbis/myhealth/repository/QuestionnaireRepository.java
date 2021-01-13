@@ -1,9 +1,12 @@
 package de.dbis.myhealth.repository;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.preference.PreferenceManager;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -11,39 +14,52 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.dao.QuestionnaireDao;
+import de.dbis.myhealth.dao.ResultDao;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
+import de.dbis.myhealth.models.Result;
 import de.dbis.myhealth.util.AppDatabase;
 
 public class QuestionnaireRepository {
     private final static String TAG = "QuestionnaireRepository";
+    private Application application;
 
     // db
     private final QuestionnaireDao mQuestionnaireDao;
     private final LiveData<List<Questionnaire>> mQuestionnaires;
+    private final ResultDao mResultDao;
+    private final LiveData<List<Result>> mResult;
 
     // network
+    private final FirebaseFirestore firestore;
     private final static String FIREBASE_COLLECTION_QUESTIONNAIRES = "questionnaire";
-    private final CollectionReference ref;
+    private final CollectionReference questionnaireRef;
+    private final static String FIREBASE_COLLECTION_RESULTS_PRE = "result-";
 
     public QuestionnaireRepository(Application application) {
+        this.application = application;
         // db
         AppDatabase db = AppDatabase.getInstance(application);
         this.mQuestionnaireDao = db.questionnaireDao();
         this.mQuestionnaires = this.mQuestionnaireDao.getAll();
+        this.mResultDao = db.resultDao();
+        this.mResult = this.mResultDao.getAll();
 
         // network
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build();
-        firestore.setFirestoreSettings(settings);
-        this.ref = firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES);
+        this.firestore = FirebaseFirestore.getInstance();
+        this.firestore.setFirestoreSettings(settings);
+        // questionnaires
+        this.questionnaireRef = firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES);
         this.subscribeToQuestionnaires();
+        this.subscribeToResults();
     }
 
     public LiveData<List<Questionnaire>> getAllQuestionnaires() {
@@ -54,8 +70,16 @@ public class QuestionnaireRepository {
         AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireDao.insert(questionnaire));
     }
 
+    public LiveData<List<Result>> getAllResults() {
+        return this.mResult;
+    }
+
+    public void insert(Result result) {
+        AppDatabase.databaseWriteExecutor.execute(() -> mResultDao.insert(result));
+    }
+
     private void subscribeToQuestionnaires() {
-        this.ref.addSnapshotListener((task, error) -> {
+        this.questionnaireRef.addSnapshotListener((task, error) -> {
             Log.d(TAG, "Something changed!");
             if (error != null) {
                 Log.w(TAG, "Listen failed", error);
@@ -81,6 +105,35 @@ public class QuestionnaireRepository {
         });
     }
 
+    private void subscribeToResults() {
+        Context context = this.application.getApplicationContext();
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (sharedPreferences.contains(context.getString(R.string.device_id))) {
+            String userId = sharedPreferences.getString(context.getString(R.string.device_id), null);
+            if (userId != null) {
+                this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + userId)
+                        .addSnapshotListener((task, error) -> {
+                            Log.d(TAG, "Result changed!");
+                            if (error != null) {
+                                Log.w(TAG, "Listen failed", error);
+                                return;
+                            }
+
+                            if (task != null && !task.isEmpty()) {
+                                Log.d(TAG, "Current data: " + task.toString());
+                                task.getDocuments().stream()
+                                        .map(documentSnapshot -> documentSnapshot.toObject(Result.class))
+                                        .forEach(this::insert);
+                            } else {
+                                Log.d(TAG, "No results found");
+                            }
+                        });
+            }
+        } else {
+            Log.d(TAG, "Could not subscribe to result collection. 'device_id' not saved in shared preferences");
+        }
+    }
+
 
     public void generateTFI(Application application) {
         List<Question> questions = new ArrayList<>();
@@ -98,7 +151,7 @@ public class QuestionnaireRepository {
                         "intervention for tinnitus, with clinical patients " +
                         "and in research studies.",
                 questions);
-        this.ref.document("TFI").set(questionnaire);
+        this.questionnaireRef.document("TFI").set(questionnaire);
 
     }
 
@@ -115,7 +168,13 @@ public class QuestionnaireRepository {
                         "tinnitus may be causing you. Check \"Yes\", \"Sometimes\", or \"No\" for each " +
                         "question. Please answer all questions.",
                 questions);
-        this.ref.document("THI").set(questionnaire);
+        this.questionnaireRef.document("THI").set(questionnaire);
 
+    }
+
+    public void sendResult(Result result) {
+        this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + result.getUserId())
+                .document(result.getResultId())
+                .set(result);
     }
 }

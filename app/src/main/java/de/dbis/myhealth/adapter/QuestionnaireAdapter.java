@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemQuestionnaireBinding;
 import de.dbis.myhealth.models.Questionnaire;
@@ -37,9 +38,9 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
         }
     }
 
-    public QuestionnaireAdapter(Activity activity) {
-        this.mViewHolder = new ViewModelProvider((ViewModelStoreOwner) activity).get(QuestionnairesViewModel.class);
-        this.mViewHolder.getQuestionnaires().observe((LifecycleOwner) activity, this::setData);
+    public QuestionnaireAdapter(MainActivity activity) {
+        this.mViewHolder = new ViewModelProvider(activity).get(QuestionnairesViewModel.class);
+        this.mViewHolder.getQuestionnaires().observe(activity, this::setData);
     }
 
     public void setData(List<Questionnaire> questionnaires) {

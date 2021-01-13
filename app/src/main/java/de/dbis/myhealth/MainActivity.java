@@ -3,6 +3,7 @@ package de.dbis.myhealth;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -33,10 +35,27 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.types.PlayerState;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
+import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.repository.QuestionnaireRepository;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.util.AppDatabase;
 import de.dbis.myhealth.util.GoogleFitConnector;
@@ -67,42 +86,92 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // this.deleteDatabase("app_database");
+
+//        Log.d(TAG, Build.ID);
+//        Log.d(TAG, Build.DEVICE);
+//        Log.d(TAG, Build.HARDWARE);
+//        Log.d(TAG, Build.ID);
+//        Log.d(TAG, Build.USER);
+//        Log.d(TAG, Build.MANUFACTURER);
+//        Log.d(TAG, Build.MODEL);
+
+        // Set device id!
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!sharedPreferences.contains(getString(R.string.device_id))) {
+            sharedPreferences.edit().putString(getString(R.string.device_id), UUID.randomUUID().toString()).apply();
+        }
+
         // navigation
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
         this.mFab.setOnClickListener(view -> {
-            // View Holder
+
             QuestionnairesViewModel viewHolder = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
-            List<Questionnaire> questionnaires = viewHolder.getQuestionnaires().getValue();
 
             // Check Fragment
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            if (navController.getCurrentDestination().getId() == R.id.nav_home) {
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                String questionnairePref = sharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
+            NavDestination navDestination = navController.getCurrentDestination();
+            if (navDestination != null) {
+                if (navDestination.getId() == R.id.nav_home) {
+                    viewHolder.getQuestionnaires().observe(this, questionnaires -> {
+                        String questionnairePref = sharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
+                        Log.d(TAG, "questionnairePref: " + questionnairePref);
+                        Log.d(TAG, "questionnaires: " + questionnaires);
+                        if (questionnairePref != null && questionnaires != null) {
+                            Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
+                            if (questionnaire.isPresent()) {
+                                viewHolder.select(questionnaire.get());
+                                Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                            } else {
+                                Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
 
-                if (questionnaires != null) {
-                    Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
-                    if (questionnaire.isPresent()) {
-                        viewHolder.select(questionnaire.get());
-                        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
-                    } else {
-                        Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                if (navDestination.getId() == R.id.nav_questionnaire) {
+                    Questionnaire questionnaire = viewHolder.getSelected().getValue();
+                    Log.d(TAG, "WTF" + questionnaire);
+
+                    if (questionnaire != null) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle("Done")
+                                .setMessage("Are you done with this questionnaire?")
+                                .setPositiveButton("Yes", (dialogInterface, i) -> {
+
+                                    // IDs
+                                    String userId = sharedPreferences.getString(getString(R.string.device_id), UUID.randomUUID().toString());
+                                    String resultId = UUID.randomUUID().toString();
+
+                                    // get result data
+                                    List<Integer> resultEntries = Optional.ofNullable(questionnaire.getQuestions())
+                                            .map(Collection::stream)
+                                            .orElseGet(Stream::empty)
+                                            .map(Question::getResult)
+                                            .collect(Collectors.toList());
+
+                                    // build result
+                                    Result result = new Result(
+                                            resultId,
+                                            userId,
+                                            new Date(),
+                                            100000l,
+                                            questionnaire.getId(),
+                                            resultEntries,
+                                            new ArrayList<>()
+                                    );
+
+                                    // save result
+                                    QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+                                    viewModel.sendResult(result);
+
+                                    navController.popBackStack();
+                                })
+                                .setNegativeButton("No", null).show();
                     }
                 }
-            } else if (navController.getCurrentDestination().getId() == R.id.nav_questionnaire) {
-                Questionnaire questionnaire = viewHolder.getSelected().getValue();
-                Log.d(TAG, "WTF" + questionnaire.toString());
-
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Done")
-                        .setMessage("Are you done with this questionnaire?")
-                        .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            Toast.makeText(this, "DONE!!", Toast.LENGTH_SHORT).show();
-                            navController.popBackStack();
-                        })
-                        .setNegativeButton("No", null).show();
             }
         });
 
@@ -155,26 +224,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private final CallResult.ResultCallback<PlayerState> resultIconCallback = playerState -> {
-        if (playerState.isPaused) {
-            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
-        } else {
-            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
-        }
-    };
-
-    private final CallResult.ResultCallback<PlayerState> resultPlayCallback = playerState -> {
-        if (playerState.isPaused) {
-            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
-        } else {
-            this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
-        }
-    };
-
     private void setupSpotifyConnection() {
         // Spotify
         this.mSpotifyConnector = new SpotifyConnector(this);
-        if (this.mSpotifyConnector.isEnabled() && !this.mSpotifyConnector.isConnected()) {
+        if (this.mSpotifyConnector.isEnabled()) {
             this.mSpotifyConnector.connect();
         }
 
@@ -192,19 +245,6 @@ public class MainActivity extends AppCompatActivity {
             if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.spotify_autoplay_key), false)) {
                 this.mSpotifyConnector.play();
             }
-
-            // get title info
-            this.mSpotifyConnector.getAudioFeatures("6DmCWLs4VxDhVfYLJWeULl", new SpotifyConnector.VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    Log.d(TAG, "Success: " + result);
-                }
-
-                @Override
-                public void onRequestError(VolleyError errorMessage) {
-                    Log.d(TAG, "Error: " + errorMessage.toString());
-                }
-            });
 
             Log.d("MainActivity", "Spotify changed");
         });

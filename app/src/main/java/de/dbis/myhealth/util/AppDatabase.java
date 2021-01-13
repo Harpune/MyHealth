@@ -11,15 +11,19 @@ import java.util.concurrent.Executors;
 
 import de.dbis.myhealth.dao.QuestionnaireDao;
 import de.dbis.myhealth.dao.RecordDao;
+import de.dbis.myhealth.dao.ResultDao;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.Record;
+import de.dbis.myhealth.models.Result;
 
-@Database(entities = {Questionnaire.class, Record.class}, version = 1, exportSchema = false)
+@Database(entities = {Questionnaire.class, Record.class, Result.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract QuestionnaireDao questionnaireDao();
 
     public abstract RecordDao recordDao();
+
+    public abstract ResultDao resultDao();
 
     private static final int NUMBER_OF_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);

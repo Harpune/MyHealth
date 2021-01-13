@@ -1,4 +1,4 @@
-package de.dbis.myhealth.util;
+package de.dbis.myhealth.util.converter;
 
 import android.util.Log;
 

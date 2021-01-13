@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import de.dbis.myhealth.util.QuestionConverter;
+import de.dbis.myhealth.util.converter.QuestionConverter;
 
 @Entity(tableName = "questionnaire_table")
 public class Questionnaire {

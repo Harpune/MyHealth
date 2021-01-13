@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionnaireAdapter;
 
@@ -22,7 +23,7 @@ public class QuestionnaireOverviewFragment extends Fragment {
 
         // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        QuestionnaireAdapter questionnaireAdapter = new QuestionnaireAdapter(requireActivity());
+        QuestionnaireAdapter questionnaireAdapter = new QuestionnaireAdapter((MainActivity) requireActivity());
 
         RecyclerView recyclerView = root.findViewById(R.id.questionnairesRecyclerView);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
