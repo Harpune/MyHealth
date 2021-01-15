@@ -3,7 +3,6 @@ package de.dbis.myhealth;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +16,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
@@ -25,29 +25,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import com.android.volley.VolleyError;
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.types.PlayerState;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,11 +44,9 @@ import java.util.stream.Stream;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.Result;
-import de.dbis.myhealth.repository.QuestionnaireRepository;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
-import de.dbis.myhealth.util.AppDatabase;
+import de.dbis.myhealth.ui.settings.SettingsViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
-import de.dbis.myhealth.util.SpotifyConnector;
 
 public class MainActivity extends AppCompatActivity {
     private final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1;
@@ -68,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     // View Models
     private GoogleFitConnector mGoogleFitConnector;
-    private SpotifyConnector mSpotifyConnector;
+    private SettingsViewModel mSettingsViewModel;
 
     // Views
     private FloatingActionButton mFab;
@@ -79,14 +66,16 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
     private Menu mMenu;
-    private MenuItem spotifyMenuItem;
+    private MenuItem mSpotifyMenuItem;
+
+    private LiveData<PlayerState> mPlayerStateLiveData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // this.deleteDatabase("app_database");
+//        this.deleteDatabase("app_database");
 
 //        Log.d(TAG, Build.ID);
 //        Log.d(TAG, Build.DEVICE);
@@ -101,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         if (!sharedPreferences.contains(getString(R.string.device_id))) {
             sharedPreferences.edit().putString(getString(R.string.device_id), UUID.randomUUID().toString()).apply();
         }
+
+        this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
 
         // navigation
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
@@ -179,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         this.mGoogleFitConnector = new GoogleFitConnector(this);
         if (this.mGoogleFitConnector.isEnabled()) {
             this.mGoogleFitConnector.connect();
+            this.mGoogleFitConnector.getSleepingData();
         }
 
         this.mGoogleFitConnector.getSessionClient().observe(this, sessionsClient -> {
@@ -225,46 +217,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSpotifyConnection() {
-        // Spotify
-        this.mSpotifyConnector = new SpotifyConnector(this);
-        if (this.mSpotifyConnector.isEnabled()) {
-            this.mSpotifyConnector.connect();
-        }
-
-        this.mSpotifyConnector.getSpotify().observe(this, spotifyAppRemote -> {
-
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
-                if (playerState.isPaused) {
-                    this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
-                } else {
-                    this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_pause_24));
-                }
-            });
-
-            // Play if autoplay enabled
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.spotify_autoplay_key), false)) {
-                this.mSpotifyConnector.play();
+        this.mSettingsViewModel.setupSpotifyData().observe(this, spotifyData -> {
+            if (spotifyData != null) {
+                Log.d(TAG, "AccessToken: " + spotifyData.getAccessToken());
+                this.mSettingsViewModel.connect(spotifyData);
             }
+        });
 
-            Log.d("MainActivity", "Spotify changed");
+        this.mSettingsViewModel.isConnected().observe(this, connected -> {
+            this.setupMusicMenuIcon();
+
+            boolean autoPlayEnabled = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getBoolean(getString(R.string.spotify_autoplay_key), false);
+            if (autoPlayEnabled) {
+                this.mSettingsViewModel.playTrack();
+            }
         });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.mMenu = menu;
-        this.setupMusicMenuIcon(this.mSpotifyConnector.isEnabled());
         return true;
     }
 
-    public void setupMusicMenuIcon(boolean visible) {
-        if (this.mMenu != null) {
-            this.mMenu.clear();
+    public void setupMusicMenuIcon() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.toggleMusicMenuItem(sharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
+    }
 
-            if (visible) {
-                this.spotifyMenuItem = this.mMenu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
-                this.spotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                this.spotifyMenuItem.setIcon(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_play_arrow_24));
+    private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
+        if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
+            this.toggleMusicMenuItem(sharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+        }
+    };
+
+    private void toggleMusicMenuItem(boolean enabled) {
+        if (enabled) {
+            this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
+            this.mPlayerStateLiveData.observe(this, playerState -> {
+                if (this.mMenu != null) {
+                    this.mMenu.clear();
+                    this.mSpotifyMenuItem = this.mMenu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
+                    this.mSpotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    int icon = playerState.isPaused ? R.drawable.ic_baseline_play_arrow_24 : R.drawable.ic_baseline_pause_24;
+                    this.mSpotifyMenuItem.setIcon(ContextCompat.getDrawable(this, icon));
+                }
+            });
+        } else {
+            if (this.mMenu != null) {
+                this.mMenu.clear();
+            }
+            if (this.mPlayerStateLiveData != null) {
+                this.mPlayerStateLiveData.removeObservers(this);
             }
         }
     }
@@ -273,16 +279,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == MENU_ITEM_ITEM_SPOTIFY) {
             // play or stop
-            SpotifyAppRemote spotifyAppRemote = this.mSpotifyConnector.getSpotify().getValue();
-            if (spotifyAppRemote != null) {
-                spotifyAppRemote.getPlayerApi().getPlayerState().setResultCallback(playerState -> {
-                    if (playerState.isPaused) {
-                        mSpotifyConnector.play();
-                    } else {
-                        mSpotifyConnector.pause();
-                    }
-                });
-            }
+            this.mSettingsViewModel.togglePlay();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -333,7 +330,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        this.mSpotifyConnector.disconnect();
+        this.mSettingsViewModel.disconnect();
+        this.mPlayerStateLiveData.removeObservers(this);
     }
 
     @Override

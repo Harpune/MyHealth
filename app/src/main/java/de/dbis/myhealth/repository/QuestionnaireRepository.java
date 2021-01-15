@@ -27,7 +27,7 @@ import de.dbis.myhealth.util.AppDatabase;
 
 public class QuestionnaireRepository {
     private final static String TAG = "QuestionnaireRepository";
-    private Application application;
+    private final Application application;
 
     // db
     private final QuestionnaireDao mQuestionnaireDao;

@@ -12,7 +12,7 @@ import java.util.List;
 
 import de.dbis.myhealth.models.Question;
 
-public class QuestionConverter {
+public class QuestionsConverter {
     @TypeConverter
     public String fromQuestionList(List<Question> questionList) {
         if (questionList == null) {

@@ -45,6 +45,7 @@
     <string name="spotify_playlist_key">playlist</string>
     <string name="spotify_autoplay">Autoplay on start</string>
     <string name="spotify_autoplay_key">autoplay</string>
+    <string name="spotify_add">spotify_add</string>
 
     <!-- Sleep Preferences -->
     <string name="sleep_tracking">Sleep tracking</string>
@@ -144,6 +145,8 @@
     <string name="thiResultSevere">Severe: Almost always heard, rarely, if ever, masked. Leads to disturbed sleep pattern and can interfere with ability to carry out normal daily activities. Quiet activities affected adversely.</string>
     <string name="thiResultCatastrophic">Catastrophic: Always heard, disturbed sleep patterns, difficulty with any activity.</string>
     <string name="thiResultUnknown">Unknown: Could not calculate result</string>
+    <string name="save">Save</string>
+    <string name="access_token">access_token</string>
 
 
 </resources>

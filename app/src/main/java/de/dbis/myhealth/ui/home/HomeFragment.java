@@ -4,15 +4,18 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -29,9 +32,11 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.dbis.myhealth.R;
+import de.dbis.myhealth.ui.settings.SettingsViewModel;
 
 public class HomeFragment extends Fragment {
 
+    private SettingsViewModel mSettingsViewModel;
     private HomeViewModel homeViewModel;
     private PieChart pieChart;
 
@@ -54,7 +59,7 @@ public class HomeFragment extends Fragment {
         this.pieChart.setElevation(0f);
         this.pieChart.setDrawMarkers(false);
         this.pieChart.setHoleColor(Color.TRANSPARENT);
-        this.pieChart.setExtraOffsets(32,32,32,32);
+        this.pieChart.setExtraOffsets(32, 32, 32, 32);
         this.pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
@@ -80,6 +85,19 @@ public class HomeFragment extends Fragment {
         root.findViewById(R.id.two_button).setOnClickListener(view -> homeViewModel.incrementTwo());
         homeViewModel.getNumberOne().observe(getViewLifecycleOwner(), number -> setPieChartData());
         homeViewModel.getNumberTwo().observe(getViewLifecycleOwner(), number -> setPieChartData());
+
+        TextView textView = root.findViewById(R.id.text_home);
+        TextView textView2 = root.findViewById(R.id.text_home_2);
+
+        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mSettingsViewModel.getCurrentSpotifyTrack().observe(getActivity(), spotifyTrack -> {
+            textView.setText(spotifyTrack.getTrack().name + "\n" + spotifyTrack.getTrack().artists.get(0).name);
+            this.mSettingsViewModel.getAudioFeaturesTrack(spotifyTrack.getTrackId()).observe(getActivity(), audioFeaturesTrack -> {
+                textView2.setText("Tempo: " + audioFeaturesTrack.tempo);
+            });
+        });
+
+
         return root;
     }
 
@@ -93,7 +111,7 @@ public class HomeFragment extends Fragment {
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(ColorTemplate.PASTEL_COLORS);
         dataSet.setDrawIcons(true);
-        dataSet.setIconsOffset(MPPointF.getInstance(0,20f));
+        dataSet.setIconsOffset(MPPointF.getInstance(0, 20f));
         dataSet.setSliceSpace(5f);
 
         PieData pieData = new PieData(dataSet);
