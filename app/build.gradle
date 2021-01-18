@@ -60,7 +60,7 @@ dependencies {
     implementation project(':spotify-app-remote-release-0.7.1')
     implementation project(':spotify-auth-release-1.2.3')
 
-    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-core:18.0.1'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-auth'

@@ -13,18 +13,15 @@ import java.util.concurrent.Executors;
 import de.dbis.myhealth.dao.QuestionnaireDao;
 import de.dbis.myhealth.dao.RecordDao;
 import de.dbis.myhealth.dao.ResultDao;
-import de.dbis.myhealth.dao.SpotifyDataDao;
 import de.dbis.myhealth.dao.SpotifyTrackDao;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.Record;
 import de.dbis.myhealth.models.Result;
-import de.dbis.myhealth.models.SpotifyData;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.util.converter.AudioFeaturesTrackConverter;
 import de.dbis.myhealth.util.converter.TrackConverter;
-import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 
-@Database(entities = {Questionnaire.class, Record.class, Result.class, SpotifyData.class, SpotifyTrack.class}, version = 1, exportSchema = false)
+@Database(entities = {Questionnaire.class, Record.class, Result.class, SpotifyTrack.class}, version = 1, exportSchema = false)
 @TypeConverters({TrackConverter.class, AudioFeaturesTrackConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -33,8 +30,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract RecordDao recordDao();
 
     public abstract ResultDao resultDao();
-
-    public abstract SpotifyDataDao spotifyDataDao();
 
     public abstract SpotifyTrackDao spotifyTrackDao();
 

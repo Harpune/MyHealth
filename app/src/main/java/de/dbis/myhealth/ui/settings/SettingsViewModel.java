@@ -10,26 +10,14 @@ import com.google.android.gms.fitness.SessionsClient;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 
-import de.dbis.myhealth.models.SpotifyData;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.repository.SpotifyRepository;
-import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
-import kaaes.spotify.webapi.android.models.Track;
 
 public class SettingsViewModel extends AndroidViewModel {
 
     private final static String TAG = "SettingsViewModel";
-    private final static String CLIENT_ID = "da07627d8dba46a88700c9ee8acb1832";
-    private final static String CLIENT_SECRET = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
-    private final static String AUTH = "ODBiYzk3Y2RkZjlhNGEwZmExZmE1ZGYzMGM2ZjFjZDg6ZGEwNzYyN2Q4ZGJhNDZhODg3MDBjOWVlOGFjYjE4MzI=";
-
-    private static final int REQUEST_CODE = 1337;
-    private final static String SPOTIFY_CLIENT_ID = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
-    private final static String SPOTIFY_REDIRECT_URI = "https://de.dbis.myhealth/callback";
 
     // Google Fit
     private final MutableLiveData<SessionsClient> mSessionsClient;
@@ -56,12 +44,8 @@ public class SettingsViewModel extends AndroidViewModel {
     }
 
     // SPOTIFY
-    public LiveData<SpotifyData> setupSpotifyData() {
-        return this.mSpotifyRepository.setupSpotifyData();
-    }
-
-    public void connect(@NotNull SpotifyData spotifyData) {
-        this.mSpotifyRepository.connect(spotifyData.getAccessToken());
+    public void connect(String accessToken) {
+        this.mSpotifyRepository.connect(accessToken);
     }
 
     public void disconnect() {
@@ -72,15 +56,23 @@ public class SettingsViewModel extends AndroidViewModel {
         PlayerState playerState = this.mSpotifyRepository.getPlayerState().getValue();
         if (playerState != null) {
             if (playerState.isPaused) {
-                this.mSpotifyRepository.playTrack();
+                this.mSpotifyRepository.playSpotifyTrack();
             } else {
                 this.mSpotifyRepository.pause();
             }
         }
     }
 
-    public void playTrack() {
-        this.mSpotifyRepository.playTrack();
+    public void play(SpotifyTrack spotifyTrack) {
+        this.mSpotifyRepository.play(spotifyTrack);
+    }
+
+    public void playSpotifyTrack() {
+        this.mSpotifyRepository.playSpotifyTrack();
+    }
+
+    public void pause() {
+        this.mSpotifyRepository.pause();
     }
 
     public LiveData<PlayerState> getPlayerState() {
@@ -91,17 +83,8 @@ public class SettingsViewModel extends AndroidViewModel {
         return this.mSpotifyRepository.getPlayerContext();
     }
 
-    public void loadTrack(String id) {
-        this.mSpotifyRepository.loadTrack(id);
-//        this.mSpotifyRepository.loadAudioFeaturesTrack(id);
-    }
-
-    public LiveData<SpotifyTrack> createdSpotifyTrack() {
-        return this.mSpotifyRepository.createdSpotifyTrack();
-    }
-
-    public void saveSpotifyTrack(SpotifyTrack spotifyTrack) {
-        this.mSpotifyRepository.saveSpotifyTrack(spotifyTrack);
+    public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
+        return this.mSpotifyRepository.loadSpotifyTrack(id);
     }
 
     public LiveData<List<SpotifyTrack>> getAllSpotifyTracks() {
@@ -120,16 +103,7 @@ public class SettingsViewModel extends AndroidViewModel {
         return this.mSpotifyRepository.getSpotifyTrack(id);
     }
 
-    public LiveData<Track> getCurrentTrack() {
-        return this.mSpotifyRepository.getCurrentTrack();
-    }
-
     public LiveData<Boolean> isConnected() {
         return this.mSpotifyRepository.isConnected();
-    }
-
-    public LiveData<AudioFeaturesTrack> getAudioFeaturesTrack(String trackId) {
-        this.mSpotifyRepository.loadAudioFeaturesTrack(trackId);
-        return this.mSpotifyRepository.getCurrentAudioFeaturesTrack();
     }
 }

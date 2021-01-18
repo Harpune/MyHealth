@@ -87,14 +87,10 @@ public class HomeFragment extends Fragment {
         homeViewModel.getNumberTwo().observe(getViewLifecycleOwner(), number -> setPieChartData());
 
         TextView textView = root.findViewById(R.id.text_home);
-        TextView textView2 = root.findViewById(R.id.text_home_2);
 
         this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
-        this.mSettingsViewModel.getCurrentSpotifyTrack().observe(getActivity(), spotifyTrack -> {
-            textView.setText(spotifyTrack.getTrack().name + "\n" + spotifyTrack.getTrack().artists.get(0).name);
-            this.mSettingsViewModel.getAudioFeaturesTrack(spotifyTrack.getTrackId()).observe(getActivity(), audioFeaturesTrack -> {
-                textView2.setText("Tempo: " + audioFeaturesTrack.tempo);
-            });
+        this.mSettingsViewModel.getCurrentSpotifyTrack().observe(requireActivity(), spotifyTrack -> {
+            textView.setText("Track: " + spotifyTrack.getTrack().name + "\nArtist: " + spotifyTrack.getTrack().artists.get(0).name + "\nTempo: " + spotifyTrack.getAudioFeaturesTrack().tempo);
         });
 
 

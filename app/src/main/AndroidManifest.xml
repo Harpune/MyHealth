@@ -7,7 +7,6 @@
         <package android:name="com.spotify.music" /> <!-- To access Spotfy -->
     </queries>
 
-
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -21,6 +20,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Blue">
+        <activity android:name=".ui.SpotifyReceiverActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity android:name=".QuestionnaireActivity" />
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
@@ -30,7 +36,6 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -39,15 +44,12 @@
             android:name=".util.SpotifyBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="com.spotify.music.playbackstatechanged" />
                 <action android:name="com.spotify.music.metadatachanged" />
                 <action android:name="com.spotify.music.queuechanged" />
             </intent-filter>
-
         </receiver>
-
     </application>
 
 </manifest>

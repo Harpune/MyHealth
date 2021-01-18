@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -14,11 +13,7 @@ import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
@@ -45,10 +40,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
-        this.mMainActivity = (MainActivity) getActivity();
+        this.mMainActivity = (MainActivity) requireActivity();
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
-
-        // TODO do adding tracks, playing tracks over repository + viewmodel
         this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
         this.mGoogleFitConnector = new GoogleFitConnector(this.mMainActivity);
 
@@ -78,13 +71,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ListPreference fastStartQuestionnaire = findPreference(getString(R.string.questionnaire_fast_start_key));
         this.mQuestionnairesViewModel.getQuestionnaires().observe(this.mMainActivity, questionnaires -> {
 
-            // setup entries
-            String[] entries = questionnaires.stream().map(Questionnaire::getTitle).toArray(String[]::new);
-            fastStartQuestionnaire.setEntries(entries);
+            if (fastStartQuestionnaire != null) {
+                // setup entries
+                String[] entries = questionnaires.stream().map(Questionnaire::getTitle).toArray(String[]::new);
+                fastStartQuestionnaire.setEntries(entries);
 
-            // setup entry values
-            String[] entryValue = questionnaires.stream().map(Questionnaire::getId).toArray(String[]::new);
-            fastStartQuestionnaire.setEntryValues(entryValue);
+                // setup entry values
+                String[] entryValue = questionnaires.stream().map(Questionnaire::getId).toArray(String[]::new);
+                fastStartQuestionnaire.setEntryValues(entryValue);
+
+            }
         });
     }
 
@@ -118,11 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (spotifyPreference != null) {
             spotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if ((Boolean) newValue) {
-                    this.mSettingsViewModel.setupSpotifyData().observe(this, spotifyData -> {
-                        if (spotifyData != null) {
-                            this.mSettingsViewModel.connect(spotifyData);
-                        }
-                    });
+                    this.mMainActivity.setupSpotifyConnection();
                 } else {
                     this.mSettingsViewModel.disconnect();
                 }
@@ -136,13 +128,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (playlistPreference != null) {
             playlistPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 Log.d(TAG, newValue.toString());
-                mSettingsViewModel.getSpotifyTrackById(newValue.toString()).observe(this, spotifyTrack -> {
+                mSettingsViewModel.getSpotifyTrackById(newValue.toString()).observe(this.mMainActivity, spotifyTrack -> {
                     mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+                    mSettingsViewModel.play(spotifyTrack);
                 });
                 return true;
             });
 
-            this.mSettingsViewModel.getAllSpotifyTracks().observe(requireActivity(), spotifyTracks -> {
+            this.mSettingsViewModel.getAllSpotifyTracks().observe(this.mMainActivity, spotifyTracks -> {
                 // setup entries
                 String[] entries = spotifyTracks.stream()
                         .map(spotifyTrack -> spotifyTrack.getTrack().name)
@@ -167,19 +160,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 input.setMaxLines(1);
                 input.setText("2dxyTLxvO1xzHSD6fDafwZ");
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
-                        .setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_add_24))
-                        .setTitle("Add id to add")
-                        .setMessage("Instructions on how to get id")
+                AlertDialog.Builder builder = new AlertDialog.Builder(this.mMainActivity)
+                        .setIcon(ContextCompat.getDrawable(this.mMainActivity, R.drawable.ic_baseline_add_24))
+                        .setTitle("Add new song")
+                        .setMessage("Paste the song URI or ID to add")
                         .setView(input)
                         .setPositiveButton(getString(R.string.save), (dialogInterface, i) -> {
                             String text = input.getText().toString();
-                            String[] splitted = text.split(":");
-                            String[] reversed = this.reverse(splitted);
+
+                            // uri and id possible
+                            String[] split = text.split(":");
+                            String[] reversed = this.reverse(split);
                             String id = reversed[0];
 
-
-                            this.mSettingsViewModel.loadTrack(id);
+                            // load track from web-api
+                            this.mSettingsViewModel.loadSpotifyTrack(id).observe(this, spotifyTrack -> {
+                                Log.d(TAG, spotifyTrack.toString());
+//                                this.mSettingsViewModel.play(spotifyTrack);
+                            });
 
                         });
                 // spotify:track:2dxyTLxvO1xzHSD6fDafwZ

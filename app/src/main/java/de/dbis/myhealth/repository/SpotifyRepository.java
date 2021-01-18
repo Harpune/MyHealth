@@ -11,10 +11,6 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -25,17 +21,10 @@ import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.dbis.myhealth.R;
-import de.dbis.myhealth.dao.SpotifyDataDao;
 import de.dbis.myhealth.dao.SpotifyTrackDao;
-import de.dbis.myhealth.models.SpotifyData;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.util.AppDatabase;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -51,64 +40,34 @@ public class SpotifyRepository {
     private final static String CLIENT_ID = "da07627d8dba46a88700c9ee8acb1832";
     private final static String CLIENT_SECRET = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
     private final static String AUTH = "ODBiYzk3Y2RkZjlhNGEwZmExZmE1ZGYzMGM2ZjFjZDg6ZGEwNzYyN2Q4ZGJhNDZhODg3MDBjOWVlOGFjYjE4MzI=";
-
-    private static final int REQUEST_CODE = 1337;
     private final static String SPOTIFY_CLIENT_ID = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
     private final static String SPOTIFY_REDIRECT_URI = "https://de.dbis.myhealth/callback";
 
-    private final MutableLiveData<String> mAccessToken;
     private final MutableLiveData<SpotifyApi> mSpotifyApi;
     private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
     private final MutableLiveData<PlayerState> mPlayerState;
     private final MutableLiveData<PlayerContext> mPlayerContext;
     private final MutableLiveData<Boolean> mIsConnected;
-    private final MutableLiveData<Boolean> mIsPlaying;
 
     private final MutableLiveData<SpotifyTrack> mSpotifyTrack;
-    private final MutableLiveData<Track> mTrack;
-    private final MutableLiveData<AudioFeaturesTrack> mAudioFeaturesTrack;
 
-    private final String mDeviceId;
-    private final SpotifyDataDao mSpotifyDataDao;
     private final SpotifyTrackDao mSpotifyTrackDao;
     private final Application application;
 
     public SpotifyRepository(Application application) {
         this.application = application;
 
-        this.mDeviceId = PreferenceManager.getDefaultSharedPreferences(application.getApplicationContext())
-                .getString(this.application.getString(R.string.device_id), this.application.getString(R.string.device_id));
-
         // db
         AppDatabase db = AppDatabase.getInstance(application);
-        this.mSpotifyDataDao = db.spotifyDataDao();
         this.mSpotifyTrackDao = db.spotifyTrackDao();
 
         // Live Data
-        this.mAccessToken = new MutableLiveData<>();
         this.mSpotifyApi = new MutableLiveData<>();
         this.mSpotifyAppRemote = new MutableLiveData<>();
         this.mPlayerState = new MutableLiveData<>();
         this.mPlayerContext = new MutableLiveData<>();
-
         this.mIsConnected = new MutableLiveData<>();
-        this.mIsPlaying = new MutableLiveData<>();
-
         this.mSpotifyTrack = new MutableLiveData<>();
-        this.mTrack = new MutableLiveData<>();
-        this.mAudioFeaturesTrack = new MutableLiveData<>();
-    }
-
-    public LiveData<SpotifyData> setupSpotifyData() {
-        this.requestAccessToken();
-
-//        // Authenticate
-//        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);
-//        builder.setScopes(new String[]{"streaming"});
-//        AuthenticationRequest request = builder.build();
-//        AuthenticationClient.openLoginActivity(this.mMainActivity, REQUEST_CODE, request);
-
-        return this.mSpotifyDataDao.getByDeviceId(this.mDeviceId);
     }
 
     public void connect(String accessToken) {
@@ -133,18 +92,48 @@ public class SpotifyRepository {
         return this.mIsConnected;
     }
 
-    public void loadTrack(String id) {
+    public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
+        // LiveData updated by SpotifyAPI-Callbacks
+        MutableLiveData<Track> trackLiveData = new MutableLiveData<>();
+        MutableLiveData<AudioFeaturesTrack> audioFeaturesTrackLiveData = new MutableLiveData<>();
+
+        // MediatorLiveData returns all callback data if present
+        MediatorLiveData<SpotifyTrack> mediatorLiveData = new MediatorLiveData<>();
+
+        // Check if audioFeaturesTrackLiveData is finished on Track-Callback
+        mediatorLiveData.addSource(trackLiveData, value -> {
+            Track track = trackLiveData.getValue();
+            AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null) {
+                SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
+                spotifyTrack.setTrack(track);
+                spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                AppDatabase.databaseWriteExecutor.execute(() -> this.mSpotifyTrackDao.insert(spotifyTrack));
+                mediatorLiveData.setValue(spotifyTrack);
+            }
+        });
+
+        // Check if trackLiveData is finished on AudioFeaturesTrack-Callback
+        mediatorLiveData.addSource(audioFeaturesTrackLiveData, value -> {
+            Track track = trackLiveData.getValue();
+            AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null) {
+                SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
+                spotifyTrack.setTrack(track);
+                spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                AppDatabase.databaseWriteExecutor.execute(() -> this.mSpotifyTrackDao.insert(spotifyTrack));
+                mediatorLiveData.setValue(spotifyTrack);
+            }
+        });
+
+        // Access data
         SpotifyApi spotifyApi = this.mSpotifyApi.getValue();
         if (spotifyApi != null) {
             // Get
             spotifyApi.getService().getTrack(id, new Callback<Track>() {
                 @Override
                 public void success(Track track, Response response) {
-                    mTrack.setValue(track);
-
-                    SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
-                    spotifyTrack.setTrack(track);
-                    saveSpotifyTrack(spotifyTrack);
+                    trackLiveData.setValue(track);
                 }
 
                 @Override
@@ -152,21 +141,11 @@ public class SpotifyRepository {
                     Log.d(TAG, "Get Track", error);
                 }
             });
-        }
-    }
 
-    public LiveData<Track> getCurrentTrack() {
-        return this.mTrack;
-    }
-
-    public void loadAudioFeaturesTrack(String id) {
-        SpotifyApi spotifyApi = this.mSpotifyApi.getValue();
-        if (spotifyApi != null) {
-            // Get
             spotifyApi.getService().getTrackAudioFeatures(id, new Callback<AudioFeaturesTrack>() {
                 @Override
                 public void success(AudioFeaturesTrack audioFeaturesTrack, Response response) {
-                    mAudioFeaturesTrack.setValue(audioFeaturesTrack);
+                    audioFeaturesTrackLiveData.setValue(audioFeaturesTrack);
                 }
 
                 @Override
@@ -175,48 +154,8 @@ public class SpotifyRepository {
                 }
             });
         }
-    }
-
-    public LiveData<AudioFeaturesTrack> getCurrentAudioFeaturesTrack() {
-        return this.mAudioFeaturesTrack;
-    }
-
-    public LiveData<SpotifyTrack> createdSpotifyTrack() {
-        MediatorLiveData<SpotifyTrack> mediatorLiveData = new MediatorLiveData<>();
-        mediatorLiveData.addSource(this.mTrack, value -> {
-            if (value != null) {
-                mediatorLiveData.setValue(this.waitForSpotifyTrack());
-            }
-        });
-        mediatorLiveData.addSource(this.mAudioFeaturesTrack, value -> {
-            if (value != null) {
-                mediatorLiveData.setValue(this.waitForSpotifyTrack());
-            }
-        });
 
         return mediatorLiveData;
-    }
-
-    private SpotifyTrack waitForSpotifyTrack() {
-        Track track = mTrack.getValue();
-        AudioFeaturesTrack audioFeaturesTrack = mAudioFeaturesTrack.getValue();
-        if (track == null && audioFeaturesTrack == null) {
-            return null;
-        }
-
-        SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
-        spotifyTrack.setTrack(track);
-        spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
-
-        this.mTrack.setValue(null);
-        this.mAudioFeaturesTrack.setValue(null);
-
-        return spotifyTrack;
-    }
-
-
-    public void saveSpotifyTrack(SpotifyTrack spotifyTrack) {
-        AppDatabase.databaseWriteExecutor.execute(() -> mSpotifyTrackDao.insert(spotifyTrack));
     }
 
     public LiveData<SpotifyTrack> getCurrentSpotifyTrack() {
@@ -235,7 +174,7 @@ public class SpotifyRepository {
         return this.mSpotifyTrackDao.getAll();
     }
 
-    public void playTrack() {
+    public void playSpotifyTrack() {
         SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
         if (spotifyAppRemote != null) {
             spotifyAppRemote.getPlayerApi().setShuffle(false);
@@ -245,6 +184,16 @@ public class SpotifyRepository {
             if (spotifyTrack != null) {
                 spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
             }
+        }
+    }
+
+    public void play(SpotifyTrack spotifyTrack) {
+        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
+        if (spotifyAppRemote != null) {
+            spotifyAppRemote.getPlayerApi().setShuffle(false);
+            spotifyAppRemote.getPlayerApi().setRepeat(Repeat.ALL);
+
+            spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
         }
     }
 
@@ -261,48 +210,6 @@ public class SpotifyRepository {
 
     public LiveData<PlayerContext> getPlayerContext() {
         return mPlayerContext;
-    }
-
-    private void requestAccessToken() {
-        RequestQueue queue = Volley.newRequestQueue(this.application);
-        String url = "https://accounts.spotify.com/api/token";
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                response -> {
-                    try {
-                        String accessToken = new JSONObject(response).get("access_token").toString();
-                        Log.d(TAG, "AccessToken: " + accessToken);
-
-                        // insert data in room
-                        AppDatabase.databaseWriteExecutor.execute(() -> {
-                            if (this.mSpotifyDataDao.exists(this.mDeviceId)) {
-                                this.mSpotifyDataDao.updateAccessToken(this.mDeviceId, accessToken);
-                            } else {
-                                this.mSpotifyDataDao.insert(new SpotifyData(this.mDeviceId, accessToken));
-                            }
-                        });
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                },
-                error -> Log.d(TAG, "AccessToken", error)) {
-            @Override
-            public byte[] getBody() {
-                String body = "grant_type=client_credentials";
-                return body.getBytes();
-            }
-
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<>();
-                params.put("grant_type", "client_credentials");
-                params.put("Authorization", "Basic " + AUTH);
-                return params;
-            }
-
-        };
-
-        queue.add(stringRequest);
     }
 
     private final ConnectionParams mConnectionParams = new ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
