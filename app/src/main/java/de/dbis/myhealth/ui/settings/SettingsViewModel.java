@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.fitness.SessionsClient;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.repository.SpotifyRepository;
+import kaaes.spotify.webapi.android.SpotifyApi;
 
 public class SettingsViewModel extends AndroidViewModel {
 
@@ -75,6 +77,14 @@ public class SettingsViewModel extends AndroidViewModel {
         this.mSpotifyRepository.pause();
     }
 
+    public LiveData<SpotifyAppRemote> getSpotifyRemoteApp() {
+        return this.mSpotifyRepository.getSpotifyAppRemote();
+    }
+
+    public LiveData<SpotifyApi> getSpotifyApi() {
+        return this.mSpotifyRepository.getSpotifyApi();
+    }
+
     public LiveData<PlayerState> getPlayerState() {
         return this.mSpotifyRepository.getPlayerState();
     }
@@ -101,9 +111,5 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public LiveData<SpotifyTrack> getSpotifyTrackById(String id) {
         return this.mSpotifyRepository.getSpotifyTrack(id);
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return this.mSpotifyRepository.isConnected();
     }
 }

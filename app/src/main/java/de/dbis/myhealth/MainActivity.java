@@ -30,6 +30,7 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -81,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem mSpotifyMenuItem;
 
     private LiveData<PlayerState> mPlayerStateLiveData;
+    private LiveData<SpotifyAppRemote> mSpotifyAppRemoteLiveData;
+    private LiveData<SpotifyTrack> mSpotifyTrackLiveData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,37 +231,55 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void setupSpotifyConnection() {
+    public void startSetupSpotify() {
+        // Enabled
         boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
+        this.setupSpotify(enabled);
+    }
+
+    public void setupSpotify(boolean enabled) {
+        this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> {
+            this.mSettingsViewModel.play(spotifyTrack);
+        });
+
+        this.mSpotifyAppRemoteLiveData.observe(this, spotifyAppRemote -> {
+            if (spotifyAppRemote != null && spotifyAppRemote.isConnected()) {
+                // show menu icon
+                this.toggleMusicMenuItem(true);
+
+                // setup current selected track
+                String currentTrackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
+                if (currentTrackId != null) {
+                    // get track id from shared preferences
+                    this.mSettingsViewModel.getSpotifyTrackById(currentTrackId).observe(this, spotifyTrack -> {
+                        // set spotfiyTrack id from shared preferences
+                        this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+                    });
+                }
+            } else {
+                // this. to do if not connected
+                this.toggleMusicMenuItem(false);
+            }
+        });
+
         if (enabled) {
-            this.tryConnectToSpotify();
+            this.connectOrAuthToSpotify();
+        } else {
+            this.mSettingsViewModel.disconnect();
         }
     }
 
-    public void tryConnectToSpotify() {
+    public void connectOrAuthToSpotify() {
         String accessToken = this.mSharedPreferences.getString(getString(R.string.access_token), null);
         if (accessToken != null) {
-            this.connectToSpotify(accessToken);
+            this.mSettingsViewModel.disconnect();
+            this.mSettingsViewModel.connect(accessToken);
         } else {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);
             builder.setScopes(new String[]{"streaming"});
             AuthenticationRequest request = builder.build();
             AuthenticationClient.openLoginActivity(this, SPOTIFY_REQUEST_CODE, request);
         }
-
-    }
-
-    private void connectToSpotify(String accessToken) {
-        this.mSettingsViewModel.isConnected().observe(this, connected -> {
-            this.setupMusicMenuIcon();
-
-            boolean autoPlayEnabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_autoplay_key), false);
-            if (autoPlayEnabled) {
-                this.mSettingsViewModel.playSpotifyTrack();
-            }
-        });
-
-        this.mSettingsViewModel.connect(accessToken);
     }
 
     @Override
@@ -267,25 +288,24 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void setupMusicMenuIcon() {
-        this.toggleMusicMenuItem(this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false));
-        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
-    }
-
     private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
         if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
-            this.toggleMusicMenuItem(sharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+            this.setupSpotify(sharedPreferences.getBoolean(s, false));
         }
     };
 
     private void toggleMusicMenuItem(boolean enabled) {
         if (enabled) {
-            this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
             this.mPlayerStateLiveData.observe(this, playerState -> {
                 if (this.mMenu != null) {
+                    // Clear menu
                     this.mMenu.clear();
+
+                    // add menu item
                     this.mSpotifyMenuItem = this.mMenu.add(Menu.NONE, MENU_ITEM_ITEM_SPOTIFY, Menu.NONE, getString(R.string.spotify));
                     this.mSpotifyMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+                    // use icon depending on playerstate
                     int icon = playerState.isPaused ? R.drawable.ic_baseline_play_arrow_24 : R.drawable.ic_baseline_pause_24;
                     this.mSpotifyMenuItem.setIcon(ContextCompat.getDrawable(this, icon));
                 }
@@ -372,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                                 .putString(getString(R.string.access_token), response.getAccessToken())
                                 .apply();
 
-                        this.setupSpotifyConnection();
+                        this.startSetupSpotify();
                         break;
                     case ERROR:
                         Log.d(TAG, "Spotify-onActivityResult: " + response.getError());
@@ -394,14 +414,24 @@ public class MainActivity extends AppCompatActivity {
         if (this.mPlayerStateLiveData != null) {
             this.mPlayerStateLiveData.removeObservers(this);
         }
+
+        if (this.mSpotifyAppRemoteLiveData != null) {
+            this.mSpotifyAppRemoteLiveData.removeObservers(this);
+        }
+
+        if (this.mSpotifyTrackLiveData != null) {
+            this.mSpotifyTrackLiveData.removeObservers(this);
+        }
+        this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        this.setupSpotifyConnection();
-//        QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
-//        viewModel.generateTFI(this);
-//        viewModel.generateTHI(this);
+        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
+        this.mSpotifyAppRemoteLiveData = this.mSettingsViewModel.getSpotifyRemoteApp();
+        this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
+        this.mSpotifyTrackLiveData = this.mSettingsViewModel.getCurrentSpotifyTrack();
+        this.startSetupSpotify();
     }
 }

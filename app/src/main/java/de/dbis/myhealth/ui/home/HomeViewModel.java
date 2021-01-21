@@ -4,50 +4,45 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.spotify.protocol.types.PlayerState;
+
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.Track;
+
 public class HomeViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
-    private MutableLiveData<Integer> mNumberOne;
-    private MutableLiveData<Integer> mNumberTwo;
+    private final MutableLiveData<Track> mTrack;
+    private final MutableLiveData<AudioFeaturesTrack> mAudioFeaturesTrack;
+    private final MutableLiveData<PlayerState> mPlayerState;
 
 
     public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mNumberOne = new MutableLiveData<>();
-        mNumberTwo = new MutableLiveData<>();
-
-        mText.setValue("This is home fragment");
-        mNumberOne.setValue(0);
-        mNumberTwo.setValue(0);
+        mTrack = new MutableLiveData<>();
+        mAudioFeaturesTrack = new MutableLiveData<>();
+        mPlayerState = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public void setTrack(Track track) {
+        this.mTrack.setValue(track);
     }
 
-    public void setText(String text){
-        mText.setValue(text);
+    public LiveData<Track> getTrack() {
+        return mTrack;
     }
 
-    public LiveData<Integer> getNumberOne() {
-        return mNumberOne;
+    public void setAudioFeaturesTrack(AudioFeaturesTrack audioFeaturesTrack) {
+        this.mAudioFeaturesTrack.setValue(audioFeaturesTrack);
     }
 
-    public void incrementOne() {
-        if(mNumberOne.getValue() != null) {
-            mNumberOne.setValue(mNumberOne.getValue() + 1);
-        }
+    public LiveData<AudioFeaturesTrack> getAudioFeaturesTrack() {
+        return mAudioFeaturesTrack;
     }
 
-    public LiveData<Integer> getNumberTwo() {
-        return mNumberTwo;
+    public void setPlayerState(PlayerState playerState) {
+        this.mPlayerState.setValue(playerState);
     }
 
-    public void incrementTwo() {
-        if(this.mNumberTwo.getValue() != null) {
-            this.mNumberTwo.setValue(this.mNumberTwo.getValue() + 1);
-        }
+    public MutableLiveData<PlayerState> getPlayerState() {
+        return mPlayerState;
     }
-
-
 }

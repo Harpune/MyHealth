@@ -52,23 +52,23 @@
             app:key="@string/spotify_key"
             app:title="@string/spotify" />
 
-        <CheckBoxPreference
-            app:defaultValue="false"
-            app:dependency="@string/spotify_key"
-            app:icon="@drawable/ic_baseline_play_arrow_24"
-            app:key="@string/spotify_autoplay_key"
-            app:title="@string/spotify_autoplay" />
+        <!--        <CheckBoxPreference-->
+        <!--            app:defaultValue="false"-->
+        <!--            app:dependency="@string/spotify_key"-->
+        <!--            app:icon="@drawable/ic_baseline_play_arrow_24"-->
+        <!--            app:key="@string/spotify_autoplay_key"-->
+        <!--            app:title="@string/spotify_autoplay" />-->
 
         <ListPreference
             app:dependency="@string/spotify_key"
             app:icon="@drawable/ic_baseline_library_music_24"
-            app:key="@string/spotify_playlist_key"
-            app:title="@string/playlist"
+            app:key="@string/current_spotify_track_key"
+            app:title="@string/current_spotify_track"
             app:useSimpleSummaryProvider="true" />
 
         <Preference
             android:key="@string/spotify_add"
-            android:title="Add Song/Album/Playlist"
+            android:title="@string/add_spotify_track"
             app:dependency="@string/spotify_key"
             app:icon="@drawable/ic_baseline_add_24" />
 

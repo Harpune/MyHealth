@@ -47,7 +47,6 @@ public class SpotifyRepository {
     private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
     private final MutableLiveData<PlayerState> mPlayerState;
     private final MutableLiveData<PlayerContext> mPlayerContext;
-    private final MutableLiveData<Boolean> mIsConnected;
 
     private final MutableLiveData<SpotifyTrack> mSpotifyTrack;
 
@@ -66,7 +65,6 @@ public class SpotifyRepository {
         this.mSpotifyAppRemote = new MutableLiveData<>();
         this.mPlayerState = new MutableLiveData<>();
         this.mPlayerContext = new MutableLiveData<>();
-        this.mIsConnected = new MutableLiveData<>();
         this.mSpotifyTrack = new MutableLiveData<>();
     }
 
@@ -84,12 +82,8 @@ public class SpotifyRepository {
         SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
         if (spotifyAppRemote != null) {
             SpotifyAppRemote.disconnect(spotifyAppRemote);
+            this.mSpotifyAppRemote.setValue(null);
         }
-        this.mIsConnected.setValue(false);
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return this.mIsConnected;
     }
 
     public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
@@ -204,6 +198,14 @@ public class SpotifyRepository {
         }
     }
 
+    public LiveData<SpotifyAppRemote> getSpotifyAppRemote() {
+        return this.mSpotifyAppRemote;
+    }
+
+    public LiveData<SpotifyApi> getSpotifyApi() {
+        return this.mSpotifyApi;
+    }
+
     public LiveData<PlayerState> getPlayerState() {
         return mPlayerState;
     }
@@ -221,11 +223,13 @@ public class SpotifyRepository {
         @Override
         public void onConnected(SpotifyAppRemote spotifyAppRemote) {
             Log.d(TAG, "Connected to Spotify!");
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(mPlayerState::setValue);
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerContext().setEventCallback(mPlayerContext::setValue);
+            spotifyAppRemote.getPlayerApi().subscribeToPlayerState()
+                    .setEventCallback(mPlayerState::setValue)
+                    .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerState 123", error));
+            spotifyAppRemote.getPlayerApi().subscribeToPlayerContext().setEventCallback(mPlayerContext::setValue)
+                    .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerContext", error));
 
             mSpotifyAppRemote.setValue(spotifyAppRemote);
-            mIsConnected.setValue(true);
         }
 
         @Override
@@ -238,7 +242,6 @@ public class SpotifyRepository {
             } else if (throwable instanceof CouldNotFindSpotifyApp) {
                 openDownloadSpotifyDialog();
             }
-            mIsConnected.setValue(false);
         }
     };
 

@@ -147,6 +147,11 @@
     <string name="thiResultUnknown">Unknown: Could not calculate result</string>
     <string name="save">Save</string>
     <string name="access_token">access_token</string>
+    <string name="current_spotify_track_key">current_spotify_track_key</string>
+    <string name="play">Play</string>
+    <string name="track">Track</string>
+    <string name="current_spotify_track">Current track</string>
+    <string name="add_spotify_track">Add Spotify track</string>
 
 
 </resources>

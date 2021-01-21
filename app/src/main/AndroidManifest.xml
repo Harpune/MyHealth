@@ -20,7 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Blue">
-        <activity android:name=".ui.SpotifyReceiverActivity">
+        <activity android:name=".ui.SpotifyShareReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -39,17 +39,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name=".util.SpotifyBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.spotify.music.playbackstatechanged" />
-                <action android:name="com.spotify.music.metadatachanged" />
-                <action android:name="com.spotify.music.queuechanged" />
-            </intent-filter>
-        </receiver>
     </application>
-
 </manifest>

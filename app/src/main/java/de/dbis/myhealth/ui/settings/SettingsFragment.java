@@ -109,28 +109,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void setupSpotify() {
-        // Connect on listener
-        CheckBoxPreference spotifyPreference = findPreference(getString(R.string.spotify_key));
-        if (spotifyPreference != null) {
-            spotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                if ((Boolean) newValue) {
-                    this.mMainActivity.setupSpotifyConnection();
-                } else {
-                    this.mSettingsViewModel.disconnect();
-                }
-                return true;
-            });
-        }
+//        // Connect on listener
+//        CheckBoxPreference spotifyPreference = findPreference(getString(R.string.spotify_key));
+//        if (spotifyPreference != null) {
+//            spotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+//                if ((Boolean) newValue) {
+//                    this.mMainActivity.tryConnectToSpotify();
+//                } else {
+//                    this.mSettingsViewModel.disconnect();
+//                }
+//                return true;
+//            });
+//        }
 
 
         // Get tracks
-        ListPreference playlistPreference = findPreference(getString(R.string.spotify_playlist_key));
+        ListPreference playlistPreference = findPreference(getString(R.string.current_spotify_track_key));
         if (playlistPreference != null) {
             playlistPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 Log.d(TAG, newValue.toString());
                 mSettingsViewModel.getSpotifyTrackById(newValue.toString()).observe(this.mMainActivity, spotifyTrack -> {
                     mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
-                    mSettingsViewModel.play(spotifyTrack);
                 });
                 return true;
             });
@@ -180,9 +179,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             });
 
                         });
-                // spotify:track:2dxyTLxvO1xzHSD6fDafwZ
-                // spotify:track:1raWfcURBd1Q3W3K0ojDCM
-                // spotify:track:2kX0ubVLuWiFn1fAmPNB7V
                 builder.show();
                 return true;
             });
