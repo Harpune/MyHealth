@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="homeViewModel"
             type="de.dbis.myhealth.ui.home.HomeViewModel" />
@@ -21,6 +23,7 @@
 
         <include
             layout="@layout/item_player_state"
+            android:visibility="@{settingsViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
             bind:currentSpotifyTrack="@{settingsViewModel.currentSpotifyTrack}"
             bind:playerState="@{settingsViewModel.playerState}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
