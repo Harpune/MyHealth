@@ -18,23 +18,13 @@ public class StringListConverter {
 
     @TypeConverter
     public String fromStringList(List<String> stringList) {
-        if (stringList == null) {
-            return null;
-        }
-
-        String json = this.gson.toJson(stringList, this.type);
-        Log.d("JSON-stringList", json);
-        return json;
+        if (stringList == null) return null;
+        return this.gson.toJson(stringList, this.type);
     }
 
     @TypeConverter
     public List<String> toStringList(String json) {
-        if (json == null) {
-            return null;
-        }
-
-        List<String> stringList = this.gson.fromJson(json, this.type);
-        Log.d("stringList", stringList.toString());
-        return stringList;
+        if (json == null) return null;
+        return this.gson.fromJson(json, this.type);
     }
 }

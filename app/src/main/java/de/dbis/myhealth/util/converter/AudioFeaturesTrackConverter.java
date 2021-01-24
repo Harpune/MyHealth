@@ -19,23 +19,13 @@ public class AudioFeaturesTrackConverter {
 
     @TypeConverter
     public String fromAudioFeaturesTrack(AudioFeaturesTrack audioFeaturesTrack) {
-        if (audioFeaturesTrack == null) {
-            return null;
-        }
-
-        String json = this.gson.toJson(audioFeaturesTrack, this.type);
-        Log.d("JSON-audioFeaturesTrack", json);
-        return json;
+        if (audioFeaturesTrack == null) return null;
+        return this.gson.toJson(audioFeaturesTrack, this.type);
     }
 
     @TypeConverter
     public AudioFeaturesTrack toAudioFeaturesTrack(String json) {
-        if (json == null) {
-            return null;
-        }
-
-        AudioFeaturesTrack audioFeaturesTrack = this.gson.fromJson(json, this.type);
-        Log.d("trackList", audioFeaturesTrack.toString());
-        return audioFeaturesTrack;
+        if (json == null) return null;
+        return this.gson.fromJson(json, this.type);
     }
 }

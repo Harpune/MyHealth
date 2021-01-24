@@ -8,14 +8,14 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.models.QuestionnaireResult;
 
 @Dao
-public interface ResultDao {
+public interface QuestionnaireResultDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Result result);
+    void insert(QuestionnaireResult result);
 
-    @Query("SELECT * FROM result_table")
-    LiveData<List<Result>> getAll();
+    @Query("SELECT * FROM questionnaire_result_table")
+    LiveData<List<QuestionnaireResult>> getAll();
 }

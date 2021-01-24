@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import de.dbis.myhealth.util.converter.QuestionsConverter;
+import de.dbis.myhealth.util.converter.QuestionListConverter;
 
 @Entity(tableName = "questionnaire_table")
 public class Questionnaire {
@@ -25,7 +25,7 @@ public class Questionnaire {
     private String id;
     private String title;
     private String description;
-    @TypeConverters(QuestionsConverter.class)
+    @TypeConverters(QuestionListConverter.class)
     private List<Question> questions;
 
     @Ignore

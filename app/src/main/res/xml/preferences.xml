@@ -1,6 +1,4 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="@string/design_header">
 
@@ -66,12 +64,13 @@
             app:title="@string/current_spotify_track"
             app:useSimpleSummaryProvider="true" />
 
-        <Preference
-            android:key="@string/spotify_add"
-            android:title="@string/add_spotify_track"
-            app:dependency="@string/spotify_key"
-            app:icon="@drawable/ic_baseline_add_24" />
+        <!--        <EditTextPreference-->
+        <!--            android:key="@string/spotify_add"-->
+        <!--            android:title="@string/add_spotify_track"-->
+        <!--            app:dependency="@string/spotify_key"-->
+        <!--            app:icon="@drawable/ic_baseline_add_24" />-->
 
+        <!--        <DropDownPreference app:title="WOW" />-->
 
     </PreferenceCategory>
 

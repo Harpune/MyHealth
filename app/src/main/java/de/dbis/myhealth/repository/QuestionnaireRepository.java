@@ -14,15 +14,15 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.dao.QuestionnaireDao;
-import de.dbis.myhealth.dao.ResultDao;
+import de.dbis.myhealth.dao.QuestionnaireResultDao;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
-import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.util.AppDatabase;
 
 public class QuestionnaireRepository {
@@ -32,8 +32,8 @@ public class QuestionnaireRepository {
     // db
     private final QuestionnaireDao mQuestionnaireDao;
     private final LiveData<List<Questionnaire>> mQuestionnaires;
-    private final ResultDao mResultDao;
-    private final LiveData<List<Result>> mResult;
+    private final QuestionnaireResultDao mQuestionnaireResultDao;
+    private final LiveData<List<QuestionnaireResult>> mQuestionnaireResult;
 
     // network
     private final FirebaseFirestore firestore;
@@ -47,8 +47,8 @@ public class QuestionnaireRepository {
         AppDatabase db = AppDatabase.getInstance(application);
         this.mQuestionnaireDao = db.questionnaireDao();
         this.mQuestionnaires = this.mQuestionnaireDao.getAll();
-        this.mResultDao = db.resultDao();
-        this.mResult = this.mResultDao.getAll();
+        this.mQuestionnaireResultDao = db.resultDao();
+        this.mQuestionnaireResult = this.mQuestionnaireResultDao.getAll();
 
         // network
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -70,12 +70,12 @@ public class QuestionnaireRepository {
         AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireDao.insert(questionnaire));
     }
 
-    public LiveData<List<Result>> getAllResults() {
-        return this.mResult;
+    public LiveData<List<QuestionnaireResult>> getAllQuestionnaireResults() {
+        return this.mQuestionnaireResult;
     }
 
-    public void insert(Result result) {
-        AppDatabase.databaseWriteExecutor.execute(() -> mResultDao.insert(result));
+    public void insert(QuestionnaireResult questionnaireResult) {
+        AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireResultDao.insert(questionnaireResult));
     }
 
     private void subscribeToQuestionnaires() {
@@ -107,13 +107,13 @@ public class QuestionnaireRepository {
 
     private void subscribeToResults() {
         Context context = this.application.getApplicationContext();
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
         if (sharedPreferences.contains(context.getString(R.string.device_id))) {
             String userId = sharedPreferences.getString(context.getString(R.string.device_id), null);
             if (userId != null) {
                 this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + userId)
                         .addSnapshotListener((task, error) -> {
-                            Log.d(TAG, "Result changed!");
+                            Log.d(TAG, "QuestionnaireResult changed!");
                             if (error != null) {
                                 Log.w(TAG, "Listen failed", error);
                                 return;
@@ -122,7 +122,7 @@ public class QuestionnaireRepository {
                             if (task != null && !task.isEmpty()) {
                                 Log.d(TAG, "Current data: " + task.toString());
                                 task.getDocuments().stream()
-                                        .map(documentSnapshot -> documentSnapshot.toObject(Result.class))
+                                        .map(documentSnapshot -> documentSnapshot.toObject(QuestionnaireResult.class))
                                         .forEach(this::insert);
                             } else {
                                 Log.d(TAG, "No results found");
@@ -172,7 +172,7 @@ public class QuestionnaireRepository {
 
     }
 
-    public void sendResult(Result result) {
+    public void sendResult(QuestionnaireResult result) {
         this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + result.getUserId())
                 .document(result.getResultId())
                 .set(result);

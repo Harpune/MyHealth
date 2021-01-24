@@ -1,29 +1,20 @@
 package de.dbis.myhealth.repository;
 
 import android.app.Application;
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.preference.PreferenceManager;
 
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
 
 import java.util.List;
 
-import de.dbis.myhealth.R;
 import de.dbis.myhealth.dao.SpotifyTrackDao;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.util.AppDatabase;
@@ -36,12 +27,6 @@ import retrofit.client.Response;
 
 public class SpotifyRepository {
     private final static String TAG = "SpotifyRepository";
-
-    private final static String CLIENT_ID = "da07627d8dba46a88700c9ee8acb1832";
-    private final static String CLIENT_SECRET = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
-    private final static String AUTH = "ODBiYzk3Y2RkZjlhNGEwZmExZmE1ZGYzMGM2ZjFjZDg6ZGEwNzYyN2Q4ZGJhNDZhODg3MDBjOWVlOGFjYjE4MzI=";
-    private final static String SPOTIFY_CLIENT_ID = "80bc97cddf9a4a0fa1fa5df30c6f1cd8";
-    private final static String SPOTIFY_REDIRECT_URI = "https://de.dbis.myhealth/callback";
 
     private final MutableLiveData<SpotifyApi> mSpotifyApi;
     private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
@@ -68,16 +53,6 @@ public class SpotifyRepository {
         this.mSpotifyTrack = new MutableLiveData<>();
     }
 
-    public void connect(String accessToken) {
-        // Connect to spotify api
-        SpotifyApi spotifyApi = new SpotifyApi();
-        spotifyApi.setAccessToken(accessToken);
-        this.mSpotifyApi.setValue(spotifyApi);
-
-        // Connect to spotify app
-        SpotifyAppRemote.connect(this.application, this.mConnectionParams, this.mConnectionListener);
-    }
-
     public void disconnect() {
         SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
         if (spotifyAppRemote != null) {
@@ -102,7 +77,6 @@ public class SpotifyRepository {
                 SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
                 spotifyTrack.setTrack(track);
                 spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
-                AppDatabase.databaseWriteExecutor.execute(() -> this.mSpotifyTrackDao.insert(spotifyTrack));
                 mediatorLiveData.setValue(spotifyTrack);
             }
         });
@@ -115,7 +89,6 @@ public class SpotifyRepository {
                 SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
                 spotifyTrack.setTrack(track);
                 spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
-                AppDatabase.databaseWriteExecutor.execute(() -> this.mSpotifyTrackDao.insert(spotifyTrack));
                 mediatorLiveData.setValue(spotifyTrack);
             }
         });
@@ -128,11 +101,13 @@ public class SpotifyRepository {
                 @Override
                 public void success(Track track, Response response) {
                     trackLiveData.setValue(track);
+
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
                     Log.d(TAG, "Get Track", error);
+                    Toast.makeText(application, error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -145,11 +120,16 @@ public class SpotifyRepository {
                 @Override
                 public void failure(RetrofitError error) {
                     Log.d(TAG, "Get Track", error);
+                    Toast.makeText(application, error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
         }
 
         return mediatorLiveData;
+    }
+
+    public void insert(SpotifyTrack spotifyTrack) {
+        AppDatabase.databaseWriteExecutor.execute(() -> this.mSpotifyTrackDao.insert(spotifyTrack));
     }
 
     public LiveData<SpotifyTrack> getCurrentSpotifyTrack() {
@@ -166,19 +146,6 @@ public class SpotifyRepository {
 
     public LiveData<List<SpotifyTrack>> getAllSpotifyTracks() {
         return this.mSpotifyTrackDao.getAll();
-    }
-
-    public void playSpotifyTrack() {
-        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
-        if (spotifyAppRemote != null) {
-            spotifyAppRemote.getPlayerApi().setShuffle(false);
-            spotifyAppRemote.getPlayerApi().setRepeat(Repeat.ALL);
-
-            SpotifyTrack spotifyTrack = this.mSpotifyTrack.getValue();
-            if (spotifyTrack != null) {
-                spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
-            }
-        }
     }
 
     public void play(SpotifyTrack spotifyTrack) {
@@ -202,84 +169,31 @@ public class SpotifyRepository {
         return this.mSpotifyAppRemote;
     }
 
+    public void setSpotifyAppRemote(SpotifyAppRemote spotifyAppRemote) {
+        this.mSpotifyAppRemote.setValue(spotifyAppRemote);
+    }
+
     public LiveData<SpotifyApi> getSpotifyApi() {
         return this.mSpotifyApi;
+    }
+
+    public void setSpotifyApi(SpotifyApi spotifyApi) {
+        this.mSpotifyApi.setValue(spotifyApi);
     }
 
     public LiveData<PlayerState> getPlayerState() {
         return mPlayerState;
     }
 
+    public void setPlayerState(PlayerState playerState) {
+        this.mPlayerState.setValue(playerState);
+    }
+
     public LiveData<PlayerContext> getPlayerContext() {
         return mPlayerContext;
     }
 
-    private final ConnectionParams mConnectionParams = new ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
-            .showAuthView(true)
-            .setRedirectUri(SPOTIFY_REDIRECT_URI)
-            .build();
-
-    private final Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
-        @Override
-        public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-            Log.d(TAG, "Connected to Spotify!");
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerState()
-                    .setEventCallback(mPlayerState::setValue)
-                    .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerState 123", error));
-            spotifyAppRemote.getPlayerApi().subscribeToPlayerContext().setEventCallback(mPlayerContext::setValue)
-                    .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerContext", error));
-
-            mSpotifyAppRemote.setValue(spotifyAppRemote);
-        }
-
-        @Override
-        public void onFailure(Throwable throwable) {
-            Log.e(TAG, throwable.getMessage(), throwable);
-            if (throwable instanceof NotLoggedInException) {
-                openSpotifyLoginDialog();
-            } else if (throwable instanceof UserNotAuthorizedException) {
-                // TODO handle not authorize
-            } else if (throwable instanceof CouldNotFindSpotifyApp) {
-                openDownloadSpotifyDialog();
-            }
-        }
-    };
-
-    private void openSpotifyLoginDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.application)
-                .setTitle("Spotify")
-                .setMessage("You are not logged in you Spotify app.")
-                .setPositiveButton("Login", (dialog, i) -> {
-                    dialog.dismiss();
-                    Intent launchIntent = this.application.getPackageManager().getLaunchIntentForPackage("com.spotify.music");
-                    if (launchIntent != null) {
-                        this.application.startActivity(launchIntent);
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, i) -> PreferenceManager.getDefaultSharedPreferences(this.application)
-                        .edit()
-                        .putBoolean(this.application.getString(R.string.spotify_key), false)
-                        .apply());
-
-        builder.show();
-    }
-
-    private void openDownloadSpotifyDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.application)
-                .setTitle("Spotify")
-                .setMessage("To include a some music you can download Spotify")
-                .setPositiveButton("Download", (dialog, i) -> {
-                    dialog.dismiss();
-                    try {
-                        this.application.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.spotify.music")));
-                    } catch (android.content.ActivityNotFoundException activityNotFoundException) {
-                        this.application.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music")));
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, i) -> PreferenceManager.getDefaultSharedPreferences(this.application)
-                        .edit()
-                        .putBoolean(this.application.getString(R.string.spotify_key), false)
-                        .apply());
-        builder.show();
+    public void setPlayerContext(PlayerContext playerContext) {
+        this.mPlayerContext.setValue(playerContext);
     }
 }

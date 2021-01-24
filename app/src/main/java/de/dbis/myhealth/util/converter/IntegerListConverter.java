@@ -11,31 +11,20 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class IntegerListConverter {
+
+    private final Gson gson = new Gson();
+    private final Type type = new TypeToken<List<Long>>() {
+    }.getType();
+
     @TypeConverter
     public String fromIntegerList(List<Integer> resultList) {
-        if (resultList == null) {
-            return null;
-        }
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<Integer>>() {
-        }.getType();
-        String json = gson.toJson(resultList, type);
-        Log.d("JSON", json);
-        return json;
+        if (resultList == null) return null;
+        return this.gson.toJson(resultList, this.type);
     }
 
     @TypeConverter
     public List<Integer> toIntegerList(String json) {
-        if (json == null) {
-            return null;
-        }
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<Integer>>() {
-        }.getType();
-        List<Integer> resultList = gson.fromJson(json, type);
-        Log.d("resultList", resultList.toString());
-        return resultList;
+        if (json == null) return null;
+        return this.gson.fromJson(json, this.type);
     }
 }

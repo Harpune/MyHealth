@@ -1,12 +1,17 @@
 package de.dbis.myhealth;
 
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,7 +35,12 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
+import com.spotify.android.appremote.api.error.NotLoggedInException;
+import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -47,11 +57,14 @@ import java.util.stream.Stream;
 
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
-import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.SpotifyTrack;
+import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
+import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
+import kaaes.spotify.webapi.android.SpotifyApi;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -68,15 +81,17 @@ public class MainActivity extends AppCompatActivity {
     // View Models
     private GoogleFitConnector mGoogleFitConnector;
     public SettingsViewModel mSettingsViewModel;
+    private QuestionnairesViewModel mQuestionnairesViewModel;
 
     // Views
-    private FloatingActionButton mFab;
+    public FloatingActionButton mFab;
     private BottomAppBar mBottomAppBar;
     public CoordinatorLayout mCoordinatorLayout;
 
     // Android
-    private SharedPreferences mSharedPreferences;
+    public SharedPreferences mSharedPreferences;
     private AppBarConfiguration mAppBarConfiguration;
+    private NavController mNavController;
 
     private Menu mMenu;
     private MenuItem mSpotifyMenuItem;
@@ -90,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        this.deleteDatabase("app_database");
 
-//        Log.d(TAG, Build.ID);
+        Log.d(TAG, Build.ID);
 //        Log.d(TAG, Build.DEVICE);
 //        Log.d(TAG, Build.HARDWARE);
 //        Log.d(TAG, Build.ID);
@@ -101,84 +115,25 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d(TAG, Build.MODEL);
 
         // Set device id!
-        this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+//        this.mSharedPreferences.edit().clear().apply();
+//        this.deleteDatabase("app_database");
         if (!this.mSharedPreferences.contains(getString(R.string.device_id))) {
             this.mSharedPreferences.edit().putString(getString(R.string.device_id), UUID.randomUUID().toString()).apply();
         }
 
         this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        this.mQuestionnairesViewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+        this.mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
 
         // navigation
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
-        this.mFab.setOnClickListener(view -> {
 
-            QuestionnairesViewModel viewHolder = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
+        this.mNavController.addOnDestinationChangedListener((NavController.OnDestinationChangedListener) (controller, destination, arguments) -> {
 
-            // Check Fragment
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-            NavDestination navDestination = navController.getCurrentDestination();
-            if (navDestination != null) {
-                if (navDestination.getId() == R.id.nav_home) {
-                    viewHolder.getQuestionnaires().observe(this, questionnaires -> {
-                        String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
-                        Log.d(TAG, "questionnairePref: " + questionnairePref);
-                        Log.d(TAG, "questionnaires: " + questionnaires);
-                        if (questionnairePref != null && questionnaires != null) {
-                            Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
-                            if (questionnaire.isPresent()) {
-                                viewHolder.select(questionnaire.get());
-                                Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
-                            } else {
-                                Toast.makeText(this, "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-                }
-
-                if (navDestination.getId() == R.id.nav_questionnaire) {
-                    Questionnaire questionnaire = viewHolder.getSelected().getValue();
-                    Log.d(TAG, "WTF" + questionnaire);
-
-                    if (questionnaire != null) {
-                        new MaterialAlertDialogBuilder(this)
-                                .setTitle("Done")
-                                .setMessage("Are you done with this questionnaire?")
-                                .setPositiveButton("Yes", (dialogInterface, i) -> {
-
-                                    // IDs
-                                    String userId = this.mSharedPreferences.getString(getString(R.string.device_id), UUID.randomUUID().toString());
-                                    String resultId = UUID.randomUUID().toString();
-
-                                    // get result data
-                                    List<Integer> resultEntries = Optional.ofNullable(questionnaire.getQuestions())
-                                            .map(Collection::stream)
-                                            .orElseGet(Stream::empty)
-                                            .map(Question::getResult)
-                                            .collect(Collectors.toList());
-
-                                    // build result
-                                    Result result = new Result(
-                                            resultId,
-                                            userId,
-                                            new Date(),
-                                            100000L,
-                                            questionnaire.getId(),
-                                            resultEntries,
-                                            new ArrayList<>()
-                                    );
-
-                                    // save result
-                                    QuestionnairesViewModel viewModel = new ViewModelProvider(this).get(QuestionnairesViewModel.class);
-                                    viewModel.sendResult(result);
-
-                                    navController.popBackStack();
-                                })
-                                .setNegativeButton("No", null).show();
-                    }
-                }
-            }
         });
 
         // Google Fit
@@ -191,6 +146,25 @@ public class MainActivity extends AppCompatActivity {
         this.mGoogleFitConnector.getSessionClient().observe(this, sessionsClient -> {
             Log.d("MainActivity", "SessionClient changed");
         });
+
+        Intent intent = getIntent();
+    }
+
+    private String handleSendText(Intent intent) {
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) {
+            // get track Id
+            String[] lines = sharedText.split("\\r?\\n");
+            Uri uri = Uri.parse(lines[1]);
+            return uri.getLastPathSegment();
+        } else {
+            Toast.makeText(this, "Wrong format.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    public void setFabClickListener(View.OnClickListener mFabClickListener) {
+        this.mFab.setOnClickListener(mFabClickListener);
     }
 
     private void initDrawerLayout() {
@@ -204,25 +178,31 @@ public class MainActivity extends AppCompatActivity {
                 .setOpenableLayout(drawer)
                 .build();
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupWithNavController(navigationView, navController);
-        NavigationUI.setupWithNavController(this.mBottomAppBar, navController, this.mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, this.mNavController);
+        NavigationUI.setupWithNavController(this.mBottomAppBar, this.mNavController, this.mAppBarConfiguration);
 
         // check for current fragment
-        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+        this.mNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             HideBottomViewOnScrollBehavior<BottomAppBar> behavior = this.mBottomAppBar.getBehavior();
 
             // setup fab
             if (destination.getId() == R.id.nav_home) {
                 this.mFab.show();
+                this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_send_24));
             } else if (destination.getId() == R.id.nav_questionnaire) {
                 this.mFab.show();
+                this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_24));
+            } else if (destination.getId() == R.id.nav_spotify_share_receiver) {
+                this.mFab.show();
+                this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_save_24));
             } else {
                 this.mFab.hide();
             }
 
             // setup bottomAppBar
             if (destination.getId() == R.id.nav_questionnaire) {
+                this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
+            } else if (destination.getId() == R.id.nav_spotify_share_receiver) {
                 this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
             } else {
                 this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
@@ -252,8 +232,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentTrackId != null) {
                     // get track id from shared preferences
                     this.mSettingsViewModel.getSpotifyTrackById(currentTrackId).observe(this, spotifyTrack -> {
-                        // set spotfiyTrack id from shared preferences
-                        this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+                        // set spotifyTrack id from shared preferences
+                        if (spotifyTrack != null) {
+                            this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+                        }
                     });
                 }
             } else {
@@ -263,17 +245,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (enabled) {
-            this.connectOrAuthToSpotify();
+            this.connectToApiOrAuth();
+            this.connectToSpotifyApp();
         } else {
             this.mSettingsViewModel.disconnect();
         }
     }
 
-    public void connectOrAuthToSpotify() {
+    private void connectToSpotifyApp() {
+        this.mSettingsViewModel.disconnect();
+        SpotifyAppRemote.connect(this, this.mConnectionParams, this.mConnectionListener);
+    }
+
+    public void connectToApiOrAuth() {
         String accessToken = this.mSharedPreferences.getString(getString(R.string.access_token), null);
         if (accessToken != null) {
-            this.mSettingsViewModel.disconnect();
-            this.mSettingsViewModel.connect(accessToken);
+            SpotifyApi spotifyApi = new SpotifyApi();
+            spotifyApi.setAccessToken(accessToken);
+            this.mSettingsViewModel.setSpotifyApi(spotifyApi);
         } else {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);
             builder.setScopes(new String[]{"streaming"});
@@ -282,11 +271,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        this.mMenu = menu;
-        return true;
-    }
+    private final ConnectionParams mConnectionParams = new ConnectionParams.Builder(SPOTIFY_CLIENT_ID)
+            .showAuthView(true)
+            .setRedirectUri(SPOTIFY_REDIRECT_URI)
+            .build();
+
+    private final Connector.ConnectionListener mConnectionListener = new Connector.ConnectionListener() {
+        @Override
+        public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+            Log.d(TAG, "Connected to Spotify!");
+            mSettingsViewModel.setSpotifyAppRemote(spotifyAppRemote);
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            Log.d(TAG, throwable.getMessage(), throwable);
+            if (throwable instanceof NotLoggedInException) {
+                new SpotifyLoginDialog().show(getSupportFragmentManager(), "TAG");
+            } else if (throwable instanceof UserNotAuthorizedException) {
+                // TODO handle not authorize
+            } else if (throwable instanceof CouldNotFindSpotifyApp) {
+                new DownloadSpotifyDialog().show(getSupportFragmentManager(), "TAG");
+            }
+        }
+    };
 
     private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
         if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
@@ -321,6 +329,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        this.mMenu = menu;
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == MENU_ITEM_ITEM_SPOTIFY) {
             // play or stop
@@ -352,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public Resources.Theme getTheme() {
         Resources.Theme theme = super.getTheme();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, MODE_PRIVATE);
         String currentTheme = sharedPreferences.getString(getString(R.string.theme_key), getString(R.string.green_theme_key));
         if (currentTheme.equalsIgnoreCase(getString(R.string.green_theme_key))) {
             theme.applyStyle(R.style.Theme_Green, true);
@@ -387,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
                 switch (response.getType()) {
                     case TOKEN:
-                        PreferenceManager.getDefaultSharedPreferences(this)
+                        this.mSharedPreferences
                                 .edit()
                                 .putString(getString(R.string.access_token), response.getAccessToken())
                                 .apply();
@@ -408,8 +422,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStart() {
+        super.onStart();
+
+        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
+        this.mSpotifyAppRemoteLiveData = this.mSettingsViewModel.getSpotifyRemoteApp();
+        this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
+        this.mSpotifyTrackLiveData = this.mSettingsViewModel.getCurrentSpotifyTrack();
+        this.startSetupSpotify();
+
+        // Check if from other app
+        this.handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        // Check if from other app
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                final String trackId = this.handleSendText(intent);
+                if (trackId != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ApplicationConstants.TRACK_ID, trackId);
+                    Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_spotify_share_receiver, bundle);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         this.mSettingsViewModel.disconnect();
         if (this.mPlayerStateLiveData != null) {
             this.mPlayerStateLiveData.removeObservers(this);
@@ -423,15 +479,5 @@ public class MainActivity extends AppCompatActivity {
             this.mSpotifyTrackLiveData.removeObservers(this);
         }
         this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
-        this.mSpotifyAppRemoteLiveData = this.mSettingsViewModel.getSpotifyRemoteApp();
-        this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
-        this.mSpotifyTrackLiveData = this.mSettingsViewModel.getCurrentSpotifyTrack();
-        this.startSetupSpotify();
     }
 }

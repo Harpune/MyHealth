@@ -11,13 +11,15 @@ import java.util.List;
 
 import de.dbis.myhealth.util.converter.DateConverter;
 import de.dbis.myhealth.util.converter.IntegerListConverter;
+import de.dbis.myhealth.util.converter.LongListConverter;
 
-@Entity(tableName = "result_table")
-public class Result {
+@Entity(tableName = "questionnaire_result_table")
+public class QuestionnaireResult {
     @PrimaryKey
     @NonNull
     private String resultId;
     private String userId;
+    private String trackId;
     @TypeConverters(DateConverter.class)
     private Date startExecutionDate;
     private long duration;
@@ -26,19 +28,23 @@ public class Result {
     private List<Integer> resultEntries;
     @TypeConverters(IntegerListConverter.class)
     private List<Integer> removedQuestions;
+    @TypeConverters(LongListConverter.class)
+    private List<Long> questionAnswerTime;
 
     @Ignore
-    public Result() {
+    public QuestionnaireResult() {
     }
 
-    public Result(@NonNull String resultId, String userId, Date startExecutionDate, long duration, String questionnaireId, List<Integer> resultEntries, List<Integer> removedQuestions) {
+    public QuestionnaireResult(@NonNull String resultId, String userId, String trackId, Date startExecutionDate, long duration, String questionnaireId, List<Integer> resultEntries, List<Integer> removedQuestions, List<Long> questionAnswerTime) {
         this.resultId = resultId;
         this.userId = userId;
+        this.trackId = trackId;
         this.startExecutionDate = startExecutionDate;
         this.duration = duration;
         this.questionnaireId = questionnaireId;
         this.resultEntries = resultEntries;
         this.removedQuestions = removedQuestions;
+        this.questionAnswerTime = questionAnswerTime;
     }
 
     @NonNull
@@ -56,6 +62,14 @@ public class Result {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getTrackId() {
+        return trackId;
+    }
+
+    public void setTrackId(String trackId) {
+        this.trackId = trackId;
     }
 
     public Date getStartExecutionDate() {
@@ -96,5 +110,13 @@ public class Result {
 
     public void setRemovedQuestions(List<Integer> removedQuestions) {
         this.removedQuestions = removedQuestions;
+    }
+
+    public List<Long> getQuestionAnswerTime() {
+        return questionAnswerTime;
+    }
+
+    public void setQuestionAnswerTime(List<Long> questionAnswerTime) {
+        this.questionAnswerTime = questionAnswerTime;
     }
 }

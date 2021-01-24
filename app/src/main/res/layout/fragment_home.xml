@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -26,5 +27,6 @@
             android:visibility="@{settingsViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
             bind:currentSpotifyTrack="@{settingsViewModel.currentSpotifyTrack}"
             bind:playerState="@{settingsViewModel.playerState}" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

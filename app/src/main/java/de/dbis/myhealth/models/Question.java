@@ -48,7 +48,7 @@ public class Question {
     }
 
     public void setResult(Integer result) {
-        Log.d("Result", result.toString());
+        Log.d("QuestionnaireResult", result.toString());
         this.result = result;
     }
 

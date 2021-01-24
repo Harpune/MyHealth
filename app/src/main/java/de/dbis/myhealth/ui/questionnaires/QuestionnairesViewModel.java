@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
-import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.repository.QuestionnaireRepository;
 
 public class QuestionnairesViewModel extends AndroidViewModel {
@@ -67,7 +67,7 @@ public class QuestionnairesViewModel extends AndroidViewModel {
         }
     }
 
-    public void sendResult(Result result) {
+    public void sendResult(QuestionnaireResult result) {
         this.mRepository.sendResult(result);
     }
 

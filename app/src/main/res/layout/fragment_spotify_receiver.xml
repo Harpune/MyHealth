@@ -5,25 +5,26 @@
 
     <data>
 
-        <variable
-            name="track"
-            type="kaaes.spotify.webapi.android.models.Track" />
+        <import type="android.view.View" />
 
         <variable
-            name="audioFeaturesTrack"
-            type="kaaes.spotify.webapi.android.models.AudioFeaturesTrack" />
+            name="spotifyTrack"
+            type="de.dbis.myhealth.models.SpotifyTrack" />
+
     </data>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.SpotifyShareReceiverActivity">
+        tools:context=".ui.spotifyShareReceiver.SpotifyShareReceiverFragment">
 
         <LinearLayout
             android:id="@+id/linear_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="@{spotifyTrack != null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,22 +33,33 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{track.name}"
+                android:text="@{spotifyTrack.track.name}"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{track.artists.get(0).name}"
+                android:text="@{spotifyTrack.track.artists.get(0).name}"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{String.valueOf(audioFeaturesTrack.tempo)}"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                android:text="@{String.valueOf(spotifyTrack.audioFeaturesTrack.tempo) + ` bpm`}"
+                android:textAppearance="@android:style/TextAppearance.Material.Caption" />
 
         </LinearLayout>
 
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{spotifyTrack == null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

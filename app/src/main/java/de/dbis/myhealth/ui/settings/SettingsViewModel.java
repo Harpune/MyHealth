@@ -1,6 +1,7 @@
 package de.dbis.myhealth.ui.settings;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -46,31 +47,12 @@ public class SettingsViewModel extends AndroidViewModel {
     }
 
     // SPOTIFY
-    public void connect(String accessToken) {
-        this.mSpotifyRepository.connect(accessToken);
-    }
-
     public void disconnect() {
         this.mSpotifyRepository.disconnect();
     }
 
-    public void togglePlay() {
-        PlayerState playerState = this.mSpotifyRepository.getPlayerState().getValue();
-        if (playerState != null) {
-            if (playerState.isPaused) {
-                this.mSpotifyRepository.playSpotifyTrack();
-            } else {
-                this.mSpotifyRepository.pause();
-            }
-        }
-    }
-
     public void play(SpotifyTrack spotifyTrack) {
         this.mSpotifyRepository.play(spotifyTrack);
-    }
-
-    public void playSpotifyTrack() {
-        this.mSpotifyRepository.playSpotifyTrack();
     }
 
     public void pause() {
@@ -81,8 +63,24 @@ public class SettingsViewModel extends AndroidViewModel {
         return this.mSpotifyRepository.getSpotifyAppRemote();
     }
 
+    public void setSpotifyAppRemote(SpotifyAppRemote spotifyAppRemote) {
+        this.mSpotifyRepository.setSpotifyAppRemote(spotifyAppRemote);
+
+        spotifyAppRemote.getPlayerApi().subscribeToPlayerState()
+                .setEventCallback(this.mSpotifyRepository::setPlayerState)
+                .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerState", error));
+
+        spotifyAppRemote.getPlayerApi().subscribeToPlayerContext()
+                .setEventCallback(this.mSpotifyRepository::setPlayerContext)
+                .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerContext", error));
+    }
+
     public LiveData<SpotifyApi> getSpotifyApi() {
         return this.mSpotifyRepository.getSpotifyApi();
+    }
+
+    public void setSpotifyApi(SpotifyApi spotifyApi) {
+        this.mSpotifyRepository.setSpotifyApi(spotifyApi);
     }
 
     public LiveData<PlayerState> getPlayerState() {
@@ -95,6 +93,10 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
         return this.mSpotifyRepository.loadSpotifyTrack(id);
+    }
+
+    public void save(SpotifyTrack spotifyTrack) {
+        this.mSpotifyRepository.insert(spotifyTrack);
     }
 
     public LiveData<List<SpotifyTrack>> getAllSpotifyTracks() {

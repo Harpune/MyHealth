@@ -12,16 +12,16 @@ import java.util.concurrent.Executors;
 
 import de.dbis.myhealth.dao.QuestionnaireDao;
 import de.dbis.myhealth.dao.RecordDao;
-import de.dbis.myhealth.dao.ResultDao;
+import de.dbis.myhealth.dao.QuestionnaireResultDao;
 import de.dbis.myhealth.dao.SpotifyTrackDao;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.Record;
-import de.dbis.myhealth.models.Result;
+import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.util.converter.AudioFeaturesTrackConverter;
 import de.dbis.myhealth.util.converter.TrackConverter;
 
-@Database(entities = {Questionnaire.class, Record.class, Result.class, SpotifyTrack.class}, version = 1, exportSchema = false)
+@Database(entities = {Questionnaire.class, Record.class, QuestionnaireResult.class, SpotifyTrack.class}, version = 1, exportSchema = false)
 @TypeConverters({TrackConverter.class, AudioFeaturesTrackConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -29,7 +29,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract RecordDao recordDao();
 
-    public abstract ResultDao resultDao();
+    public abstract QuestionnaireResultDao resultDao();
 
     public abstract SpotifyTrackDao spotifyTrackDao();
 

@@ -1,47 +1,77 @@
 package de.dbis.myhealth.ui.home;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import java.util.Calendar;
+import java.util.Optional;
 
+import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentHomeBinding;
+import de.dbis.myhealth.models.Questionnaire;
+import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
 
 public class HomeFragment extends Fragment {
     private final static String TAG = "HomeFragment";
 
-    private MainActivity mMainActivity;
     private HomeViewModel mHomeViewModel;
     private SettingsViewModel mSettingsViewModel;
+    private QuestionnairesViewModel mQuestionnairesViewModel;
+    public SharedPreferences mSharedPreferences;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        this.mMainActivity = (MainActivity) requireActivity();
-        this.mHomeViewModel = new ViewModelProvider(this.mMainActivity).get(HomeViewModel.class);
-        this.mSettingsViewModel = new ViewModelProvider(this.mMainActivity).get(SettingsViewModel.class);
+        this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
+        this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
         FragmentHomeBinding fragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         fragmentHomeBinding.setLifecycleOwner(this);
         fragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
         fragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
 
+        ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
+
         View root = fragmentHomeBinding.getRoot();
 
         return root;
     }
 
+    private final View.OnClickListener mFabClickListener = view -> {
+        this.mQuestionnairesViewModel.getQuestionnaires().observe(this, questionnaires -> {
+            String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
+            if (questionnairePref == null) {
+                Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+            } else if (questionnaires == null) {
+                Toast.makeText(getContext(), "No questionnaires are available.", Toast.LENGTH_LONG).show();
+            } else {
+                Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
+                if (questionnaire.isPresent()) {
+                    this.mQuestionnairesViewModel.select(questionnaire.get());
+                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                } else {
+                    Toast.makeText(getContext(), "Couldn't find selected questionnaire.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    };
 
     private void setupPieChart() {
 //        this.pieChart.getDescription().setEnabled(false);

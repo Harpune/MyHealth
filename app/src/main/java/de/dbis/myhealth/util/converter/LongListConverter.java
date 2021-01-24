@@ -8,23 +8,21 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
-
-public class TrackConverter {
-
-    private final Gson gson = new Gson();
-    private final Type type = new TypeToken<Track>() {
+public class LongListConverter {
+    Gson gson = new Gson();
+    Type type = new TypeToken<List<Long>>() {
     }.getType();
 
     @TypeConverter
-    public String fromTrackList(Track track) {
-        if (track == null) return null;
-        return this.gson.toJson(track, this.type);
+    public String fromLongList(List<Long> resultList) {
+        if (resultList == null) return null;
+        return this.gson.toJson(resultList, this.type);
     }
 
     @TypeConverter
-    public Track toTrack(String json) {
+    public List<Long> toLongList(String json) {
         if (json == null) return null;
         return this.gson.fromJson(json, this.type);
     }

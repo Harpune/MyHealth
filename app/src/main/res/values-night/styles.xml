@@ -14,6 +14,7 @@
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:textColorPrimary">@color/white</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -31,6 +32,7 @@
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:textColorPrimary">@color/white</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -48,6 +50,7 @@
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:textColorPrimary">@color/white</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>
