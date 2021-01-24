@@ -39,7 +39,7 @@
 
     <fragment
         android:id="@+id/nav_spotify_share_receiver"
-        android:name="de.dbis.myhealth.ui.spotifyShareReceiver.SpotifyShareReceiverFragment"
-        tools:layout="@layout/fragment_spotify_receiver" />
+        android:name="de.dbis.myhealth.ui.SpotifyShareReceiverActivity"
+        tools:layout="@layout/activity_spotify_receiver" />
 
 </navigation>

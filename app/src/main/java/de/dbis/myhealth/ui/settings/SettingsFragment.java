@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
@@ -77,7 +78,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                             }
                         })
-                        .setNegativeButton("Nope", null)
+                        .setNegativeButton("Cancel", null)
                         .show();
                 return false;
             });
@@ -146,12 +147,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // Get tracks
         ListPreference trackListPreference = findPreference(getString(R.string.current_spotify_track_key));
         if (trackListPreference != null) {
-            trackListPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                mSettingsViewModel.getSpotifyTrackById(newValue.toString()).observe(requireActivity(), spotifyTrack ->
-                        mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack));
-                return true;
-            });
-
             this.mSettingsViewModel.getAllSpotifyTracks().observe(requireActivity(), spotifyTracks -> {
                 // setup entries
                 String[] entries = spotifyTracks.stream()

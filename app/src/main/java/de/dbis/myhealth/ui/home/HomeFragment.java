@@ -29,6 +29,7 @@ import de.dbis.myhealth.ui.settings.SettingsViewModel;
 public class HomeFragment extends Fragment {
     private final static String TAG = "HomeFragment";
 
+    private FragmentHomeBinding mFragmentHomeBinding;
     private HomeViewModel mHomeViewModel;
     private SettingsViewModel mSettingsViewModel;
     private QuestionnairesViewModel mQuestionnairesViewModel;
@@ -37,25 +38,21 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
-        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
-        FragmentHomeBinding fragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
-        fragmentHomeBinding.setLifecycleOwner(this);
-        fragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
-        fragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
+        this.mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
+        this.mFragmentHomeBinding.setLifecycleOwner(getViewLifecycleOwner());
+
 
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
 
-        View root = fragmentHomeBinding.getRoot();
+        View root = this.mFragmentHomeBinding.getRoot();
 
         return root;
     }
 
     private final View.OnClickListener mFabClickListener = view -> {
-        this.mQuestionnairesViewModel.getQuestionnaires().observe(this, questionnaires -> {
+        this.mQuestionnairesViewModel.getQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
                 Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
@@ -72,6 +69,22 @@ public class HomeFragment extends Fragment {
             }
         });
     };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+        this.mFragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
+        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mFragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
+        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
 
     private void setupPieChart() {
 //        this.pieChart.getDescription().setEnabled(false);

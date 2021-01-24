@@ -155,6 +155,8 @@ public class SpotifyRepository {
             spotifyAppRemote.getPlayerApi().setRepeat(Repeat.ALL);
 
             spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
+        } else {
+            Log.d(TAG, "!!!!! Couldn't play: " + spotifyTrack.getTrack().name);
         }
     }
 
