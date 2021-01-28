@@ -113,31 +113,31 @@
     <string name="tfiQuestionnaireCompletelyInterfered">Completely interfered</string>
 
     <!-- THI-Survey -->
-    <string name="thiQuestionnaire1">Because of your tinnitus, is it difficult for you to concentrate?</string>
-    <string name="thiQuestionnaire2">Does the loudness of your tinnitus make it difficult for you to hear people?</string>
-    <string name="thiQuestionnaire3">Does your tinnitus make you angry?</string>
-    <string name="thiQuestionnaire4">Does your tinnitus make you feel confused? </string>
-    <string name="thiQuestionnaire5">Because of your tinnitus, do you feel desperate?</string>
-    <string name="thiQuestionnaire6">Do you complain a great deal about your tinnitus? </string>
-    <string name="thiQuestionnaire7">Because of your tinnitus, do you have trouble falling to sleep at night?</string>
-    <string name="thiQuestionnaire8">Do you feel as though you cannot escape your tinnitus? </string>
-    <string name="thiQuestionnaire9">Does your tinnitus interfere with your ability to enjoy your social activities (such as going out to dinner, to the movies)? </string>
-    <string name="thiQuestionnaire10">Because of your tinnitus, do you feel frustrated?</string>
-    <string name="thiQuestionnaire11">Because of your tinnitus, do you feel that you have a terrible disease?</string>
-    <string name="thiQuestionnaire12">Does your tinnitus make it difficult for you to enjoy life?</string>
-    <string name="thiQuestionnaire13">Does your tinnitus interfere with your job or household responsibilities?</string>
-    <string name="thiQuestionnaire14">Because of your tinnitus, do you find that you are often irritable?</string>
-    <string name="thiQuestionnaire15">Because of your tinnitus, is it difficult for you to read?</string>
-    <string name="thiQuestionnaire16">Does your tinnitus make you upset?</string>
-    <string name="thiQuestionnaire17">Do you feel that your tinnitus problem has placed stress on your relationships with members of your family and friends?</string>
-    <string name="thiQuestionnaire18">Do you find it difficult to focus your attention away from your tinnitus and on other things?</string>
-    <string name="thiQuestionnaire19">Do you feel that you have no control over your tinnitus?</string>
-    <string name="thiQuestionnaire20">Because of your tinnitus, do you often feel tired?</string>
-    <string name="thiQuestionnaire21">Because of your tinnitus, do you feel depressed?</string>
-    <string name="thiQuestionnaire22">Does your tinnitus make you feel anxious?</string>
-    <string name="thiQuestionnaire23">Do you feel that you can no longer cope with your tinnitus?</string>
-    <string name="thiQuestionnaire24">Does your tinnitus get worse when you are under stress?</string>
-    <string name="thiQuestionnaire25">Does your tinnitus make you feel insecure?</string>
+    <string name="thiQuestionnaire1">1. Because of your tinnitus, is it difficult for you to concentrate?</string>
+    <string name="thiQuestionnaire2">2. Does the loudness of your tinnitus make it difficult for you to hear people?</string>
+    <string name="thiQuestionnaire3">3. Does your tinnitus make you angry?</string>
+    <string name="thiQuestionnaire4">4. Does your tinnitus make you feel confused? </string>
+    <string name="thiQuestionnaire5">5. Because of your tinnitus, do you feel desperate?</string>
+    <string name="thiQuestionnaire6">6. Do you complain a great deal about your tinnitus? </string>
+    <string name="thiQuestionnaire7">7. Because of your tinnitus, do you have trouble falling to sleep at night?</string>
+    <string name="thiQuestionnaire8">8. Do you feel as though you cannot escape your tinnitus? </string>
+    <string name="thiQuestionnaire9">9. Does your tinnitus interfere with your ability to enjoy your social activities (such as going out to dinner, to the movies)? </string>
+    <string name="thiQuestionnaire10">10. Because of your tinnitus, do you feel frustrated?</string>
+    <string name="thiQuestionnaire11">11. Because of your tinnitus, do you feel that you have a terrible disease?</string>
+    <string name="thiQuestionnaire12">12. Does your tinnitus make it difficult for you to enjoy life?</string>
+    <string name="thiQuestionnaire13">13. Does your tinnitus interfere with your job or household responsibilities?</string>
+    <string name="thiQuestionnaire14">14. Because of your tinnitus, do you find that you are often irritable?</string>
+    <string name="thiQuestionnaire15">15. Because of your tinnitus, is it difficult for you to read?</string>
+    <string name="thiQuestionnaire16">16. Does your tinnitus make you upset?</string>
+    <string name="thiQuestionnaire17">17. Do you feel that your tinnitus problem has placed stress on your relationships with members of your family and friends?</string>
+    <string name="thiQuestionnaire18">18. Do you find it difficult to focus your attention away from your tinnitus and on other things?</string>
+    <string name="thiQuestionnaire19">19. Do you feel that you have no control over your tinnitus?</string>
+    <string name="thiQuestionnaire20">20. Because of your tinnitus, do you often feel tired?</string>
+    <string name="thiQuestionnaire21">21. Because of your tinnitus, do you feel depressed?</string>
+    <string name="thiQuestionnaire22">22. Does your tinnitus make you feel anxious?</string>
+    <string name="thiQuestionnaire23">23. Do you feel that you can no longer cope with your tinnitus?</string>
+    <string name="thiQuestionnaire24">24. Does your tinnitus get worse when you are under stress?</string>
+    <string name="thiQuestionnaire25">25. Does your tinnitus make you feel insecure?</string>
 
     <string name="thiResultSlight">Slight: Only heard in quiet environment, very easily masked. No interference with sleep or daily activities.</string>
     <string name="thiResultMild">Mild: Easily masked by environmental sounds and easily forgotten with activities. May occasionally interfere with sleep but not daily activities.</string>
@@ -152,6 +152,7 @@
     <string name="track">Track</string>
     <string name="current_spotify_track">Current track</string>
     <string name="add_spotify_track">Add Spotify track</string>
+    <string name="delete">Delete</string>
 
 
 </resources>

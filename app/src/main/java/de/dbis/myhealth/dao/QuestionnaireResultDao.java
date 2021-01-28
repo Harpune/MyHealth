@@ -18,4 +18,7 @@ public interface QuestionnaireResultDao {
 
     @Query("SELECT * FROM questionnaire_result_table")
     LiveData<List<QuestionnaireResult>> getAll();
+
+    @Query("SELECT * FROM questionnaire_result_table WHERE resultId = :questionnaireResultId")
+    LiveData<QuestionnaireResult> get(String questionnaireResultId);
 }

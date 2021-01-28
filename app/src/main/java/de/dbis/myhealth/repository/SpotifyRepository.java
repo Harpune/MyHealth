@@ -141,7 +141,7 @@ public class SpotifyRepository {
     }
 
     public LiveData<SpotifyTrack> getSpotifyTrack(String id) {
-        return this.mSpotifyTrackDao.getByTrackId(id);
+        return this.mSpotifyTrackDao.getSpotifyTrackById(id);
     }
 
     public LiveData<List<SpotifyTrack>> getAllSpotifyTracks() {

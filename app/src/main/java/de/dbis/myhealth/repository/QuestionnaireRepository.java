@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.preference.PreferenceManager;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,9 +19,11 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.dao.QuestionnaireDao;
 import de.dbis.myhealth.dao.QuestionnaireResultDao;
+import de.dbis.myhealth.dao.QuestionnaireSettingDao;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.QuestionnaireSetting;
 import de.dbis.myhealth.util.AppDatabase;
 
 public class QuestionnaireRepository {
@@ -31,9 +32,8 @@ public class QuestionnaireRepository {
 
     // db
     private final QuestionnaireDao mQuestionnaireDao;
-    private final LiveData<List<Questionnaire>> mQuestionnaires;
     private final QuestionnaireResultDao mQuestionnaireResultDao;
-    private final LiveData<List<QuestionnaireResult>> mQuestionnaireResult;
+    private final QuestionnaireSettingDao mQuestionnaireSettingDao;
 
     // network
     private final FirebaseFirestore firestore;
@@ -43,14 +43,16 @@ public class QuestionnaireRepository {
 
     public QuestionnaireRepository(Application application) {
         this.application = application;
-        // db
+        // DB
         AppDatabase db = AppDatabase.getInstance(application);
+        // questionnaire
         this.mQuestionnaireDao = db.questionnaireDao();
-        this.mQuestionnaires = this.mQuestionnaireDao.getAll();
+        // questionnaire result
         this.mQuestionnaireResultDao = db.resultDao();
-        this.mQuestionnaireResult = this.mQuestionnaireResultDao.getAll();
+        // questionnaire settings
+        this.mQuestionnaireSettingDao = db.questionnaireSettingDao();
 
-        // network
+        // NETWORK
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build();
@@ -62,20 +64,40 @@ public class QuestionnaireRepository {
         this.subscribeToResults();
     }
 
-    public LiveData<List<Questionnaire>> getAllQuestionnaires() {
-        return this.mQuestionnaires;
-    }
-
-    public void insert(Questionnaire questionnaire) {
+    public void insertQuestionnaireResult(Questionnaire questionnaire) {
         AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireDao.insert(questionnaire));
     }
 
-    public LiveData<List<QuestionnaireResult>> getAllQuestionnaireResults() {
-        return this.mQuestionnaireResult;
+    public LiveData<List<Questionnaire>> getAllQuestionnaires() {
+        return this.mQuestionnaireDao.getAll();
     }
 
-    public void insert(QuestionnaireResult questionnaireResult) {
+    public LiveData<Questionnaire> getQuestionnaire(String questionnaireId) {
+        return this.mQuestionnaireDao.get(questionnaireId);
+    }
+
+    public void insertQuestionnaireResult(QuestionnaireResult questionnaireResult) {
         AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireResultDao.insert(questionnaireResult));
+    }
+
+    public LiveData<List<QuestionnaireResult>> getAllQuestionnaireResults() {
+        return this.mQuestionnaireResultDao.getAll();
+    }
+
+    public LiveData<QuestionnaireResult> getQuestionnaireResult(String questionnaireResultId) {
+        return this.mQuestionnaireResultDao.get(questionnaireResultId);
+    }
+
+    public void insertQuestionnaireSetting(QuestionnaireSetting questionnaireSetting) {
+        AppDatabase.databaseWriteExecutor.execute(() -> this.mQuestionnaireSettingDao.insert(questionnaireSetting));
+    }
+
+    public LiveData<QuestionnaireSetting> getQuestionnaireSetting(String questionnaireId) {
+        return this.mQuestionnaireSettingDao.getQuestionnaireSettingById(questionnaireId);
+    }
+
+    public LiveData<List<QuestionnaireSetting>> getAllQuestionnaireSettings() {
+        return this.mQuestionnaireSettingDao.getAll();
     }
 
     private void subscribeToQuestionnaires() {
@@ -93,7 +115,7 @@ public class QuestionnaireRepository {
                             Questionnaire questionnaire = documentSnapshot.toObject(Questionnaire.class);
                             if (questionnaire != null) {
                                 questionnaire.setId(documentSnapshot.getId());
-                                insert(questionnaire);
+                                insertQuestionnaireResult(questionnaire);
                             }
                             return questionnaire;
                         })
@@ -123,7 +145,7 @@ public class QuestionnaireRepository {
                                 Log.d(TAG, "Current data: " + task.toString());
                                 task.getDocuments().stream()
                                         .map(documentSnapshot -> documentSnapshot.toObject(QuestionnaireResult.class))
-                                        .forEach(this::insert);
+                                        .forEach(this::insertQuestionnaireResult);
                             } else {
                                 Log.d(TAG, "No results found");
                             }

@@ -16,7 +16,7 @@ import kaaes.spotify.webapi.android.models.Track;
 public interface SpotifyTrackDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insert(SpotifyTrack spotifyTrack);
+    void insert(SpotifyTrack spotifyTrack);
 
     @Query("SELECT EXISTS(SELECT * FROM spotify_track_table WHERE trackId = :trackId)")
     boolean exists(String trackId);
@@ -25,7 +25,7 @@ public interface SpotifyTrackDao {
     LiveData<List<SpotifyTrack>> getAll();
 
     @Query("SELECT * FROM spotify_track_table WHERE trackId = :trackId")
-    LiveData<SpotifyTrack> getByTrackId(String trackId);
+    LiveData<SpotifyTrack> getSpotifyTrackById(String trackId);
 
     @Query("UPDATE spotify_track_table SET track = :track WHERE trackId = :trackId")
     void updateTrack(String trackId, Track track);

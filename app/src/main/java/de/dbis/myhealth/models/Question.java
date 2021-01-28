@@ -3,6 +3,8 @@ package de.dbis.myhealth.models;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -11,7 +13,7 @@ import com.google.firebase.firestore.Exclude;
 import org.jetbrains.annotations.NotNull;
 
 @Entity(tableName = "question_table")
-public class Question {
+public class Question implements Cloneable {
     @PrimaryKey
     private String text;
     private QuestionType questionType;
@@ -52,8 +54,28 @@ public class Question {
         this.result = result;
     }
 
-    @Exclude
+    @NotNull
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof Question)) {
+            return false;
+        }
+
+        Question q = (Question) obj;
+        return q.getText().equalsIgnoreCase(this.getText());
+    }
 
     @NotNull
     @Override

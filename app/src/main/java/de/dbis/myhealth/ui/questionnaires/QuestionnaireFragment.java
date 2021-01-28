@@ -1,31 +1,27 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.GravityCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,38 +36,82 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionAdapter;
-import de.dbis.myhealth.adapter.QuestionnaireAdapter;
-import de.dbis.myhealth.databinding.FragmentQuestionnaireBinding;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.QuestionnaireSetting;
 
 public class QuestionnaireFragment extends Fragment {
     private final static String TAG = "QuestionnaireFragment";
 
     private QuestionnairesViewModel mQuestionnairesViewModel;
     private SharedPreferences mSharedPreferences;
+    private QuestionAdapter mQuestionAdapter;
 
-    public static QuestionnaireFragment newInstance() {
-        return new QuestionnaireFragment();
-    }
+    private LiveData<Questionnaire> mQuestionnairesLiveDataLiveData;
+    private LiveData<QuestionnaireSetting> mQuestionnaireSettingLiveData;
+    private QuestionnaireSetting mQuestionnaireSetting;
+    private Questionnaire mQuestionnaire;
+    private String[] removedQuestionTitles;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentQuestionnaireBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
-        View root = binding.getRoot();
+        de.dbis.myhealth.databinding.FragmentQuestionnaireBinding mQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
+        View root = mQuestionnaireBinding.getRoot();
+
+//        setHasOptionsMenu(true);
+        Toolbar toolbar = root.findViewById(R.id.toolbar);
 
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
-
         // Get current questionnaire
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
-        this.mQuestionnairesViewModel.getSelected().observe(requireActivity(), binding::setQuestionnaire);
+        this.mQuestionnairesLiveDataLiveData = this.mQuestionnairesViewModel.getSelected();
+        this.mQuestionnairesLiveDataLiveData.observe(getViewLifecycleOwner(), questionnaire -> {
+            mQuestionnaireBinding.setQuestionnaire(questionnaire);
+            this.mQuestionnaire = questionnaire;
+
+            this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting(questionnaire.getId());
+            this.mQuestionnaireSettingLiveData.observe(getViewLifecycleOwner(), questionnaireSetting -> {
+                if (questionnaireSetting != null && !questionnaireSetting.getRemovedQuestions().isEmpty()) {
+                    String[] removedQuestionTitles = questionnaireSetting.getRemovedQuestions().stream()
+                            .map(Question::getText)
+                            .sorted()
+                            .toArray(String[]::new);
+                    boolean[] enabled = new boolean[removedQuestionTitles.length];
+                    toolbar.getMenu().clear();
+                    toolbar.inflateMenu(R.menu.menu_questionnaire_control);
+                    toolbar.setOnMenuItemClickListener(item -> {
+
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Deleted Questions")
+                                .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> {
+                                    enabled[i] = b;
+                                    Log.d(TAG, "Clicked");
+                                })
+                                .setPositiveButton("Enable", (dialogInterface, i) -> {
+                                    for (int j = 0; j < enabled.length; j++) {
+                                        if (enabled[j]) {
+                                            questionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
+                                            this.mQuestionnairesViewModel.insertQuestionnaireSetting(questionnaireSetting);
+                                        }
+                                    }
+                                    Log.d(TAG, "Dome");
+                                })
+                                .show();
+
+                        return false;
+                    });
+
+                }
+            });
+        });
 
         // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        QuestionAdapter questionAdapter = new QuestionAdapter(requireActivity());
+        this.mQuestionAdapter = new QuestionAdapter(requireActivity(), getViewLifecycleOwner());
 
         RecyclerView recyclerView = root.findViewById(R.id.questionRecyclerView);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
@@ -79,7 +119,7 @@ public class QuestionnaireFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        recyclerView.setAdapter(questionAdapter);
+        recyclerView.setAdapter(this.mQuestionAdapter);
 
         ((MainActivity) requireActivity()).setFabClickListener(mFabClickListener);
 
@@ -91,7 +131,7 @@ public class QuestionnaireFragment extends Fragment {
         Log.d(TAG, "Result Questionnaire" + questionnaire);
 
         if (questionnaire != null) {
-            new MaterialAlertDialogBuilder(getContext())
+            new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Done")
                     .setMessage("Are you done with this questionnaire?")
                     .setPositiveButton("Yes", (dialogInterface, i) -> {
@@ -130,4 +170,19 @@ public class QuestionnaireFragment extends Fragment {
                     .show();
         }
     };
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (this.mQuestionnaireSettingLiveData != null) {
+            this.mQuestionnaireSettingLiveData.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mQuestionnairesLiveDataLiveData != null) {
+            this.mQuestionnairesLiveDataLiveData.removeObservers(getViewLifecycleOwner());
+        }
+
+        this.mQuestionAdapter.removeObserver();
+    }
 }

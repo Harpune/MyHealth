@@ -38,16 +38,7 @@ public class Questionnaire {
         this.questions = questions;
     }
 
-    public void markAsAnswered() {
-        Log.d("WTF", this.toString());
-    }
-
-    @BindingAdapter("android:backgroundTint")
-    public void changeButtonColor(Button button, int color) {
-        Log.d("WTF", color + "asd");
-        button.setText("asd");
-    }
-
+    @NotNull
     @Exclude
     public String getId() {
         return id;

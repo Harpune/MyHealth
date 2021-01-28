@@ -3,15 +3,10 @@
 
     <data>
 
-        <import type="android.view.View" />
-
         <variable
             name="question"
             type="de.dbis.myhealth.models.Question" />
 
-        <variable
-            name="isVisible"
-            type="boolean" />
     </data>
 
     <LinearLayout
@@ -20,8 +15,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:orientation="horizontal"
-        android:visibility="@{isVisible ? View.VISIBLE : View.GONE}">
+        android:orientation="horizontal">
 
         <com.google.android.material.slider.Slider
             android:id="@+id/slider_0_10"

@@ -20,7 +20,7 @@ public interface QuestionnaireDao {
     LiveData<List<Questionnaire>> getAll();
 
     @Query("SELECT * FROM questionnaire_table WHERE id = :id")
-    Questionnaire getById(String id);
+    LiveData<Questionnaire> get(String id);
 
     @Query("DELETE FROM questionnaire_table")
     void deleteAll();

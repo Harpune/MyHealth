@@ -11,25 +11,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.dbis.myhealth.dao.QuestionnaireDao;
-import de.dbis.myhealth.dao.RecordDao;
 import de.dbis.myhealth.dao.QuestionnaireResultDao;
+import de.dbis.myhealth.dao.QuestionnaireSettingDao;
 import de.dbis.myhealth.dao.SpotifyTrackDao;
 import de.dbis.myhealth.models.Questionnaire;
-import de.dbis.myhealth.models.Record;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.QuestionnaireSetting;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.util.converter.AudioFeaturesTrackConverter;
 import de.dbis.myhealth.util.converter.TrackConverter;
 
-@Database(entities = {Questionnaire.class, Record.class, QuestionnaireResult.class, SpotifyTrack.class}, version = 1, exportSchema = false)
+@Database(entities = {Questionnaire.class, QuestionnaireResult.class, SpotifyTrack.class, QuestionnaireSetting.class}, version = 1, exportSchema = false)
 @TypeConverters({TrackConverter.class, AudioFeaturesTrackConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract QuestionnaireDao questionnaireDao();
 
-    public abstract RecordDao recordDao();
-
     public abstract QuestionnaireResultDao resultDao();
+
+    public abstract QuestionnaireSettingDao questionnaireSettingDao();
 
     public abstract SpotifyTrackDao spotifyTrackDao();
 

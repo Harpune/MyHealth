@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
     }
 
     private final View.OnClickListener mFabClickListener = view -> {
-        this.mQuestionnairesViewModel.getQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
+        this.mQuestionnairesViewModel.getAllQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
                 Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();

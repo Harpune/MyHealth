@@ -2,11 +2,9 @@ package de.dbis.myhealth.ui.settings;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
@@ -24,7 +22,6 @@ import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-
     private final static String TAG = "SettingsFragment";
 
     // View Model
@@ -39,7 +36,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         getPreferenceManager().setSharedPreferencesName(ApplicationConstants.PREFERENCES);
         getPreferenceManager().setSharedPreferencesMode(Context.MODE_PRIVATE);
         setPreferencesFromResource(R.xml.preferences, rootKey);
-
 
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
@@ -113,7 +109,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void setupQuestionnaire() {
         ListPreference fastStartQuestionnaire = findPreference(getString(R.string.questionnaire_fast_start_key));
-        this.mQuestionnairesViewModel.getQuestionnaires().observe(requireActivity(), questionnaires -> {
+        this.mQuestionnairesViewModel.getAllQuestionnaires().observe(requireActivity(), questionnaires -> {
 
             if (fastStartQuestionnaire != null) {
                 // setup entries

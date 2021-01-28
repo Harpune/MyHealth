@@ -3,15 +3,9 @@
 
     <data>
 
-        <import type="android.view.View" />
-
         <variable
             name="question"
             type="de.dbis.myhealth.models.Question" />
-
-        <variable
-            name="isVisible"
-            type="boolean" />
     </data>
 
     <LinearLayout
@@ -19,8 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="@{isVisible ? View.VISIBLE : View.GONE}">
+        android:layout_marginBottom="16dp">
 
         <RadioGroup
             android:id="@+id/group_yes_no"

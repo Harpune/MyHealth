@@ -3,6 +3,7 @@ package de.dbis.myhealth;
 public class ApplicationConstants {
     // APPLICATION
     public static final String PREFERENCES = "de.dbis.myhealth.PREFERENCES";
+    public static final String DATABASE_NAME = "app_database";
 
     // SPOTIFY
     public static final int SPOTIFY_MENU_ITEM = 2;

@@ -37,7 +37,7 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
 
     public QuestionnaireAdapter(MainActivity activity) {
         this.mViewHolder = new ViewModelProvider(activity).get(QuestionnairesViewModel.class);
-        this.mViewHolder.getQuestionnaires().observe(activity, this::setData);
+        this.mViewHolder.getAllQuestionnaires().observe(activity, this::setData);
     }
 
     public void setData(List<Questionnaire> questionnaires) {

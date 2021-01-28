@@ -11,6 +11,10 @@
             type="de.dbis.myhealth.models.Questionnaire" />
 
         <variable
+            name="questionnaireSetting"
+            type="de.dbis.myhealth.models.QuestionnaireSetting" />
+
+        <variable
             name="fragment"
             type="de.dbis.myhealth.ui.questionnaires.QuestionnaireFragment" />
     </data>
@@ -29,43 +33,31 @@
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsing_question"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:contentScrim="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <TextView
+                    android:id="@+id/questionnaireDescription"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:elevation="5dp">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:fitsSystemWindows="true"
+                    android:paddingBottom="?attr/actionBarSize"
+                    android:text="@{questionnaire.description}"
+                    android:textColor="@color/white"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.7" />
 
-                    <TextView
-                        android:id="@+id/questionnaireTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        android:text="@{questionnaire.title}"
-                        android:textAppearance="@android:style/TextAppearance.Material.Title"
-                        android:textColor="@color/white"
-                        app:layout_constraintBottom_toTopOf="@id/questionnaireDescription"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/questionnaireDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:text="@{questionnaire.description}"
-                        android:textColor="@color/white"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/questionnaireTitle" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:title="@{questionnaire.title}" />
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
 

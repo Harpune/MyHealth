@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.QuestionnaireSetting;
 import de.dbis.myhealth.repository.QuestionnaireRepository;
 
 public class QuestionnairesViewModel extends AndroidViewModel {
@@ -21,20 +22,22 @@ public class QuestionnairesViewModel extends AndroidViewModel {
     private final QuestionnaireRepository mRepository;
     private final LiveData<List<Questionnaire>> mAllQuestionnaires;
     private final MutableLiveData<Questionnaire> mQuestionnaire;
+    private final MutableLiveData<QuestionnaireSetting> mQuestionnaireSetting;
 
     public QuestionnairesViewModel(Application application) {
         super(application);
         this.mRepository = new QuestionnaireRepository(application);
         this.mAllQuestionnaires = this.mRepository.getAllQuestionnaires();
         this.mQuestionnaire = new MutableLiveData<>();
+        this.mQuestionnaireSetting = new MutableLiveData<>();
     }
 
-    public LiveData<List<Questionnaire>> getQuestionnaires() {
+    public LiveData<List<Questionnaire>> getAllQuestionnaires() {
         return this.mAllQuestionnaires;
     }
 
     public void insert(Questionnaire questionnaire) {
-        this.mRepository.insert(questionnaire);
+        this.mRepository.insertQuestionnaireResult(questionnaire);
     }
 
     public void select(Questionnaire questionnaire) {
@@ -71,6 +74,18 @@ public class QuestionnairesViewModel extends AndroidViewModel {
         this.mRepository.sendResult(result);
     }
 
+    public void insertQuestionnaireSetting(QuestionnaireSetting questionnaireSetting) {
+        this.mRepository.insertQuestionnaireSetting(questionnaireSetting);
+    }
+
+    public LiveData<List<QuestionnaireSetting>> getAllQuestionnaireSettings() {
+        return this.mRepository.getAllQuestionnaireSettings();
+    }
+
+    public LiveData<QuestionnaireSetting> getQuestionnaireSetting(String questionnaireId) {
+        return this.mRepository.getQuestionnaireSetting(questionnaireId);
+    }
+
     public void generateTHI() {
         this.mRepository.generateTHI(getApplication());
     }
@@ -78,4 +93,5 @@ public class QuestionnairesViewModel extends AndroidViewModel {
     public void generateTFI() {
         this.mRepository.generateTFI(getApplication());
     }
+
 }
