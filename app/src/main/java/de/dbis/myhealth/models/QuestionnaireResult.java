@@ -12,6 +12,7 @@ import java.util.List;
 import de.dbis.myhealth.util.converter.DateConverter;
 import de.dbis.myhealth.util.converter.IntegerListConverter;
 import de.dbis.myhealth.util.converter.LongListConverter;
+import de.dbis.myhealth.util.converter.QuestionListConverter;
 
 @Entity(tableName = "questionnaire_result_table")
 public class QuestionnaireResult {
@@ -26,8 +27,8 @@ public class QuestionnaireResult {
     private String questionnaireId;
     @TypeConverters(IntegerListConverter.class)
     private List<Integer> resultEntries;
-    @TypeConverters(IntegerListConverter.class)
-    private List<Integer> removedQuestions;
+    @TypeConverters(QuestionListConverter.class)
+    private List<Question> removedQuestions;
     @TypeConverters(LongListConverter.class)
     private List<Long> questionAnswerTime;
 
@@ -35,7 +36,7 @@ public class QuestionnaireResult {
     public QuestionnaireResult() {
     }
 
-    public QuestionnaireResult(@NonNull String resultId, String userId, String trackId, Date startExecutionDate, long duration, String questionnaireId, List<Integer> resultEntries, List<Integer> removedQuestions, List<Long> questionAnswerTime) {
+    public QuestionnaireResult(@NonNull String resultId, String userId, String trackId, Date startExecutionDate, long duration, String questionnaireId, List<Integer> resultEntries, List<Question> removedQuestions, List<Long> questionAnswerTime) {
         this.resultId = resultId;
         this.userId = userId;
         this.trackId = trackId;
@@ -104,11 +105,11 @@ public class QuestionnaireResult {
         this.resultEntries = resultEntries;
     }
 
-    public List<Integer> getRemovedQuestions() {
+    public List<Question> getRemovedQuestions() {
         return removedQuestions;
     }
 
-    public void setRemovedQuestions(List<Integer> removedQuestions) {
+    public void setRemovedQuestions(List<Question> removedQuestions) {
         this.removedQuestions = removedQuestions;
     }
 

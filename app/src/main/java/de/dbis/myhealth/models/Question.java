@@ -50,7 +50,7 @@ public class Question implements Cloneable {
     }
 
     public void setResult(Integer result) {
-        Log.d("QuestionnaireResult", result.toString());
+        Log.d("QuestionnaireResult", String.valueOf(result));
         this.result = result;
     }
 

@@ -1,6 +1,7 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,10 +24,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -52,7 +56,17 @@ public class QuestionnaireFragment extends Fragment {
     private LiveData<Questionnaire> mQuestionnairesLiveDataLiveData;
     private LiveData<QuestionnaireSetting> mQuestionnaireSettingLiveData;
 
+    private QuestionnaireSetting mQuestionnaireSetting;
+
+    private final StopWatch mStopWatch = new StopWatch();
+
     private final View.OnClickListener mFabClickListener = this::save;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.mStopWatch.start();
+    }
 
     @Nullable
     @Override
@@ -76,6 +90,8 @@ public class QuestionnaireFragment extends Fragment {
             // observe settings of current questionnaire
             this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting(questionnaire.getId());
             this.mQuestionnaireSettingLiveData.observe(getViewLifecycleOwner(), questionnaireSetting -> {
+                this.mQuestionnaireSetting = questionnaireSetting;
+
                 toolbar.getMenu().clear();
 
                 // only show if questions where removed
@@ -91,7 +107,7 @@ public class QuestionnaireFragment extends Fragment {
                     // Setup Menu
                     toolbar.inflateMenu(R.menu.menu_questionnaire_control);
                     toolbar.setOnMenuItemClickListener(item -> {
-
+                        this.mStopWatch.suspend();
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("Deleted Questions")
                                 .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> {
@@ -107,6 +123,7 @@ public class QuestionnaireFragment extends Fragment {
                                     }
                                     Log.d(TAG, "Dome");
                                 })
+                                .setOnDismissListener(dialogInterface -> this.mStopWatch.resume())
                                 .show();
 
                         return false;
@@ -135,22 +152,39 @@ public class QuestionnaireFragment extends Fragment {
     }
 
     private void save(View view) {
+        this.mStopWatch.suspend();
+
         Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelected().getValue();
-        Log.d(TAG, "Result Questionnaire" + questionnaire);
+        // Log.d(TAG, "Result Questionnaire" + questionnaire);
 
         if (questionnaire != null) {
+            // Get questions
+            List<Question> questions = questionnaire.getQuestions();
+            int amountAnswered = Math.round(questions.stream().filter(question -> question.getResult() != null).count());
+            int enabledQuestions = questions.size();
+
+            // Get removed questions
+            List<Question> removedQuestions = new ArrayList<>();
+            if (this.mQuestionnaireSetting != null) {
+                removedQuestions.addAll(this.mQuestionnaireSetting.getRemovedQuestions());
+                enabledQuestions = enabledQuestions - removedQuestions.size();
+            }
+
             new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Done")
-                    .setMessage("Are you done with this questionnaire?")
+                    .setTitle("Submit results")
+                    .setMessage("Have you finished filling out the questionnaire? You have answered " + amountAnswered + " out of " + enabledQuestions + " questions.")
+                    .setCancelable(false)
                     .setPositiveButton("Yes", (dialogInterface, i) -> {
+
+                        this.mStopWatch.stop();
 
                         // IDs
                         String userId = this.mSharedPreferences.getString(getString(R.string.device_id), UUID.randomUUID().toString());
-                        String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track), null);
+                        String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
                         String resultId = UUID.randomUUID().toString();
 
                         // get result data
-                        List<Integer> resultEntries = Optional.ofNullable(questionnaire.getQuestions())
+                        List<Integer> resultEntries = Optional.ofNullable(questions)
                                 .map(Collection::stream)
                                 .orElseGet(Stream::empty)
                                 .map(Question::getResult)
@@ -163,10 +197,10 @@ public class QuestionnaireFragment extends Fragment {
                                 userId,
                                 trackId,
                                 new Date(),
-                                100000L,
+                                this.mStopWatch.getTime(),
                                 questionnaire.getId(),
                                 resultEntries,
-                                new ArrayList<>(),
+                                removedQuestions,
                                 new ArrayList<>()
                         );
 
@@ -174,7 +208,7 @@ public class QuestionnaireFragment extends Fragment {
                         this.mQuestionnairesViewModel.sendResult(result);
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                     })
-                    .setNegativeButton("No", null)
+                    .setNegativeButton("No", (dialogInterface, i) -> this.mStopWatch.resume())
                     .show();
         }
 
@@ -192,5 +226,21 @@ public class QuestionnaireFragment extends Fragment {
         }
 
         this.mQuestionAdapter.removeObserver();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (this.mStopWatch.isStarted()) {
+            this.mStopWatch.suspend();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (this.mStopWatch.isSuspended()) {
+            this.mStopWatch.resume();
+        }
     }
 }

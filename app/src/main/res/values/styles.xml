@@ -54,9 +54,15 @@
 
     <style name="ExpandedAppBar" parent="@android:style/TextAppearance.Large">
         <item name="android:textColor">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
     </style>
 
     <style name="CollapsedAppBar" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@color/white</item>
+    </style>
+
+
+    <style name="Toolbar" parent="Theme.Green">
+        <item name="android:textColorSecondary">@color/white</item>
     </style>
 </resources>
