@@ -1,8 +1,8 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +36,7 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionAdapter;
+import de.dbis.myhealth.databinding.FragmentQuestionnaireBinding;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
@@ -50,19 +51,18 @@ public class QuestionnaireFragment extends Fragment {
 
     private LiveData<Questionnaire> mQuestionnairesLiveDataLiveData;
     private LiveData<QuestionnaireSetting> mQuestionnaireSettingLiveData;
-    private QuestionnaireSetting mQuestionnaireSetting;
-    private Questionnaire mQuestionnaire;
-    private String[] removedQuestionTitles;
 
+    private final View.OnClickListener mFabClickListener = this::save;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        de.dbis.myhealth.databinding.FragmentQuestionnaireBinding mQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
+        FragmentQuestionnaireBinding mQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
         View root = mQuestionnaireBinding.getRoot();
 
-//        setHasOptionsMenu(true);
         Toolbar toolbar = root.findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setSubtitleTextColor(Color.WHITE);
 
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
@@ -70,18 +70,25 @@ public class QuestionnaireFragment extends Fragment {
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mQuestionnairesLiveDataLiveData = this.mQuestionnairesViewModel.getSelected();
         this.mQuestionnairesLiveDataLiveData.observe(getViewLifecycleOwner(), questionnaire -> {
+            // bind
             mQuestionnaireBinding.setQuestionnaire(questionnaire);
-            this.mQuestionnaire = questionnaire;
 
+            // observe settings of current questionnaire
             this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting(questionnaire.getId());
             this.mQuestionnaireSettingLiveData.observe(getViewLifecycleOwner(), questionnaireSetting -> {
+                toolbar.getMenu().clear();
+
+                // only show if questions where removed
                 if (questionnaireSetting != null && !questionnaireSetting.getRemovedQuestions().isEmpty()) {
+
+                    // Get remove questions and update boolean array with deletion information
                     String[] removedQuestionTitles = questionnaireSetting.getRemovedQuestions().stream()
                             .map(Question::getText)
                             .sorted()
                             .toArray(String[]::new);
                     boolean[] enabled = new boolean[removedQuestionTitles.length];
-                    toolbar.getMenu().clear();
+
+                    // Setup Menu
                     toolbar.inflateMenu(R.menu.menu_questionnaire_control);
                     toolbar.setOnMenuItemClickListener(item -> {
 
@@ -121,12 +128,13 @@ public class QuestionnaireFragment extends Fragment {
 
         recyclerView.setAdapter(this.mQuestionAdapter);
 
+        // update action of fab
         ((MainActivity) requireActivity()).setFabClickListener(mFabClickListener);
 
         return root;
     }
 
-    private final View.OnClickListener mFabClickListener = view -> {
+    private void save(View view) {
         Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelected().getValue();
         Log.d(TAG, "Result Questionnaire" + questionnaire);
 
@@ -169,8 +177,8 @@ public class QuestionnaireFragment extends Fragment {
                     .setNegativeButton("No", null)
                     .show();
         }
-    };
 
+    }
 
     @Override
     public void onStop() {

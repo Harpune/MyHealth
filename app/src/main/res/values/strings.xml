@@ -153,6 +153,15 @@
     <string name="current_spotify_track">Current track</string>
     <string name="add_spotify_track">Add Spotify track</string>
     <string name="delete">Delete</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="user_input_description">Filling out personal information is optional and helps to better categorize our user demographics.</string>
+    <string name="user">About me</string>
+    <string name="menu_user">User</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
 
 
 </resources>

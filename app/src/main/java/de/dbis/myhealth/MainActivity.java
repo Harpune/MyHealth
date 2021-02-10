@@ -46,6 +46,7 @@ import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.ui.user.UserViewModel;
 import de.dbis.myhealth.util.GoogleFitConnector;
 import kaaes.spotify.webapi.android.SpotifyApi;
 
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(this.mBottomAppBar);
 
         this.mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_questionnaires, R.id.nav_settings)
+                R.id.nav_user, R.id.nav_home, R.id.nav_questionnaires, R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
 
@@ -144,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (destination.getId() == R.id.nav_questionnaire) {
                 this.mFab.show();
                 this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_24));
+            } else if (destination.getId() == R.id.nav_user) {
+                this.mFab.show();
+                this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_save_24));
             } else {
                 this.mFab.hide();
             }
