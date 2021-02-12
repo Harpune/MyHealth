@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
+import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentUserBinding;
@@ -39,12 +40,17 @@ public class UserFragment extends Fragment {
         mFragmentUserBinding.setLifecycleOwner(getViewLifecycleOwner());
 
         View root = mFragmentUserBinding.getRoot();
+        String deviceId = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE)
+                .getString(getString(R.string.device_id), null);
+
 
         // gender dropdown
         ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender, R.layout.item_gender);
         MaterialAutoCompleteTextView materialAutoCompleteTextView = root.findViewById(R.id.filled_exposed_dropdown);
         materialAutoCompleteTextView.setAdapter(arrayAdapter);
 
+        String gender = this.mUserViewModel.getCurrentUser(deviceId).getGender();
+        materialAutoCompleteTextView.setText(gender, false);
 
         return root;
     }

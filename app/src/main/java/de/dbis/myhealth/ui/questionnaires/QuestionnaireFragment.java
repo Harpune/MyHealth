@@ -27,6 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -135,7 +136,7 @@ public class QuestionnaireFragment extends Fragment {
 
         // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        this.mQuestionAdapter = new QuestionAdapter(requireActivity(), getViewLifecycleOwner());
+        this.mQuestionAdapter = new QuestionAdapter(requireActivity(), getViewLifecycleOwner(), this.mStopWatch);
 
         RecyclerView recyclerView = root.findViewById(R.id.questionRecyclerView);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
@@ -190,7 +191,10 @@ public class QuestionnaireFragment extends Fragment {
                                 .map(Question::getResult)
                                 .collect(Collectors.toList());
 
-
+                        // Timers of question
+                        long[] timers = this.mQuestionAdapter.getTimers();
+                        List<Long> timerList = Arrays.stream(timers).boxed().collect(Collectors.toList());
+                        
                         // build result
                         QuestionnaireResult result = new QuestionnaireResult(
                                 resultId,
@@ -201,7 +205,7 @@ public class QuestionnaireFragment extends Fragment {
                                 questionnaire.getId(),
                                 resultEntries,
                                 removedQuestions,
-                                new ArrayList<>()
+                                timerList
                         );
 
                         // save result

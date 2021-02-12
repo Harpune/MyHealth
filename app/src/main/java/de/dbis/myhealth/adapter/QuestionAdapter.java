@@ -1,13 +1,13 @@
 package de.dbis.myhealth.adapter;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.ViewStubProxy;
@@ -20,10 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemQuestionBinding;
@@ -41,6 +42,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     private static final String TAG = "QuestionAdapter";
     private final Activity mActivity;
     private final LifecycleOwner mLifecycleOwner;
+    private final StopWatch mStopWatch;
+    private long[] mTimers;
+    private long mLastSplit;
     public QuestionnairesViewModel mQuestionnairesViewModel;
     private Questionnaire mQuestionnaire;
     private QuestionnaireSetting mQuestionnaireSetting;
@@ -82,6 +86,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                     case YES_NO:
                         RadioGroup yesNoRadioGroup = inflatedView.findViewById(R.id.group_yes_no);
                         yesNoRadioGroup.setOnCheckedChangeListener((radioGroup, id) -> {
+                            this.updateTime();
                             if (id == R.id.yes) {
                                 this.updateValue(1);
                             } else if (id == R.id.no) {
@@ -94,6 +99,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                     case YES_NO_SOMETIMES:
                         RadioGroup yesNoSometimesRadioGroup = inflatedView.findViewById(R.id.group_yes_no_sometimes);
                         yesNoSometimesRadioGroup.setOnCheckedChangeListener((radioGroup, id) -> {
+                            this.updateTime();
                             if (id == R.id.yes) {
                                 this.updateValue(1);
                             } else if (id == R.id.no) {
@@ -115,6 +121,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
                             @Override
                             public void onStopTrackingTouch(@NonNull Slider slider) {
+                                updateTime();
                                 updateValue(Math.round(slider.getValue()));
                             }
                         });
@@ -129,6 +136,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
                             @Override
                             public void onStopTrackingTouch(@NonNull Slider slider) {
+                                updateTime();
                                 updateValue(Math.round(slider.getValue()));
                             }
                         });
@@ -189,11 +197,30 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             this.binding.getQuestion().setResult(value);
             mQuestionnairesViewModel.updateQuestion(this.binding.getQuestion());
         }
+
+        private void updateTime() {
+            // get position in all question of current questions
+            Question question = mSelectedQuestions.get(getAdapterPosition());
+            int position = mAllQuestions.indexOf(question);
+            int i = getAdapterPosition();
+
+            // Get intervall between answered questions
+            mStopWatch.split();
+            long split = mStopWatch.getSplitTime();
+            long interval = (split - mLastSplit);
+            mTimers[position] = mTimers[position] + interval;
+            mLastSplit = split;
+            mStopWatch.unsplit();
+        }
+
     }
 
-    public QuestionAdapter(Activity activity, LifecycleOwner lifecycleOwner) {
+    public QuestionAdapter(Activity activity, LifecycleOwner lifecycleOwner, StopWatch stopWatch) {
         this.mActivity = activity;
         this.mLifecycleOwner = lifecycleOwner;
+        this.mStopWatch = stopWatch;
+
+        this.mLastSplit = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
         this.mQuestionnairesViewModel = new ViewModelProvider((ViewModelStoreOwner) this.mActivity).get(QuestionnairesViewModel.class);
 
@@ -209,6 +236,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         this.mQuestionnaire = questionnaire;
         this.mSelectedQuestions = questionnaire.getQuestions();
         this.mAllQuestions = this.cloneQuestions(this.mSelectedQuestions);
+        this.mTimers = new long[mAllQuestions.size()];
         notifyDataSetChanged();
     }
 
@@ -242,6 +270,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
     public void removeObserver() {
         this.mQuestionnaireSettingLiveData.removeObservers(this.mLifecycleOwner);
+    }
+
+    public long[] getTimers() {
+        return this.mTimers;
     }
 
     @NonNull
