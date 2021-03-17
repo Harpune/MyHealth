@@ -3,6 +3,7 @@ package de.dbis.myhealth;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
@@ -88,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
 //        this.mPreference.clear();
 
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
-        this.mSharedPreferences.edit().clear().apply();
-        this.deleteDatabase("app_database");
+//        this.mSharedPreferences.edit().clear().apply();
 
         this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
@@ -312,11 +312,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean darkMode = sharedPreferences.getBoolean(getString(R.string.dark_mode_key), false);
-        if (darkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        switch (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) {
+            case Configuration.UI_MODE_NIGHT_NO: // night mode NOT active
+                if (darkMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:// night mode active
+                if (!darkMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+                break;
         }
+
 
         return theme;
     }

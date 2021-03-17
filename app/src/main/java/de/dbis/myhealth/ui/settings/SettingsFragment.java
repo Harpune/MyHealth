@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -141,6 +142,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
             // get all saved track ids
             String[] ids = this.mPreference.getObject(SPOTIFY_TRACKS_KEY, String[].class, new String[0]);
+
             List<String> trackIds = new ArrayList<>(Arrays.asList(ids));
             Log.d(TAG, "saved track Ids: " + trackIds);
 
@@ -163,49 +165,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     .toArray(String[]::new);
 
             trackListPreference.setEntryValues(values);
-
         }
 
-        EditTextPreference addSpotifyPreference = findPreference(getString(R.string.spotify_add));
-        if (addSpotifyPreference != null) {
-            addSpotifyPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                String trackId = (String) newValue;
-                if (trackId != null && trackId.length() > 0) {
-                    // uri and id possible
-                    String[] split = trackId.trim().split(":");
-                    String[] reversed = this.reverse(split);
-                    String id = reversed[0];
 
-                    // load track from web-api
-                    this.mSettingsViewModel.loadSpotifyTrack(id).observe(this, spotifyTrack -> {
-                        if (spotifyTrack != null) {
-                            this.mPreference.setObject(id, spotifyTrack);
-                            Toast.makeText(
-                                    requireContext(),
-                                    "New track " + spotifyTrack.getTrack().name + " of " + spotifyTrack.getTrack().artists.get(0) + " added.",
-                                    Toast.LENGTH_LONG
-                            ).show();
-                        }
-                    });
-                    return true;
-                } else {
-                    Toast.makeText(
-                            requireContext(),
-                            "Please enter a ID or URI of a Spotify-Track.",
-                            Toast.LENGTH_LONG
-                    ).show();
-                    return false;
+        CheckBoxPreference playOnLocalDevice = findPreference(getString(R.string.spotify_play_on_device_key));
+        if (playOnLocalDevice != null) {
+            playOnLocalDevice.setOnPreferenceChangeListener((preference, newValue) -> {
+                Boolean enabled = (Boolean) newValue;
+                if (enabled) {
+                    this.mSettingsViewModel.switchToLocalDevice();
                 }
+                return true;
             });
         }
     }
 
-    private String[] reverse(String[] strings) {
-        for (int i = 0; i < strings.length / 2; i++) {
-            String temp = strings[i];
-            strings[i] = strings[strings.length - i - 1];
-            strings[strings.length - i - 1] = temp;
-        }
-        return strings;
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        setupSpotify();
     }
 }

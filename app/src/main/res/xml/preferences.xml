@@ -32,15 +32,15 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sleep_tracking">
+    <!--    <PreferenceCategory app:title="@string/sleep_tracking">-->
 
-        <CheckBoxPreference
-            app:defaultValue="false"
-            app:icon="@drawable/ic_baseline_directions_run_24"
-            app:key="@string/google_fit_key"
-            app:title="@string/google_fit" />
+    <!--        <CheckBoxPreference-->
+    <!--            app:defaultValue="false"-->
+    <!--            app:icon="@drawable/ic_baseline_directions_run_24"-->
+    <!--            app:key="@string/google_fit_key"-->
+    <!--            app:title="@string/google_fit" />-->
 
-    </PreferenceCategory>
+    <!--    </PreferenceCategory>-->
 
     <PreferenceCategory app:title="@string/music">
 
@@ -56,6 +56,13 @@
         <!--            app:icon="@drawable/ic_baseline_play_arrow_24"-->
         <!--            app:key="@string/spotify_autoplay_key"-->
         <!--            app:title="@string/spotify_autoplay" />-->
+
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:dependency="@string/spotify_key"
+            app:icon="@drawable/ic_baseline_phonelink_ring_24"
+            app:key="@string/spotify_play_on_device_key"
+            app:title="@string/spotify_play_on_device" />
 
         <ListPreference
             app:dependency="@string/spotify_key"

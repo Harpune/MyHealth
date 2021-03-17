@@ -1,6 +1,8 @@
 package de.dbis.myhealth.ui.settings;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,12 +13,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.fitness.SessionsClient;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
+import com.spotify.protocol.types.Empty;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
 
 import java.util.List;
 
+import de.dbis.myhealth.ApplicationConstants;
+import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.repository.SpotifyRepository;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -29,6 +35,8 @@ import retrofit.client.Response;
 public class SettingsViewModel extends AndroidViewModel {
     private final static String TAG = "SettingsViewModel";
 
+    private SharedPreferences mSharedPreferences;
+
     private final MutableLiveData<SpotifyApi> mSpotifyApi;
     private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
     private final MutableLiveData<PlayerState> mPlayerState;
@@ -38,6 +46,8 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public SettingsViewModel(Application application) {
         super(application);
+
+        this.mSharedPreferences = getApplication().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
         // Live Data
         this.mSpotifyApi = new MutableLiveData<>();
@@ -61,7 +71,20 @@ public class SettingsViewModel extends AndroidViewModel {
             spotifyAppRemote.getPlayerApi().setShuffle(false);
             spotifyAppRemote.getPlayerApi().setRepeat(Repeat.ONE);
 
-            spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
+            // play on local device
+            boolean playOnLocalDeviceEnabled = this.mSharedPreferences.getBoolean(getApplication().getString(R.string.spotify_play_on_device_key), false);
+            if (playOnLocalDeviceEnabled) {
+                this.switchToLocalDevice();
+            }
+
+            // play or resume
+            PlayerState playerState = this.getPlayerState().getValue();
+            if (playerState != null && playerState.track.uri.endsWith(spotifyTrack.getTrackId())) {
+                spotifyAppRemote.getPlayerApi().resume();
+            } else {
+                spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
+            }
+
         } else {
             Log.d(TAG, "Couldn't play: " + spotifyTrack.getTrack().name);
         }
@@ -71,6 +94,13 @@ public class SettingsViewModel extends AndroidViewModel {
         SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
         if (spotifyAppRemote != null) {
             spotifyAppRemote.getPlayerApi().pause();
+        }
+    }
+
+    public void switchToLocalDevice() {
+        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
+        if (spotifyAppRemote != null) {
+            spotifyAppRemote.getConnectApi().connectSwitchToLocalDevice().setResultCallback(empty -> Toast.makeText(getApplication(), "Spotify now plays from your device", Toast.LENGTH_LONG).show());
         }
     }
 

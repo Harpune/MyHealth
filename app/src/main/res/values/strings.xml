@@ -187,5 +187,7 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
+    <string name="spotify_play_on_device_key">spotify_play_on_device_key</string>
+    <string name="spotify_play_on_device">Always play on this device</string>
 
 </resources>
