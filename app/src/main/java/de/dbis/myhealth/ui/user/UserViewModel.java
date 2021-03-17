@@ -19,13 +19,13 @@ import com.preference.Preference;
 
 import java.util.Date;
 
-import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.models.User;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_USERS;
 
 public class UserViewModel extends AndroidViewModel {
-    private Preference mPreference;
+    private final static String TAG = "UserViewModel";
+
     private final FirebaseAuth mAuth;
     private final FirebaseFirestore firestore;
     private final MutableLiveData<User> mUser;
@@ -33,7 +33,6 @@ public class UserViewModel extends AndroidViewModel {
 
     public UserViewModel(Application application) {
         super(application);
-        this.mPreference = PowerPreference.getDefaultFile();
 
         // NETWORK
         this.mAuth = FirebaseAuth.getInstance();
@@ -75,12 +74,8 @@ public class UserViewModel extends AndroidViewModel {
     }
 
     private void setFirebaseUser(FirebaseUser firebaseUser) {
-        // update firebase user
         this.mFirebaseUser.setValue(firebaseUser);
-
-        // get user from preference
-        User user = this.mPreference.getObject(firebaseUser.getUid(), User.class, new User(firebaseUser.getUid()));
-        this.setUser(user);
+        this.subscribeToUser();
     }
 
     public LiveData<FirebaseUser> getFirebaseUser() {
@@ -95,8 +90,27 @@ public class UserViewModel extends AndroidViewModel {
         return this.mUser;
     }
 
-    public User getCurrentUser(String firebaseId) {
-        return this.mPreference.getObject(firebaseId, User.class, new User(firebaseId));
+    private void subscribeToUser() {
+        FirebaseUser firebaseUser = this.mFirebaseUser.getValue();
+        if (firebaseUser != null) {
+            this.firestore.collection(FIREBASE_COLLECTION_USERS)
+                    .document(firebaseUser.getUid())
+                    .addSnapshotListener((snapshot, error) -> {
+                        if (error != null) {
+                            Log.w(TAG, "Listen failed", error);
+                            return;
+                        }
+
+                        if (snapshot != null && snapshot.exists()) {
+                            Log.d(TAG, "Current data: " + snapshot.getData());
+                            User user = snapshot.toObject(User.class);
+                            setUser(user);
+                        } else {
+                            Log.d(TAG, "No results found");
+                        }
+                    });
+
+        }
     }
 
     public void save() {

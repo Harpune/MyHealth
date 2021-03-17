@@ -19,42 +19,51 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.firebase.auth.FirebaseUser;
+import com.preference.PowerPreference;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentUserBinding;
+import de.dbis.myhealth.models.User;
 
 public class UserFragment extends Fragment {
 
+    // user relevant
     private UserViewModel mUserViewModel;
+    private LiveData<User> mUserLiveData;
     private LiveData<FirebaseUser> mFirebaseUserLiveData;
 
+    // Views
+    private View root;
+
+    // click listener on FAB
     private final View.OnClickListener mFabClickListener = this::save;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        // get view model
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
+        // setup binding
         FragmentUserBinding mFragmentUserBinding = FragmentUserBinding.inflate(inflater, container, false);
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
         mFragmentUserBinding.setUserViewModel(this.mUserViewModel);
         mFragmentUserBinding.setLifecycleOwner(getViewLifecycleOwner());
 
-        View root = mFragmentUserBinding.getRoot();
+        // get root view
+        this.root = mFragmentUserBinding.getRoot();
 
-        // gender dropdown
+        // setup gender dropdown
         ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender, R.layout.item_gender);
         MaterialAutoCompleteTextView materialAutoCompleteTextView = root.findViewById(R.id.filled_exposed_dropdown);
         materialAutoCompleteTextView.setAdapter(arrayAdapter);
 
-        this.mFirebaseUserLiveData = this.mUserViewModel.getFirebaseUser();
-        mFirebaseUserLiveData.observe(getViewLifecycleOwner(), firebaseUser -> {
-            String gender = this.mUserViewModel.getCurrentUser(firebaseUser.getUid()).getGender();
-            materialAutoCompleteTextView.setText(gender, false);
-        });
+        this.mUserLiveData = this.mUserViewModel.getUser();
+        this.mUserLiveData.observe(getViewLifecycleOwner(), user ->
+                materialAutoCompleteTextView.setText(user.getGender(), false));
 
         return root;
     }
@@ -73,12 +82,17 @@ public class UserFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        this.hideKeyboardFrom(requireContext(), getView());
+        this.hideKeyboardFrom(requireContext(), this.root);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        this.mFirebaseUserLiveData.removeObservers(getViewLifecycleOwner());
+        if (this.mFirebaseUserLiveData != null) {
+            this.mFirebaseUserLiveData.removeObservers(getViewLifecycleOwner());
+        }
+        if (this.mUserLiveData != null) {
+            this.mUserLiveData.removeObservers(getViewLifecycleOwner());
+        }
     }
 }
