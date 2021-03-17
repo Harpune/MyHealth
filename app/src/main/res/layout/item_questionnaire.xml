@@ -5,7 +5,7 @@
     <data>
 
         <variable
-            name="questionnaires"
+            name="questionnaire"
             type="de.dbis.myhealth.models.Questionnaire" />
 
         <variable
@@ -27,7 +27,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="@{questionnaires.title}"
+            android:text="@{questionnaire.title}"
             android:textAppearance="@android:style/TextAppearance.Material.Title"
             app:layout_constraintBottom_toTopOf="@id/questionnaireDescription"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +37,7 @@
             android:id="@+id/questionnaireDescription"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:text="@{questionnaires.description}"
+            android:text="@{questionnaire.description}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/questionnaireTitle" />

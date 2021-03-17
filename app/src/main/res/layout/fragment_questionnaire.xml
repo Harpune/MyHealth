@@ -14,9 +14,6 @@
             name="questionnaireSetting"
             type="de.dbis.myhealth.models.QuestionnaireSetting" />
 
-        <variable
-            name="fragment"
-            type="de.dbis.myhealth.ui.questionnaires.QuestionnaireFragment" />
     </data>
 
     <de.dbis.myhealth.components.NestedCoordinatorLayout

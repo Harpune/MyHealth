@@ -2,34 +2,45 @@ package de.dbis.myhealth.ui.settings;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.preference.PowerPreference;
+import com.preference.Preference;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
-import de.dbis.myhealth.util.GoogleFitConnector;
+
+import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_TRACKS_KEY;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private final static String TAG = "SettingsFragment";
+
+    // helper
+    private final Preference mPreference = PowerPreference.getDefaultFile();
 
     // View Model
     private QuestionnairesViewModel mQuestionnairesViewModel;
 
     // Services
     private SettingsViewModel mSettingsViewModel;
-    private GoogleFitConnector mGoogleFitConnector;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -39,12 +50,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
-        this.mGoogleFitConnector = new GoogleFitConnector(requireActivity());
 
         this.setupDarkMode();
         this.setupQuestionnaire();
         this.setupTheme();
-        this.setupGoogleFit();
         this.setupSpotify();
     }
 
@@ -125,40 +134,36 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
     }
 
-    private void setupGoogleFit() {
-        CheckBoxPreference googleFitPreference = findPreference(getString(R.string.google_fit_key));
-        if (googleFitPreference != null) {
-            googleFitPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                if ((Boolean) newValue) {
-                    this.mGoogleFitConnector.connect();
-                } else {
-                    this.mGoogleFitConnector.disconnect();
-                }
-                return true;
-            });
-        }
-    }
-
     private void setupSpotify() {
         // Get tracks
         ListPreference trackListPreference = findPreference(getString(R.string.current_spotify_track_key));
         if (trackListPreference != null) {
-            this.mSettingsViewModel.getAllSpotifyTracks().observe(requireActivity(), spotifyTracks -> {
-                // setup entries
-                String[] entries = spotifyTracks.stream()
-                        .map(spotifyTrack -> spotifyTrack.getTrack().name)
-                        .toArray(String[]::new);
 
-                trackListPreference.setEntries(entries);
+            // get all saved track ids
+            String[] ids = this.mPreference.getObject(SPOTIFY_TRACKS_KEY, String[].class, new String[0]);
+            List<String> trackIds = new ArrayList<>(Arrays.asList(ids));
+            Log.d(TAG, "saved track Ids: " + trackIds);
 
-                // setup values
-                String[] values = spotifyTracks.stream()
-                        .map(SpotifyTrack::getTrackId)
-                        .toArray(String[]::new);
+            List<SpotifyTrack> spotifyTracks = trackIds.stream()
+                    .map(trackId -> this.mPreference.<SpotifyTrack>getObject(trackId, SpotifyTrack.class, null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            Log.d(TAG, "saved tracks: " + spotifyTracks);
 
-                trackListPreference.setEntryValues(values);
+            // setup entries
+            String[] entries = spotifyTracks.stream()
+                    .map(spotifyTrack -> spotifyTrack.getTrack().name)
+                    .toArray(String[]::new);
 
-            });
+            trackListPreference.setEntries(entries);
+
+            // setup values
+            String[] values = spotifyTracks.stream()
+                    .map(SpotifyTrack::getTrackId)
+                    .toArray(String[]::new);
+
+            trackListPreference.setEntryValues(values);
+
         }
 
         EditTextPreference addSpotifyPreference = findPreference(getString(R.string.spotify_add));
@@ -174,7 +179,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     // load track from web-api
                     this.mSettingsViewModel.loadSpotifyTrack(id).observe(this, spotifyTrack -> {
                         if (spotifyTrack != null) {
-                            this.mSettingsViewModel.save(spotifyTrack);
+                            this.mPreference.setObject(id, spotifyTrack);
                             Toast.makeText(
                                     requireContext(),
                                     "New track " + spotifyTrack.getTrack().name + " of " + spotifyTrack.getTrack().artists.get(0) + " added.",

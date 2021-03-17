@@ -25,30 +25,6 @@
             android:text="@{question.text}"
             android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
-        <!--        <include-->
-        <!--            android:id="@+id/layout_yes_no"-->
-        <!--            layout="@layout/item_question_yes_no"-->
-        <!--            bind:isVisible="@{question.questionType == QuestionType.YES_NO}"-->
-        <!--            bind:question="@{question}" />-->
-
-        <!--        <include-->
-        <!--            android:id="@+id/layout_yes_no_sometimes"-->
-        <!--            layout="@layout/item_question_yes_no_sometimes"-->
-        <!--            bind:isVisible="@{question.questionType == QuestionType.YES_NO_SOMETIMES}"-->
-        <!--            bind:question="@{question}" />-->
-
-        <!--        <include-->
-        <!--            android:id="@+id/layout_slider_0_10"-->
-        <!--            layout="@layout/item_question_slider_0_10"-->
-        <!--            bind:isVisible="@{question.questionType == QuestionType.SLIDER_0_10}"-->
-        <!--            bind:question="@{question}" />-->
-
-        <!--        <include-->
-        <!--            android:id="@+id/layout_slider_0_100"-->
-        <!--            layout="@layout/item_question_slider_0_100"-->
-        <!--            bind:isVisible="@{question.questionType == QuestionType.SLIDER_0_100}"-->
-        <!--            bind:question="@{question}" />-->
-
         <ViewStub
             android:id="@+id/view_stub"
             android:layout_width="match_parent"

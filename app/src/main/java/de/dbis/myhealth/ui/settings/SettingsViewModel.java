@@ -2,116 +2,189 @@ package de.dbis.myhealth.ui.settings;
 
 import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.fitness.SessionsClient;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Repeat;
 
 import java.util.List;
 
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.repository.SpotifyRepository;
 import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.Track;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class SettingsViewModel extends AndroidViewModel {
-
     private final static String TAG = "SettingsViewModel";
 
-    // Google Fit
-    private final MutableLiveData<SessionsClient> mSessionsClient;
+    private final MutableLiveData<SpotifyApi> mSpotifyApi;
+    private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
+    private final MutableLiveData<PlayerState> mPlayerState;
+    private final MutableLiveData<PlayerContext> mPlayerContext;
+    private final MutableLiveData<SpotifyTrack> mSpotifyTrack;
 
-    // Spotify
-    private final SpotifyRepository mSpotifyRepository;
 
     public SettingsViewModel(Application application) {
         super(application);
 
-        // Google Fit
-        this.mSessionsClient = new MutableLiveData<>();
-
-        // Spotify
-        this.mSpotifyRepository = new SpotifyRepository(application);
+        // Live Data
+        this.mSpotifyApi = new MutableLiveData<>();
+        this.mSpotifyAppRemote = new MutableLiveData<>();
+        this.mPlayerState = new MutableLiveData<>();
+        this.mPlayerContext = new MutableLiveData<>();
+        this.mSpotifyTrack = new MutableLiveData<>();
     }
 
-    public LiveData<SessionsClient> getSessionClient() {
-        return this.mSessionsClient;
-    }
-
-    public void setSessionsClient(SessionsClient sessionsClient) {
-        this.mSessionsClient.setValue(sessionsClient);
-    }
-
-    // SPOTIFY
     public void disconnect() {
-        this.mSpotifyRepository.disconnect();
+        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
+        if (spotifyAppRemote != null) {
+            SpotifyAppRemote.disconnect(spotifyAppRemote);
+            this.mSpotifyAppRemote.setValue(null);
+        }
     }
 
     public void play(SpotifyTrack spotifyTrack) {
-        this.mSpotifyRepository.play(spotifyTrack);
+        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
+        if (spotifyAppRemote != null) {
+            spotifyAppRemote.getPlayerApi().setShuffle(false);
+            spotifyAppRemote.getPlayerApi().setRepeat(Repeat.ONE);
+
+            spotifyAppRemote.getPlayerApi().play(spotifyTrack.getTrack().uri);
+        } else {
+            Log.d(TAG, "Couldn't play: " + spotifyTrack.getTrack().name);
+        }
     }
 
     public void pause() {
-        this.mSpotifyRepository.pause();
+        SpotifyAppRemote spotifyAppRemote = this.mSpotifyAppRemote.getValue();
+        if (spotifyAppRemote != null) {
+            spotifyAppRemote.getPlayerApi().pause();
+        }
     }
 
     public LiveData<SpotifyAppRemote> getSpotifyRemoteApp() {
-        return this.mSpotifyRepository.getSpotifyAppRemote();
+        return this.mSpotifyAppRemote;
     }
 
     public void setSpotifyAppRemote(SpotifyAppRemote spotifyAppRemote) {
-        this.mSpotifyRepository.setSpotifyAppRemote(spotifyAppRemote);
+        this.mSpotifyAppRemote.setValue(spotifyAppRemote);
 
         spotifyAppRemote.getPlayerApi().subscribeToPlayerState()
-                .setEventCallback(this.mSpotifyRepository::setPlayerState)
+                .setEventCallback(this::setPlayerState)
                 .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerState", error));
 
         spotifyAppRemote.getPlayerApi().subscribeToPlayerContext()
-                .setEventCallback(this.mSpotifyRepository::setPlayerContext)
+                .setEventCallback(this::setPlayerContext)
                 .setErrorCallback(error -> Log.d(TAG, "subscribeToPlayerContext", error));
     }
 
     public LiveData<SpotifyApi> getSpotifyApi() {
-        return this.mSpotifyRepository.getSpotifyApi();
+        return this.mSpotifyApi;
     }
 
     public void setSpotifyApi(SpotifyApi spotifyApi) {
-        this.mSpotifyRepository.setSpotifyApi(spotifyApi);
+        this.mSpotifyApi.setValue(spotifyApi);
     }
 
     public LiveData<PlayerState> getPlayerState() {
-        return this.mSpotifyRepository.getPlayerState();
+        return mPlayerState;
+    }
+
+    public void setPlayerState(PlayerState playerState) {
+        this.mPlayerState.setValue(playerState);
     }
 
     public LiveData<PlayerContext> getPlayerContext() {
-        return this.mSpotifyRepository.getPlayerContext();
+        return mPlayerContext;
+    }
+
+    public void setPlayerContext(PlayerContext playerContext) {
+        this.mPlayerContext.setValue(playerContext);
     }
 
     public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
-        return this.mSpotifyRepository.loadSpotifyTrack(id);
-    }
+        // LiveData updated by SpotifyAPI-Callbacks
+        MutableLiveData<Track> trackLiveData = new MutableLiveData<>();
+        MutableLiveData<AudioFeaturesTrack> audioFeaturesTrackLiveData = new MutableLiveData<>();
 
-    public void save(SpotifyTrack spotifyTrack) {
-        this.mSpotifyRepository.insert(spotifyTrack);
-    }
+        // MediatorLiveData returns all callback data if present
+        MediatorLiveData<SpotifyTrack> mediatorLiveData = new MediatorLiveData<>();
 
-    public LiveData<List<SpotifyTrack>> getAllSpotifyTracks() {
-        return this.mSpotifyRepository.getAllSpotifyTracks();
+        // Check if audioFeaturesTrackLiveData is finished on Track-Callback
+        mediatorLiveData.addSource(trackLiveData, value -> {
+            Track track = trackLiveData.getValue();
+            AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null) {
+                SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
+                spotifyTrack.setTrack(track);
+                spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                mediatorLiveData.setValue(spotifyTrack);
+            }
+        });
+
+        // Check if trackLiveData is finished on AudioFeaturesTrack-Callback
+        mediatorLiveData.addSource(audioFeaturesTrackLiveData, value -> {
+            Track track = trackLiveData.getValue();
+            AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null) {
+                SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
+                spotifyTrack.setTrack(track);
+                spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                mediatorLiveData.setValue(spotifyTrack);
+            }
+        });
+
+        // Access data
+        SpotifyApi spotifyApi = this.mSpotifyApi.getValue();
+        if (spotifyApi != null) {
+            // Get
+            spotifyApi.getService().getTrack(id, new Callback<Track>() {
+                @Override
+                public void success(Track track, Response response) {
+                    trackLiveData.setValue(track);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d(TAG, "Get Track", error);
+                    Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            spotifyApi.getService().getTrackAudioFeatures(id, new Callback<AudioFeaturesTrack>() {
+                @Override
+                public void success(AudioFeaturesTrack audioFeaturesTrack, Response response) {
+                    audioFeaturesTrackLiveData.setValue(audioFeaturesTrack);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d(TAG, "Get Track", error);
+                    Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        return mediatorLiveData;
     }
 
     public LiveData<SpotifyTrack> getCurrentSpotifyTrack() {
-        return this.mSpotifyRepository.getCurrentSpotifyTrack();
+        return this.mSpotifyTrack;
     }
 
-    public void setCurrentSpotifyTrack(SpotifyTrack track) {
-        this.mSpotifyRepository.setCurrentSpotifyTrack(track);
-    }
-
-    public LiveData<SpotifyTrack> getSpotifyTrackById(String id) {
-        return this.mSpotifyRepository.getSpotifyTrack(id);
+    public void setCurrentSpotifyTrack(SpotifyTrack spotifyTrack) {
+        this.mSpotifyTrack.setValue(spotifyTrack);
     }
 }

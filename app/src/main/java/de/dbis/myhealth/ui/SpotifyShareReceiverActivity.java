@@ -14,13 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.preference.PowerPreference;
+import com.preference.Preference;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.dbis.myhealth.ApplicationConstants;
@@ -33,6 +36,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_CLIENT_ID;
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_REDIRECT_URI;
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_REQUEST_CODE;
+import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_TRACKS_KEY;
 
 public class SpotifyShareReceiverActivity extends AppCompatActivity {
     private static final String TAG = "SpotifyShareReceiverActivity";
@@ -40,10 +44,13 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
     private ActivitySpotifyReceiverBinding mSpotifyReceiverBinding;
     private SettingsViewModel mSettingsViewModel;
     private SharedPreferences mSharedPreferences;
+    private Preference mPreference;
 
     private LiveData<SpotifyApi> mSpotifyApiLiveData;
     private LiveData<SpotifyTrack> mSpotifyTrackLiveData;
-    private LiveData<List<SpotifyTrack>> mSpotifyTracksLiveData;
+
+    private String mTrackId;
+    private List<String> mTrackIds;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,18 +58,32 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
         this.mSpotifyReceiverBinding = DataBindingUtil.setContentView(this, R.layout.activity_spotify_receiver);
         this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+        this.mPreference = PowerPreference.getDefaultFile();
     }
 
     @Override
     protected void onStart() {
         super.onStart();// get track and handle data
         this.mSpotifyApiLiveData = this.mSettingsViewModel.getSpotifyApi();
-        this.mSpotifyTracksLiveData = this.mSettingsViewModel.getAllSpotifyTracks();
 
-        String trackId = this.handleIntent(getIntent());
-        if (trackId != null) {
+        // saved ids
+        String[] trackIds = this.mPreference.getObject(SPOTIFY_TRACKS_KEY, String[].class, new String[0]);
+        this.mTrackIds = new ArrayList<>(Arrays.asList(trackIds));
+
+        // new id
+        this.mTrackId = this.handleIntent(getIntent());
+
+        // check if new id is not null
+        if (this.mTrackId != null) {
+
+            // check if already added
+            if (this.mTrackIds.contains(this.mTrackId)) {
+                Log.d(TAG, "Track-ID " + this.mTrackId + " already exists");
+            }
+
+            // request spotify track with spotify api (observed after being set in connectToApiOrAuth())
             this.mSpotifyApiLiveData.observe(this, spotifyApi -> {
-                this.mSpotifyTrackLiveData = this.mSettingsViewModel.loadSpotifyTrack(trackId);
+                this.mSpotifyTrackLiveData = this.mSettingsViewModel.loadSpotifyTrack(this.mTrackId);
                 this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> this.mSpotifyReceiverBinding.setSpotifyTrack(spotifyTrack));
             });
 
@@ -122,10 +143,6 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
         if (this.mSpotifyTrackLiveData != null) {
             this.mSpotifyTrackLiveData.removeObservers(this);
         }
-
-        if (this.mSpotifyTracksLiveData != null) {
-            this.mSpotifyTracksLiveData.removeObservers(this);
-        }
     }
 
     @Override
@@ -161,12 +178,13 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
     public void saveSpotifyTrack(View view) {
         SpotifyTrack spotifyTrack = this.mSpotifyReceiverBinding.getSpotifyTrack();
         if (spotifyTrack != null) {
-            this.mSpotifyTracksLiveData.observe(this, spotifyTracks -> {
-                Toast.makeText(this, spotifyTrack.getTrack().name + " was successfully saved. You can now select it in Settings", Toast.LENGTH_LONG).show();
-                finish();
-            });
+            // add track to track ids
+            this.mTrackIds.add(this.mTrackId);
 
-            this.mSettingsViewModel.save(spotifyTrack);
+            // save in preference
+            this.mPreference.setObject(SPOTIFY_TRACKS_KEY, this.mTrackIds);
+            this.mPreference.setObject(this.mTrackId, spotifyTrack);
+            finish();
         }
     }
 

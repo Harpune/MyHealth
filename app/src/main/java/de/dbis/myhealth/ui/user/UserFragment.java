@@ -13,9 +13,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.firebase.auth.FirebaseUser;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
@@ -25,6 +28,7 @@ import de.dbis.myhealth.databinding.FragmentUserBinding;
 public class UserFragment extends Fragment {
 
     private UserViewModel mUserViewModel;
+    private LiveData<FirebaseUser> mFirebaseUserLiveData;
 
     private final View.OnClickListener mFabClickListener = this::save;
 
@@ -40,17 +44,17 @@ public class UserFragment extends Fragment {
         mFragmentUserBinding.setLifecycleOwner(getViewLifecycleOwner());
 
         View root = mFragmentUserBinding.getRoot();
-        String deviceId = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE)
-                .getString(getString(R.string.device_id), null);
-
 
         // gender dropdown
         ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender, R.layout.item_gender);
         MaterialAutoCompleteTextView materialAutoCompleteTextView = root.findViewById(R.id.filled_exposed_dropdown);
         materialAutoCompleteTextView.setAdapter(arrayAdapter);
 
-        String gender = this.mUserViewModel.getCurrentUser(deviceId).getGender();
-        materialAutoCompleteTextView.setText(gender, false);
+        this.mFirebaseUserLiveData = this.mUserViewModel.getFirebaseUser();
+        mFirebaseUserLiveData.observe(getViewLifecycleOwner(), firebaseUser -> {
+            String gender = this.mUserViewModel.getCurrentUser(firebaseUser.getUid()).getGender();
+            materialAutoCompleteTextView.setText(gender, false);
+        });
 
         return root;
     }
@@ -70,5 +74,11 @@ public class UserFragment extends Fragment {
     public void onPause() {
         super.onPause();
         this.hideKeyboardFrom(requireContext(), getView());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        this.mFirebaseUserLiveData.removeObservers(getViewLifecycleOwner());
     }
 }

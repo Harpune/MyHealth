@@ -23,10 +23,20 @@
         tools:context=".ui.home.HomeFragment">
 
         <include
+            android:id="@+id/layout_player_state"
             layout="@layout/item_player_state"
             android:visibility="@{settingsViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
             bind:currentSpotifyTrack="@{settingsViewModel.currentSpotifyTrack}"
             bind:playerState="@{settingsViewModel.playerState}" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/home_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_player_state" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

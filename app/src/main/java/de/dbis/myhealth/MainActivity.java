@@ -29,6 +29,8 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.preference.PowerPreference;
+import com.preference.Preference;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -40,14 +42,11 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-import java.util.UUID;
-
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
-import de.dbis.myhealth.util.GoogleFitConnector;
 import kaaes.spotify.webapi.android.SpotifyApi;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_CLIENT_ID;
@@ -58,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     // View Models
-    private GoogleFitConnector mGoogleFitConnector;
     public SettingsViewModel mSettingsViewModel;
+    public UserViewModel mUserViewModel;
 
     // Views
     public FloatingActionButton mFab;
@@ -68,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Android
     public SharedPreferences mSharedPreferences;
+    private Preference mPreference;
     private AppBarConfiguration mAppBarConfiguration;
     private NavController mNavController;
 
@@ -83,28 +83,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // get settings and settings- db
+        PowerPreference.init(this);
+        this.mPreference = PowerPreference.getDefaultFile();
+//        this.mPreference.clear();
+
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+        this.mSharedPreferences.edit().clear().apply();
+        this.deleteDatabase("app_database");
+
         this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
-//        this.mSharedPreferences.edit().clear().apply();
-//        this.deleteDatabase("app_database");
-        if (!this.mSharedPreferences.contains(getString(R.string.device_id))) {
-            this.mSharedPreferences.edit().putString(getString(R.string.device_id), UUID.randomUUID().toString()).apply();
-        }
+        this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         // navigation
         this.mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
-
-        // Google Fit
-        this.mGoogleFitConnector = new GoogleFitConnector(this);
-        if (this.mGoogleFitConnector.isEnabled()) {
-            this.mGoogleFitConnector.connect();
-            this.mGoogleFitConnector.getSleepingData();
-        }
-
-        this.mGoogleFitConnector.getSessionClient().observe(this, sessionsClient -> Log.d("MainActivity", "SessionClient changed"));
     }
 
     /**
@@ -248,11 +242,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSpotifyTrack(String trackId) {
         if (trackId != null) {
-            LiveData<SpotifyTrack> spotifyTrackLiveData = mSettingsViewModel.getSpotifyTrackById(trackId);
-            spotifyTrackLiveData.observe(this, spotifyTrack -> {
-                mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
-                spotifyTrackLiveData.removeObservers(this);
-            });
+            SpotifyTrack spotifyTrack = this.mPreference.getObject(trackId, SpotifyTrack.class);
+            if (spotifyTrack != null) {
+                this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+            } else {
+                Log.w(TAG, "Could not find SpotifyTrack with id in Preference: " + trackId);
+            }
+        } else {
+            Log.w(TAG, "SpotifyTrack is null");
         }
     }
 
@@ -329,11 +326,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            // Google Fit
-            if (requestCode == ApplicationConstants.GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-                this.mGoogleFitConnector.connect();
-            }
-
             // Spotify
             if (requestCode == SPOTIFY_REQUEST_CODE) {
                 AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
@@ -359,7 +351,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -382,17 +373,20 @@ public class MainActivity extends AppCompatActivity {
                 this.toggleMusicMenuItem(true);
 
                 // setup current selected track
-                String currentTrackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
-                if (currentTrackId != null) {
-                    // get track id from shared preferences
-                    this.mSettingsViewModel.getSpotifyTrackById(currentTrackId).observe(this, spotifyTrack -> {
-                        // set spotifyTrack id from shared preferences
-                        if (spotifyTrack != null) {
-                            Log.d(TAG, "!!!!! Trying to set current Track");
-                            this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
-                        }
-                    });
-                }
+                String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
+                this.setupSpotifyTrack(trackId);
+//                if (trackId != null) {
+//                    // get track id from shared preferences
+//                    this.mSettingsViewModel.getSpotifyTrackById(trackId).observe(this, spotifyTrack -> {
+//                        // set spotifyTrack id from shared preferences
+//                        if (spotifyTrack != null) {
+//                            Log.d(TAG, "!!!!! Trying to set current Track");
+//                            this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+//                        }
+//                    });
+//                } else {
+//                    Log.d(TAG, "No track set to play");
+//                }
             } else {
                 // not connected
                 this.toggleMusicMenuItem(false);

@@ -5,6 +5,10 @@ public class ApplicationConstants {
     public static final String PREFERENCES = "de.dbis.myhealth.PREFERENCES";
     public static final String DATABASE_NAME = "app_database";
 
+    // Preferences
+    public static final String SPOTIFY_TRACKS_KEY = "spotify";
+    public static final String USER_KEY = "users";
+
     // SPOTIFY
     public static final int SPOTIFY_MENU_ITEM = 2;
     public static final int SPOTIFY_REQUEST_CODE = 1337;
@@ -13,4 +17,12 @@ public class ApplicationConstants {
 
     // GOOGLE FIT
     public final static int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1;
+
+    // FIREBASE
+    public static final String FIREBASE_COLLECTION_GAMIFICATION = "gamification";
+    public static final String FIREBASE_COLLECTION_QUESTIONNAIRES = "questionnaire";
+    public static final String FIREBASE_COLLECTION_RESULTS = "result";
+    public static final String FIREBASE_COLLECTION_USERS = "user";
+
+
 }

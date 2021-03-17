@@ -33,7 +33,6 @@
         tools:layout="@layout/fragment_questionnaire">
         <argument
             android:name="questionnaire_id"
-            android:defaultValue=""
             app:argType="string" />
     </fragment>
 

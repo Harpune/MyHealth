@@ -4,26 +4,35 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import java.util.List;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
-import de.dbis.myhealth.dao.UserDao;
 import de.dbis.myhealth.models.User;
-import de.dbis.myhealth.util.AppDatabase;
+
 
 public class UserRepository {
+    private final static String FIREBASE_COLLECTION_USER = "users";
+    private final FirebaseFirestore firestore;
 
-    private UserDao mUserDao;
 
     public UserRepository(Application application) {
-        AppDatabase db = AppDatabase.getInstance(application);
-        this.mUserDao = db.userDao();
+
+
+        // NETWORK
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        this.firestore = FirebaseFirestore.getInstance();
+        this.firestore.setFirestoreSettings(settings);
+        // questionnaires
     }
 
     public void setUser(User user) {
-        AppDatabase.databaseWriteExecutor.execute(() -> mUserDao.insert(user));
-    }
+        // save in db
 
-    public User getUser(String deviceId) {
-        return this.mUserDao.get(deviceId);
+        // save in firestore
+        this.firestore.collection(FIREBASE_COLLECTION_USER)
+                .document(user.getUserId())
+                .set(user);
     }
 }

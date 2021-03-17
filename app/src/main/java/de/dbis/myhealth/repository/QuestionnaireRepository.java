@@ -1,12 +1,10 @@
 package de.dbis.myhealth.repository;
 
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -15,42 +13,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
-import de.dbis.myhealth.dao.QuestionnaireDao;
-import de.dbis.myhealth.dao.QuestionnaireResultDao;
-import de.dbis.myhealth.dao.QuestionnaireSettingDao;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
-import de.dbis.myhealth.models.QuestionnaireSetting;
-import de.dbis.myhealth.util.AppDatabase;
 
+@Deprecated
 public class QuestionnaireRepository {
     private final static String TAG = "QuestionnaireRepository";
     private final Application application;
 
-    // db
-    private final QuestionnaireDao mQuestionnaireDao;
-    private final QuestionnaireResultDao mQuestionnaireResultDao;
-    private final QuestionnaireSettingDao mQuestionnaireSettingDao;
 
     // network
     private final FirebaseFirestore firestore;
+    private final FirebaseUser mFirebaseUser;
     private final static String FIREBASE_COLLECTION_QUESTIONNAIRES = "questionnaire";
     private final CollectionReference questionnaireRef;
     private final static String FIREBASE_COLLECTION_RESULTS_PRE = "result-";
 
     public QuestionnaireRepository(Application application) {
         this.application = application;
-        // DB
-        AppDatabase db = AppDatabase.getInstance(application);
-        // questionnaire
-        this.mQuestionnaireDao = db.questionnaireDao();
-        // questionnaire result
-        this.mQuestionnaireResultDao = db.resultDao();
-        // questionnaire settings
-        this.mQuestionnaireSettingDao = db.questionnaireSettingDao();
 
         // NETWORK
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -58,46 +40,13 @@ public class QuestionnaireRepository {
                 .build();
         this.firestore = FirebaseFirestore.getInstance();
         this.firestore.setFirestoreSettings(settings);
+
+        this.mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
         // questionnaires
         this.questionnaireRef = firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES);
         this.subscribeToQuestionnaires();
-        this.subscribeToResults();
-    }
-
-    public void insertQuestionnaireResult(Questionnaire questionnaire) {
-        AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireDao.insert(questionnaire));
-    }
-
-    public LiveData<List<Questionnaire>> getAllQuestionnaires() {
-        return this.mQuestionnaireDao.getAll();
-    }
-
-    public LiveData<Questionnaire> getQuestionnaire(String questionnaireId) {
-        return this.mQuestionnaireDao.get(questionnaireId);
-    }
-
-    public void insertQuestionnaireResult(QuestionnaireResult questionnaireResult) {
-        AppDatabase.databaseWriteExecutor.execute(() -> mQuestionnaireResultDao.insert(questionnaireResult));
-    }
-
-    public LiveData<List<QuestionnaireResult>> getAllQuestionnaireResults() {
-        return this.mQuestionnaireResultDao.getAll();
-    }
-
-    public LiveData<QuestionnaireResult> getQuestionnaireResult(String questionnaireResultId) {
-        return this.mQuestionnaireResultDao.get(questionnaireResultId);
-    }
-
-    public void insertQuestionnaireSetting(QuestionnaireSetting questionnaireSetting) {
-        AppDatabase.databaseWriteExecutor.execute(() -> this.mQuestionnaireSettingDao.insert(questionnaireSetting));
-    }
-
-    public LiveData<QuestionnaireSetting> getQuestionnaireSetting(String questionnaireId) {
-        return this.mQuestionnaireSettingDao.getQuestionnaireSettingById(questionnaireId);
-    }
-
-    public LiveData<List<QuestionnaireSetting>> getAllQuestionnaireSettings() {
-        return this.mQuestionnaireSettingDao.getAll();
+//        this.subscribeToResults();
     }
 
     private void subscribeToQuestionnaires() {
@@ -115,7 +64,7 @@ public class QuestionnaireRepository {
                             Questionnaire questionnaire = documentSnapshot.toObject(Questionnaire.class);
                             if (questionnaire != null) {
                                 questionnaire.setId(documentSnapshot.getId());
-                                insertQuestionnaireResult(questionnaire);
+//                                insertQuestionnaireResult(questionnaire);
                             }
                             return questionnaire;
                         })
@@ -128,32 +77,24 @@ public class QuestionnaireRepository {
     }
 
     private void subscribeToResults() {
-        Context context = this.application.getApplicationContext();
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
-        if (sharedPreferences.contains(context.getString(R.string.device_id))) {
-            String userId = sharedPreferences.getString(context.getString(R.string.device_id), null);
-            if (userId != null) {
-                this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + userId)
-                        .addSnapshotListener((task, error) -> {
-                            Log.d(TAG, "QuestionnaireResult changed!");
-                            if (error != null) {
-                                Log.w(TAG, "Listen failed", error);
-                                return;
-                            }
+        String userId = this.mFirebaseUser.getUid();
+        this.firestore.collection(FIREBASE_COLLECTION_RESULTS_PRE + userId)
+                .addSnapshotListener((task, error) -> {
+                    Log.d(TAG, "QuestionnaireResult changed!");
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed", error);
+                        return;
+                    }
 
-                            if (task != null && !task.isEmpty()) {
-                                Log.d(TAG, "Current data: " + task.toString());
-                                task.getDocuments().stream()
-                                        .map(documentSnapshot -> documentSnapshot.toObject(QuestionnaireResult.class))
-                                        .forEach(this::insertQuestionnaireResult);
-                            } else {
-                                Log.d(TAG, "No results found");
-                            }
-                        });
-            }
-        } else {
-            Log.d(TAG, "Could not subscribe to result collection. 'device_id' not saved in shared preferences");
-        }
+                    if (task != null && !task.isEmpty()) {
+                        Log.d(TAG, "Current data: " + task.toString());
+                        task.getDocuments().stream()
+                                .map(documentSnapshot -> documentSnapshot.toObject(QuestionnaireResult.class));
+//                                .forEach(this::insertQuestionnaireResult);
+                    } else {
+                        Log.d(TAG, "No results found");
+                    }
+                });
     }
 
 
@@ -174,7 +115,6 @@ public class QuestionnaireRepository {
                         "and in research studies.",
                 questions);
         this.questionnaireRef.document("TFI").set(questionnaire);
-
     }
 
     public void generateTHI(Application application) {

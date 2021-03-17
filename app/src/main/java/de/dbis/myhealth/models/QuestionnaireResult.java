@@ -1,59 +1,43 @@
 package de.dbis.myhealth.models;
 
-import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
+import com.google.firebase.firestore.Exclude;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
 
-import de.dbis.myhealth.util.converter.DateConverter;
-import de.dbis.myhealth.util.converter.IntegerListConverter;
-import de.dbis.myhealth.util.converter.LongListConverter;
-import de.dbis.myhealth.util.converter.QuestionListConverter;
-
-@Entity(tableName = "questionnaire_result_table")
 public class QuestionnaireResult {
-    @PrimaryKey
-    @NonNull
+    @NotNull
     private String resultId;
     private String userId;
+    private String questionnaireId;
     private String trackId;
-    @TypeConverters(DateConverter.class)
     private Date startExecutionDate;
     private long duration;
-    private String questionnaireId;
-    @TypeConverters(IntegerListConverter.class)
-    private List<Integer> resultEntries;
-    @TypeConverters(QuestionListConverter.class)
-    private List<Question> removedQuestions;
-    @TypeConverters(LongListConverter.class)
-    private List<Long> questionAnswerTime;
+    private double averageDuration;
+    private List<QuestionResult> questionResults;
 
-    @Ignore
     public QuestionnaireResult() {
     }
 
-    public QuestionnaireResult(@NonNull String resultId, String userId, String trackId, Date startExecutionDate, long duration, String questionnaireId, List<Integer> resultEntries, List<Question> removedQuestions, List<Long> questionAnswerTime) {
-        this.resultId = resultId;
+    public QuestionnaireResult(String questionnaireId, String userId, String trackId, Date startExecutionDate, long duration, double averageDuration, List<QuestionResult> questionResults) {
+        this.questionnaireId = questionnaireId;
         this.userId = userId;
         this.trackId = trackId;
         this.startExecutionDate = startExecutionDate;
         this.duration = duration;
-        this.questionnaireId = questionnaireId;
-        this.resultEntries = resultEntries;
-        this.removedQuestions = removedQuestions;
-        this.questionAnswerTime = questionAnswerTime;
+        this.averageDuration = averageDuration;
+        this.questionResults = questionResults;
     }
 
-    @NonNull
+    @NotNull
+    @Exclude
     public String getResultId() {
         return resultId;
     }
 
-    public void setResultId(@NonNull String resultId) {
+    public void setResultId(@NotNull String resultId) {
         this.resultId = resultId;
     }
 
@@ -63,6 +47,14 @@ public class QuestionnaireResult {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getQuestionnaireId() {
+        return questionnaireId;
+    }
+
+    public void setQuestionnaireId(String questionnaireId) {
+        this.questionnaireId = questionnaireId;
     }
 
     public String getTrackId() {
@@ -89,35 +81,19 @@ public class QuestionnaireResult {
         this.duration = duration;
     }
 
-    public String getQuestionnaireId() {
-        return questionnaireId;
+    public double getAverageDuration() {
+        return averageDuration;
     }
 
-    public void setQuestionnaireId(String questionnaireId) {
-        this.questionnaireId = questionnaireId;
+    public void setAverageDuration(double averageDuration) {
+        this.averageDuration = averageDuration;
     }
 
-    public List<Integer> getResultEntries() {
-        return resultEntries;
+    public List<QuestionResult> getQuestionResults() {
+        return questionResults;
     }
 
-    public void setResultEntries(List<Integer> resultEntries) {
-        this.resultEntries = resultEntries;
-    }
-
-    public List<Question> getRemovedQuestions() {
-        return removedQuestions;
-    }
-
-    public void setRemovedQuestions(List<Question> removedQuestions) {
-        this.removedQuestions = removedQuestions;
-    }
-
-    public List<Long> getQuestionAnswerTime() {
-        return questionAnswerTime;
-    }
-
-    public void setQuestionAnswerTime(List<Long> questionAnswerTime) {
-        this.questionAnswerTime = questionAnswerTime;
+    public void setQuestionResults(List<QuestionResult> questionResults) {
+        this.questionResults = questionResults;
     }
 }

@@ -1,14 +1,6 @@
 package de.dbis.myhealth.models;
 
-import android.util.Log;
-import android.widget.Button;
-
 import androidx.annotation.NonNull;
-import androidx.databinding.BindingAdapter;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 
 import com.google.firebase.firestore.Exclude;
 
@@ -16,20 +8,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import de.dbis.myhealth.util.converter.QuestionListConverter;
-
-@Entity(tableName = "questionnaire_table")
 public class Questionnaire {
-    @PrimaryKey
     @NonNull
     private String id;
     private String title;
     private String description;
-    @TypeConverters(QuestionListConverter.class)
     private List<Question> questions;
 
-    @Ignore
     public Questionnaire() {
+        
     }
 
     public Questionnaire(String title, String description, List<Question> questions) {

@@ -5,7 +5,6 @@
     <string name="nav_header_title">MyHealth</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="device_id">device_id</string>
 
     <!-- Menu Items -->
     <string name="menu_home">Home</string>
@@ -46,6 +45,13 @@
     <string name="spotify_autoplay">Autoplay on start</string>
     <string name="spotify_autoplay_key">autoplay</string>
     <string name="spotify_add">spotify_add</string>
+
+    <string name="access_token">access_token</string>
+    <string name="current_spotify_track_key">current_spotify_track_key</string>
+    <string name="play">Play</string>
+    <string name="track">Track</string>
+    <string name="current_spotify_track">Current track</string>
+    <string name="add_spotify_track">Add Spotify track</string>
 
     <!-- Sleep Preferences -->
     <string name="sleep_tracking">Sleep tracking</string>
@@ -145,14 +151,33 @@
     <string name="thiResultSevere">Severe: Almost always heard, rarely, if ever, masked. Leads to disturbed sleep pattern and can interfere with ability to carry out normal daily activities. Quiet activities affected adversely.</string>
     <string name="thiResultCatastrophic">Catastrophic: Always heard, disturbed sleep patterns, difficulty with any activity.</string>
     <string name="thiResultUnknown">Unknown: Could not calculate result</string>
+
+    <!-- Gamifications -->
+    <string name="gamePaperKey">paper</string>
+    <string name="gameDiamondKey">diamond</string>
+    <string name="gameOneKey">one</string>
+    <string name="gameBookKey">book</string>
+    <string name="gameGlassesKey">glasses</string>
+    <string name="gameCheckKey">check</string>
+    <string name="gameMedalKey">medal</string>
+    <string name="gameCarKey">car</string>
+    <string name="gameStarKey">star</string>
+    <string name="gamePaper">Submit 10 questionnaires</string>
+    <string name="gameDiamond">Submit a questionnaire 7 days in a row</string>
+    <string name="gameOne">Install the app</string>
+    <string name="gameBook">Fill out 50 questionnaires</string>
+    <string name="gameGlasses">Listen to music for 1 hour</string>
+    <string name="gameCheck">Enter personal Information</string>
+    <string name="gameMedal">Fill out 25 TFI questionnaires</string>
+    <string name="gameCar">Open the app 7 days in a row</string>
+    <string name="gameStar">Fill out 25 THI questionnaires</string>
+
+    <!-- Allgemeines -->
+    <string name="home_icon">Description for home icon</string>
     <string name="save">Save</string>
-    <string name="access_token">access_token</string>
-    <string name="current_spotify_track_key">current_spotify_track_key</string>
-    <string name="play">Play</string>
-    <string name="track">Track</string>
-    <string name="current_spotify_track">Current track</string>
-    <string name="add_spotify_track">Add Spotify track</string>
     <string name="delete">Delete</string>
+
+    <!-- User -->
     <string name="name">Name</string>
     <string name="gender">Gender</string>
     <string name="age">Age</string>
@@ -162,6 +187,5 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
-
 
 </resources>

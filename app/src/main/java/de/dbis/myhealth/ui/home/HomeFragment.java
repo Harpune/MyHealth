@@ -13,50 +13,87 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
+import de.dbis.myhealth.adapter.HomeAdapter;
 import de.dbis.myhealth.databinding.FragmentHomeBinding;
+import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class HomeFragment extends Fragment {
     private final static String TAG = "HomeFragment";
 
     private FragmentHomeBinding mFragmentHomeBinding;
+    private SharedPreferences mSharedPreferences;
+
+    // View Models
     private HomeViewModel mHomeViewModel;
     private SettingsViewModel mSettingsViewModel;
+    private UserViewModel mUserViewModel;
     private QuestionnairesViewModel mQuestionnairesViewModel;
-    public SharedPreferences mSharedPreferences;
+
+    private final View.OnClickListener mFabClickListener = this::openQuestionnaire;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
+        // shared preferences
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 
+        // view models
+        this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
+        this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+
+        // bindings
         this.mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         this.mFragmentHomeBinding.setLifecycleOwner(getViewLifecycleOwner());
+        this.mFragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
+        this.mFragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
 
-
+        // activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
 
+        // views
         View root = this.mFragmentHomeBinding.getRoot();
+
+        RecyclerView recyclerView = root.findViewById(R.id.home_recyclerview);
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+
+        HomeAdapter homeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
+        recyclerView.setAdapter(homeAdapter);
+
+//        this.gamificationsLiveData = this.mHomeViewModel.getGamifications();
+//        this.gamificationsLiveData.observe(getViewLifecycleOwner(), homeAdapter::setData);
 
         return root;
     }
 
-    private final View.OnClickListener mFabClickListener = view -> {
+    private void openQuestionnaire(View view) {
         this.mQuestionnairesViewModel.getAllQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
@@ -73,22 +110,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-    };
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-        this.mFragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
-        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
-        this.mFragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
-        this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
     }
 
     private void setupPieChart() {
@@ -167,5 +188,11 @@ public class HomeFragment extends Fragment {
 
     private String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+//        this.gamificationsLiveData.removeObservers(getViewLifecycleOwner());
     }
 }

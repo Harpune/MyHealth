@@ -1,11 +1,9 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,44 +21,43 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.OptionalDouble;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionAdapter;
-import de.dbis.myhealth.databinding.FragmentQuestionnaireBinding;
 import de.dbis.myhealth.models.Question;
+import de.dbis.myhealth.models.QuestionResult;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.QuestionnaireSetting;
+import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class QuestionnaireFragment extends Fragment {
     private final static String TAG = "QuestionnaireFragment";
 
+    // Questionaire relatec
     private QuestionnairesViewModel mQuestionnairesViewModel;
+    private UserViewModel mUserViewModel;
     private SharedPreferences mSharedPreferences;
     private QuestionAdapter mQuestionAdapter;
-
-    private LiveData<Questionnaire> mQuestionnairesLiveDataLiveData;
-    private LiveData<QuestionnaireSetting> mQuestionnaireSettingLiveData;
-
     private QuestionnaireSetting mQuestionnaireSetting;
 
+    private LiveData<Questionnaire> mQuestionnairesLiveData;
+
+    // Stopwatch
     private final StopWatch mStopWatch = new StopWatch();
 
+    // Listener for FAB
     private final View.OnClickListener mFabClickListener = this::save;
 
     @Override
@@ -72,8 +69,8 @@ public class QuestionnaireFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentQuestionnaireBinding mQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
-        View root = mQuestionnaireBinding.getRoot();
+        de.dbis.myhealth.databinding.FragmentQuestionnaireBinding mFragmentQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
+        View root = mFragmentQuestionnaireBinding.getRoot();
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
@@ -83,55 +80,51 @@ public class QuestionnaireFragment extends Fragment {
 
         // Get current questionnaire
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
-        this.mQuestionnairesLiveDataLiveData = this.mQuestionnairesViewModel.getSelected();
-        this.mQuestionnairesLiveDataLiveData.observe(getViewLifecycleOwner(), questionnaire -> {
-            // bind
-            mQuestionnaireBinding.setQuestionnaire(questionnaire);
+        this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
-            // observe settings of current questionnaire
-            this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting(questionnaire.getId());
-            this.mQuestionnaireSettingLiveData.observe(getViewLifecycleOwner(), questionnaireSetting -> {
-                this.mQuestionnaireSetting = questionnaireSetting;
+        // Get questionnaire
+        this.mQuestionnairesLiveData = this.mQuestionnairesViewModel.getSelectedQuestionnaire();
+        this.mQuestionnairesLiveData.observe(getViewLifecycleOwner(), mFragmentQuestionnaireBinding::setQuestionnaire);
 
-                toolbar.getMenu().clear();
+        // Get questionnaire setting
+        this.mQuestionnairesViewModel.getQuestionnaireSetting().observe(getViewLifecycleOwner(), questionnaireSetting -> {
+            this.mQuestionnaireSetting = questionnaireSetting;
 
-                // only show if questions where removed
-                if (questionnaireSetting != null && !questionnaireSetting.getRemovedQuestions().isEmpty()) {
+            // reset toolbar
+            toolbar.getMenu().clear();
 
-                    // Get remove questions and update boolean array with deletion information
-                    String[] removedQuestionTitles = questionnaireSetting.getRemovedQuestions().stream()
-                            .map(Question::getText)
-                            .sorted()
-                            .toArray(String[]::new);
-                    boolean[] enabled = new boolean[removedQuestionTitles.length];
+            // only show icon in toolbar if questions where removed
+            if (this.mQuestionnaireSetting != null && !this.mQuestionnaireSetting.getRemovedQuestions().isEmpty()) {
 
-                    // Setup Menu
-                    toolbar.inflateMenu(R.menu.menu_questionnaire_control);
-                    toolbar.setOnMenuItemClickListener(item -> {
-                        this.mStopWatch.suspend();
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("Deleted Questions")
-                                .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> {
-                                    enabled[i] = b;
-                                    Log.d(TAG, "Clicked");
-                                })
-                                .setPositiveButton("Enable", (dialogInterface, i) -> {
-                                    for (int j = 0; j < enabled.length; j++) {
-                                        if (enabled[j]) {
-                                            questionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
-                                            this.mQuestionnairesViewModel.insertQuestionnaireSetting(questionnaireSetting);
-                                        }
+                // Get remove questions and update boolean array with deletion information
+                String[] removedQuestionTitles = this.mQuestionnaireSetting.getRemovedQuestions().stream()
+                        .map(Question::getText)
+                        .sorted()
+                        .toArray(String[]::new);
+                boolean[] enabled = new boolean[removedQuestionTitles.length];
+
+                // setup menu
+                toolbar.inflateMenu(R.menu.menu_questionnaire_control);
+                toolbar.setOnMenuItemClickListener(item -> {
+                    this.mStopWatch.suspend();
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Deleted questions")
+                            .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
+                            .setPositiveButton("Enable", (dialogInterface, i) -> {
+                                for (int j = 0; j < enabled.length; j++) {
+                                    if (enabled[j]) {
+                                        this.mQuestionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
+                                        this.mQuestionnairesViewModel.setQuestionnaireSetting(this.mQuestionnaireSetting);
+                                        this.mQuestionAdapter.notifyDataSetChanged();
                                     }
-                                    Log.d(TAG, "Dome");
-                                })
-                                .setOnDismissListener(dialogInterface -> this.mStopWatch.resume())
-                                .show();
+                                }
+                            })
+                            .setOnDismissListener(dialogInterface -> this.mStopWatch.resume())
+                            .show();
 
-                        return false;
-                    });
-
-                }
-            });
+                    return false;
+                });
+            }
         });
 
         // Create recyclerview
@@ -155,20 +148,22 @@ public class QuestionnaireFragment extends Fragment {
     private void save(View view) {
         this.mStopWatch.suspend();
 
-        Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelected().getValue();
-        // Log.d(TAG, "Result Questionnaire" + questionnaire);
+        Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelectedQuestionnaire().getValue();
+        // Log.d(TAG, "QuestionResult Questionnaire" + questionnaire);
 
         if (questionnaire != null) {
             // Get questions
             List<Question> questions = questionnaire.getQuestions();
-            int amountAnswered = Math.round(questions.stream().filter(question -> question.getResult() != null).count());
+            int amountAnswered = Math.round(questions.stream()
+                    .filter(question -> question.getResult() != null)
+                    .count());
             int enabledQuestions = questions.size();
 
             // Get removed questions
             List<Question> removedQuestions = new ArrayList<>();
             if (this.mQuestionnaireSetting != null) {
                 removedQuestions.addAll(this.mQuestionnaireSetting.getRemovedQuestions());
-                enabledQuestions = enabledQuestions - removedQuestions.size();
+                enabledQuestions -= removedQuestions.size();
             }
 
             new MaterialAlertDialogBuilder(requireContext())
@@ -179,37 +174,42 @@ public class QuestionnaireFragment extends Fragment {
 
                         this.mStopWatch.stop();
 
-                        // IDs
-                        String userId = this.mSharedPreferences.getString(getString(R.string.device_id), UUID.randomUUID().toString());
-                        String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
-                        String resultId = UUID.randomUUID().toString();
+                        // user
+                        FirebaseUser firebaseUser = this.mUserViewModel.getFirebaseUser().getValue();
 
-                        // get result data
-                        List<Integer> resultEntries = Optional.ofNullable(questions)
-                                .map(Collection::stream)
-                                .orElseGet(Stream::empty)
-                                .map(Question::getResult)
-                                .collect(Collectors.toList());
+                        // IDs
+                        String questionnaireId = questionnaire.getId();
+                        String userId = firebaseUser != null ? firebaseUser.getUid() : "no_id";
+                        String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
 
                         // Timers of question
                         long[] timers = this.mQuestionAdapter.getTimers();
-                        List<Long> timerList = Arrays.stream(timers).boxed().collect(Collectors.toList());
-                        
+                        OptionalDouble optionalDouble = Arrays.stream(timers).filter(l -> l != 0L).average();
+                        double averageDuration = optionalDouble.isPresent() ? optionalDouble.getAsDouble() : 0;
+
+                        List<QuestionResult> questionResults = new ArrayList<>();
+                        for (int j = 0; j < questions.size(); j++) {
+                            questionResults.add(new QuestionResult(
+                                    questions.get(j).getResult(),
+                                    timers[j],
+                                    j,
+                                    removedQuestions.contains(questions.get(j))));
+                        }
+
                         // build result
                         QuestionnaireResult result = new QuestionnaireResult(
-                                resultId,
+                                questionnaireId,
                                 userId,
                                 trackId,
                                 new Date(),
                                 this.mStopWatch.getTime(),
-                                questionnaire.getId(),
-                                resultEntries,
-                                removedQuestions,
-                                timerList
+                                averageDuration,
+                                questionResults
                         );
 
                         // save result
                         this.mQuestionnairesViewModel.sendResult(result);
+                        this.mQuestionnairesViewModel.resetSelected();
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                     })
                     .setNegativeButton("No", (dialogInterface, i) -> this.mStopWatch.resume())
@@ -221,12 +221,9 @@ public class QuestionnaireFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (this.mQuestionnaireSettingLiveData != null) {
-            this.mQuestionnaireSettingLiveData.removeObservers(getViewLifecycleOwner());
-        }
 
-        if (this.mQuestionnairesLiveDataLiveData != null) {
-            this.mQuestionnairesLiveDataLiveData.removeObservers(getViewLifecycleOwner());
+        if (this.mQuestionnairesLiveData != null) {
+            this.mQuestionnairesLiveData.removeObservers(getViewLifecycleOwner());
         }
 
         this.mQuestionAdapter.removeObserver();
@@ -235,6 +232,7 @@ public class QuestionnaireFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        // Save questionnaire settings for later use
         if (this.mStopWatch.isStarted()) {
             this.mStopWatch.suspend();
         }

@@ -1,28 +1,15 @@
 package de.dbis.myhealth.models;
 
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import de.dbis.myhealth.util.converter.QuestionListConverter;
-
-@Entity(tableName = "questionnaire_setting_table")
 public class QuestionnaireSetting {
     @NonNull
-    @PrimaryKey
     private String questionnaireId;
-    @TypeConverters(QuestionListConverter.class)
     private List<Question> removedQuestions;
-
-    @Ignore
-    public QuestionnaireSetting() {
-    }
 
     public QuestionnaireSetting(@NotNull String questionnaireId, List<Question> removedQuestions) {
         this.questionnaireId = questionnaireId;

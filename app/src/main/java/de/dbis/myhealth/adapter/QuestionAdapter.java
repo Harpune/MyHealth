@@ -19,12 +19,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
+import com.preference.PowerPreference;
+import com.preference.Preference;
 
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemQuestionBinding;
@@ -38,20 +43,24 @@ import de.dbis.myhealth.models.QuestionnaireSetting;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> {
-
     private static final String TAG = "QuestionAdapter";
-    private final Activity mActivity;
-    private final LifecycleOwner mLifecycleOwner;
-    private final StopWatch mStopWatch;
-    private long[] mTimers;
-    private long mLastSplit;
+
+    // helper classes
     public QuestionnairesViewModel mQuestionnairesViewModel;
+    private final Preference mPreference = PowerPreference.getDefaultFile();
+    private final LifecycleOwner mLifecycleOwner;
+
+    // questionnaire
     private Questionnaire mQuestionnaire;
     private QuestionnaireSetting mQuestionnaireSetting;
     private List<Question> mSelectedQuestions;
     private List<Question> mAllQuestions = new ArrayList<>();
-
     private LiveData<QuestionnaireSetting> mQuestionnaireSettingLiveData;
+
+    // timer
+    private final StopWatch mStopWatch;
+    private long[] mTimers;
+    private long mLastSplit;
 
     public class QuestionViewHolder extends RecyclerView.ViewHolder {
 
@@ -190,21 +199,41 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 if (!this.viewStubProxy.isInflated()) {
                     this.viewStubProxy.getViewStub().inflate();
                 }
+            } else {
+                Log.d(TAG, this.binding.getQuestion().toString());
             }
         }
 
         private void updateValue(int value) {
-            this.binding.getQuestion().setResult(value);
-            mQuestionnairesViewModel.updateQuestion(this.binding.getQuestion());
+            // set value
+            Question question = this.binding.getQuestion();
+            question.setResult(value);
+
+            // update selected Questionnaire with value
+            List<Question> questions = mQuestionnaire.getQuestions();
+
+            // Get index of question
+            OptionalInt index = IntStream.range(0, questions.size())
+                    .filter(i -> questions.get(i).getText().equals(question.getText()))
+                    .findFirst();
+
+            // update item in questions-list
+            if (index.isPresent()) {
+                questions.set(index.getAsInt(), question);
+                mQuestionnaire.setQuestions(questions);
+
+                // save
+                mQuestionnairesViewModel.select(mQuestionnaire);
+            }
+
         }
 
         private void updateTime() {
             // get position in all question of current questions
             Question question = mSelectedQuestions.get(getAdapterPosition());
             int position = mAllQuestions.indexOf(question);
-            int i = getAdapterPosition();
 
-            // Get intervall between answered questions
+            // Get interval between answered questions
             mStopWatch.split();
             long split = mStopWatch.getSplitTime();
             long interval = (split - mLastSplit);
@@ -212,23 +241,24 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             mLastSplit = split;
             mStopWatch.unsplit();
         }
-
     }
 
     public QuestionAdapter(Activity activity, LifecycleOwner lifecycleOwner, StopWatch stopWatch) {
-        this.mActivity = activity;
         this.mLifecycleOwner = lifecycleOwner;
         this.mStopWatch = stopWatch;
 
         this.mLastSplit = stopWatch.getTime(TimeUnit.MILLISECONDS);
 
-        this.mQuestionnairesViewModel = new ViewModelProvider((ViewModelStoreOwner) this.mActivity).get(QuestionnairesViewModel.class);
+        this.mQuestionnairesViewModel = new ViewModelProvider((ViewModelStoreOwner) activity).get(QuestionnairesViewModel.class);
 
-        Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelected().getValue();
+        // get and set questionnaire
+        Questionnaire questionnaire = this.mQuestionnairesViewModel.getSelectedQuestionnaire().getValue();
         if (questionnaire != null) {
-            this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting(questionnaire.getId());
-            this.mQuestionnaireSettingLiveData.observe(this.mLifecycleOwner, this::setQuestionnaireSetting);
             this.setQuestionnaire(questionnaire);
+
+            // get and set questionnaire settings
+            this.mQuestionnaireSettingLiveData = this.mQuestionnairesViewModel.getQuestionnaireSetting();
+            this.mQuestionnaireSettingLiveData.observe(this.mLifecycleOwner, this::setQuestionnaireSetting);
         }
     }
 
@@ -236,40 +266,46 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         this.mQuestionnaire = questionnaire;
         this.mSelectedQuestions = questionnaire.getQuestions();
         this.mAllQuestions = this.cloneQuestions(this.mSelectedQuestions);
-        this.mTimers = new long[mAllQuestions.size()];
+        this.mTimers = new long[this.mAllQuestions.size()];
         notifyDataSetChanged();
     }
 
-    private List<Question> cloneQuestions(List<Question> questions) {
-        List<Question> questionList = new ArrayList<>();
-        for (Question q : questions) {
-            questionList.add((Question) q.clone());
-        }
-        return questionList;
-    }
-
     private void setQuestionnaireSetting(QuestionnaireSetting questionnaireSetting) {
+        // questionnaire view model
         this.mQuestionnaireSetting = questionnaireSetting;
+
         this.mSelectedQuestions = this.cloneQuestions(this.mAllQuestions);
 
         if (questionnaireSetting != null) {
-            this.mSelectedQuestions.removeAll(questionnaireSetting.getRemovedQuestions());
-            notifyDataSetChanged();
+            List<Question> removedQuestions = questionnaireSetting.getRemovedQuestions();
+            for (ListIterator<Question> iter = this.mSelectedQuestions.listIterator(); iter.hasNext(); ) {
+                Question question = iter.next();
+                if (removedQuestions.contains(question)) {
+                    iter.remove();
+                    notifyItemRemoved(iter.nextIndex());
+                    notifyItemRangeRemoved(iter.nextIndex(), this.mSelectedQuestions.size());
+                }
+            }
         }
     }
 
     public void removeAt(int position) {
         Question questionToRemove = this.mSelectedQuestions.get(position);
+        questionToRemove.setResult(null);
+
         QuestionnaireSetting questionnaireSetting = this.mQuestionnaireSetting;
         if (questionnaireSetting == null) {
             questionnaireSetting = new QuestionnaireSetting(this.mQuestionnaire.getId(), new ArrayList<>());
         }
         questionnaireSetting.addRemovedQuestions(questionToRemove);
-        this.mQuestionnairesViewModel.insertQuestionnaireSetting(questionnaireSetting);
+        this.mQuestionnairesViewModel.setQuestionnaireSetting(questionnaireSetting);
+
     }
 
     public void removeObserver() {
-        this.mQuestionnaireSettingLiveData.removeObservers(this.mLifecycleOwner);
+        if (this.mQuestionnaireSettingLiveData != null) {
+            this.mQuestionnaireSettingLiveData.removeObservers(this.mLifecycleOwner);
+        }
     }
 
     public long[] getTimers() {
@@ -306,5 +342,12 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         return position;
     }
 
+    private List<Question> cloneQuestions(List<Question> questions) {
+        List<Question> questionList = new ArrayList<>();
+        for (Question q : questions) {
+            questionList.add((Question) q.clone());
+        }
+        return questionList;
+    }
 
 }
