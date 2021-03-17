@@ -117,21 +117,6 @@ public class UserViewModel extends AndroidViewModel {
         User user = this.mUser.getValue();
         if (user != null) {
             user.setUpdateDate(new Date());
-
-            FirebaseUser firebaseUser = this.mFirebaseUser.getValue();
-            if (firebaseUser != null) {
-                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(user.getName())
-                        .build();
-
-                firebaseUser.updateProfile(profileUpdates).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("Firebase Login", "User profile updated.");
-                    }
-                });
-
-            }
-
             this.firestore.collection(FIREBASE_COLLECTION_USERS)
                     .document(user.getUserId())
                     .set(user);

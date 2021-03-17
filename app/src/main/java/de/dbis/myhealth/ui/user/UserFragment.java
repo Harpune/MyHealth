@@ -32,7 +32,6 @@ public class UserFragment extends Fragment {
     // user relevant
     private UserViewModel mUserViewModel;
     private LiveData<User> mUserLiveData;
-    private LiveData<FirebaseUser> mFirebaseUserLiveData;
 
     // Views
     private View root;
@@ -88,9 +87,6 @@ public class UserFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (this.mFirebaseUserLiveData != null) {
-            this.mFirebaseUserLiveData.removeObservers(getViewLifecycleOwner());
-        }
         if (this.mUserLiveData != null) {
             this.mUserLiveData.removeObservers(getViewLifecycleOwner());
         }
