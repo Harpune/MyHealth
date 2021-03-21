@@ -23,6 +23,7 @@ public class ApplicationConstants {
     public static final String FIREBASE_COLLECTION_QUESTIONNAIRES = "questionnaire";
     public static final String FIREBASE_COLLECTION_RESULTS = "result";
     public static final String FIREBASE_COLLECTION_USERS = "user";
+    public static final String FIREBASE_COLLECTION_SESSIONS = "sessions";
 
 
 }

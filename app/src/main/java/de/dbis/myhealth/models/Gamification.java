@@ -2,28 +2,28 @@ package de.dbis.myhealth.models;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
+import java.util.List;
 
 public class Gamification {
 
-    @NonNull
     public String id;
-    private int imageResource;
+    private String imageResource;
     private String description;
-    private long[] goals;
-    private Date fulfilled;
+    private List<Long> goals;
 
-    public Gamification(@NotNull String id, int imageResource, String description, long[] goals, Date fulfilled) {
+    public Gamification() {
+
+    }
+
+    public Gamification(String id, String imageResource, String description, List<Long> goals) {
         this.id = id;
         this.imageResource = imageResource;
         this.description = description;
         this.goals = goals;
-        this.fulfilled = fulfilled;
     }
 
-    @NonNull
     public String getId() {
         return id;
     }
@@ -32,11 +32,11 @@ public class Gamification {
         this.id = id;
     }
 
-    public int getImageResource() {
+    public String getImageResource() {
         return imageResource;
     }
 
-    public void setImageResource(int imageResource) {
+    public void setImageResource(String imageResource) {
         this.imageResource = imageResource;
     }
 
@@ -48,19 +48,11 @@ public class Gamification {
         this.description = description;
     }
 
-    public long[] getGoals() {
+    public List<Long> getGoals() {
         return goals;
     }
 
-    public void setGoals(long[] goals) {
+    public void setGoals(List<Long> goals) {
         this.goals = goals;
-    }
-
-    public Date getFulfilled() {
-        return fulfilled;
-    }
-
-    public void setFulfilled(Date fulfilled) {
-        this.fulfilled = fulfilled;
     }
 }

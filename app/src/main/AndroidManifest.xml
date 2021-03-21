@@ -4,7 +4,7 @@
     package="de.dbis.myhealth">
 
     <queries>
-        <package android:name="com.spotify.music" /> <!-- To access Spotfy -->
+        <package android:name="com.spotify.music" /> <!-- To access Spotify -->
     </queries>
 
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />

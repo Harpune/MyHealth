@@ -30,7 +30,7 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ActivitySpotifyReceiverBinding;
 import de.dbis.myhealth.models.SpotifyTrack;
-import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.ui.settings.SpotifyViewModel;
 import kaaes.spotify.webapi.android.SpotifyApi;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_CLIENT_ID;
@@ -42,7 +42,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
     private static final String TAG = "SpotifyShareReceiverActivity";
 
     private ActivitySpotifyReceiverBinding mSpotifyReceiverBinding;
-    private SettingsViewModel mSettingsViewModel;
+    private SpotifyViewModel mSpotifyViewModel;
     private SharedPreferences mSharedPreferences;
     private Preference mPreference;
 
@@ -56,7 +56,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mSpotifyReceiverBinding = DataBindingUtil.setContentView(this, R.layout.activity_spotify_receiver);
-        this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
         this.mPreference = PowerPreference.getDefaultFile();
     }
@@ -64,7 +64,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();// get track and handle data
-        this.mSpotifyApiLiveData = this.mSettingsViewModel.getSpotifyApi();
+        this.mSpotifyApiLiveData = this.mSpotifyViewModel.getSpotifyApi();
 
         // saved ids
         String[] trackIds = this.mPreference.getObject(SPOTIFY_TRACKS_KEY, String[].class, new String[0]);
@@ -83,7 +83,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
 
             // request spotify track with spotify api (observed after being set in connectToApiOrAuth())
             this.mSpotifyApiLiveData.observe(this, spotifyApi -> {
-                this.mSpotifyTrackLiveData = this.mSettingsViewModel.loadSpotifyTrack(this.mTrackId);
+                this.mSpotifyTrackLiveData = this.mSpotifyViewModel.loadSpotifyTrack(this.mTrackId);
                 this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> this.mSpotifyReceiverBinding.setSpotifyTrack(spotifyTrack));
             });
 
@@ -120,11 +120,12 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
      * Connect to the Spotify API or authenticate if no accesstoken is set.
      */
     public void connectToApiOrAuth() {
+
         String accessToken = this.mSharedPreferences.getString(getString(R.string.access_token), null);
         if (accessToken != null) {
             SpotifyApi spotifyApi = new SpotifyApi();
             spotifyApi.setAccessToken(accessToken);
-            this.mSettingsViewModel.setSpotifyApi(spotifyApi);
+            this.mSpotifyViewModel.setSpotifyApi(spotifyApi);
         } else {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);
             builder.setScopes(new String[]{"streaming", "app-remote-control"});
@@ -155,11 +156,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                 AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
                 switch (response.getType()) {
                     case TOKEN:
-                        this.mSharedPreferences
-                                .edit()
-                                .putString(getString(R.string.access_token), response.getAccessToken())
-                                .apply();
-
+                        this.mSharedPreferences.edit().putString(getString(R.string.access_token), response.getAccessToken()).apply();
                         this.connectToApiOrAuth();
                         break;
                     case ERROR:
@@ -184,6 +181,8 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
             // save in preference
             this.mPreference.setObject(SPOTIFY_TRACKS_KEY, this.mTrackIds);
             this.mPreference.setObject(this.mTrackId, spotifyTrack);
+
+            Toast.makeText(this, "'" + spotifyTrack.getTrack().name + "' by '" + spotifyTrack.getTrack().artists.get(0).name + "' was added to MyHealth.", Toast.LENGTH_LONG).show();
             finish();
         }
     }

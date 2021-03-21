@@ -29,7 +29,7 @@ import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 
 public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdapter.QuestionnairesViewHolder> {
 
-    private Preference mPreference;
+    private final Preference mPreference;
 
     private final MainActivity mActivity;
     private List<Questionnaire> mQuestionnaires;
@@ -53,9 +53,7 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
                 new MaterialAlertDialogBuilder(view.getContext())
                         .setTitle("Save as Favourite")
                         .setMessage("You can select this questionnaire as favourite to fast start on the home page.")
-                        .setPositiveButton("Save", (dialogInterface, i) -> {
-                            saveFavourite(getAdapterPosition());
-                        })
+                        .setPositiveButton("Save", (dialogInterface, i) -> saveFavourite(getAdapterPosition()))
                         .setNegativeButton("No", null)
                         .show();
                 return false;

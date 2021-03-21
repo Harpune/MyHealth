@@ -3,32 +3,23 @@ package de.dbis.myhealth.ui.home;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.common.collect.Lists;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,9 +29,11 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.HomeAdapter;
 import de.dbis.myhealth.databinding.FragmentHomeBinding;
 import de.dbis.myhealth.models.Gamification;
+import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
-import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.ui.settings.SpotifyViewModel;
+import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class HomeFragment extends Fragment {
@@ -48,12 +41,18 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding mFragmentHomeBinding;
     private SharedPreferences mSharedPreferences;
+    private HomeAdapter mHomeAdapter;
 
     // View Models
     private HomeViewModel mHomeViewModel;
-    private SettingsViewModel mSettingsViewModel;
+    private SpotifyViewModel mSpotifyViewModel;
     private UserViewModel mUserViewModel;
+    private StatsViewModel mStatsViewModel;
     private QuestionnairesViewModel mQuestionnairesViewModel;
+
+    // LiveData
+    private LiveData<List<HealthSession>> mHealthSessionsLiveData;
+    private LiveData<List<Gamification>> mGamificationsLiveData;
 
     private final View.OnClickListener mFabClickListener = this::openQuestionnaire;
 
@@ -65,38 +64,48 @@ public class HomeFragment extends Fragment {
 
         // view models
         this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mSpotifyViewModel = new ViewModelProvider(requireActivity()).get(SpotifyViewModel.class);
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
+        this.mStatsViewModel = new ViewModelProvider(requireActivity()).get(StatsViewModel.class);
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
         // bindings
         this.mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         this.mFragmentHomeBinding.setLifecycleOwner(getViewLifecycleOwner());
-        this.mFragmentHomeBinding.setHomeViewModel(this.mHomeViewModel);
-        this.mFragmentHomeBinding.setSettingsViewModel(this.mSettingsViewModel);
+        this.mFragmentHomeBinding.setSpotifyViewModel(this.mSpotifyViewModel);
+        this.mFragmentHomeBinding.setMessage(this.getWelcomeMessage());
 
-        // activity
+        // live data
+        this.mHealthSessionsLiveData = this.mStatsViewModel.getHealthSessions();
+        this.mGamificationsLiveData = this.mStatsViewModel.getGamifications();
+
+        // set fab action in activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
 
         // views
         View root = this.mFragmentHomeBinding.getRoot();
 
         RecyclerView recyclerView = root.findViewById(R.id.home_recyclerview);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+//        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        HomeAdapter homeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
-        recyclerView.setAdapter(homeAdapter);
-
-//        this.gamificationsLiveData = this.mHomeViewModel.getGamifications();
-//        this.gamificationsLiveData.observe(getViewLifecycleOwner(), homeAdapter::setData);
+        this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
+        recyclerView.setAdapter(this.mHomeAdapter);
 
         return root;
     }
 
+
+    /**
+     * Click on Fab in HomeFragment
+     *
+     * @param view View of FAB
+     */
     private void openQuestionnaire(View view) {
         this.mQuestionnairesViewModel.getAllQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
+                // TODO create dialog/snackbar to ask user to go to settings
                 Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
             } else if (questionnaires == null) {
                 Toast.makeText(getContext(), "No questionnaires are available.", Toast.LENGTH_LONG).show();
@@ -112,62 +121,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void setupPieChart() {
-//        this.pieChart.getDescription().setEnabled(false);
-//        this.pieChart.getLegend().setEnabled(false);
-//        this.pieChart.setCenterTextTypeface(Typeface.SANS_SERIF);
-//        this.pieChart.setRotationEnabled(true);
-//        this.pieChart.setCenterTextSize(20f);
-//        this.pieChart.setDrawEntryLabels(false);
-//        this.pieChart.setCenterText(this.getWelcomeMessage());
-//        this.pieChart.setCenterTextColor(this.getTextColor());
-//        this.pieChart.setHoleRadius(90f);
-//        this.pieChart.setElevation(0f);
-//        this.pieChart.setDrawMarkers(false);
-//        this.pieChart.setHoleColor(Color.TRANSPARENT);
-//        this.pieChart.setExtraOffsets(32, 32, 32, 32);
-//        this.pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-//            @Override
-//            public void onValueSelected(Entry e, Highlight h) {
-//                if (((PieEntry) e).getLabel().equals(getString(R.string.questionnaires_label))) {
-//                    Toast.makeText(getContext(), "You already answered " + (int) e.getY() + " questionnaires.", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                if (((PieEntry) e).getLabel().equals(getString(R.string.music))) {
-//                    Toast.makeText(getContext(), "You already listened to " + e.getY() + " minutes of music.", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected() {
-//
-//            }
-//        });
-
-    }
-
-    private void setupPieChartData() {
-//        List<PieEntry> entries = new ArrayList<>();
-//        Drawable icon = ContextCompat.getDrawable(getActivity(), R.drawable.ic_baseline_home_24);
-//
-//        PieDataSet dataSet = new PieDataSet(entries, "");
-//        dataSet.setColors(ColorTemplate.PASTEL_COLORS);
-//        dataSet.setDrawIcons(true);
-//        dataSet.setIconsOffset(MPPointF.getInstance(0, 20f));
-//        dataSet.setSliceSpace(5f);
-//
-//        PieData pieData = new PieData(dataSet);
-//        this.pieChart.setData(pieData);
-//        this.pieChart.invalidate();
-    }
-
-    private int getTextColor() {
-        final TypedValue value = new TypedValue();
-        getContext().getTheme().resolveAttribute(R.attr.colorOnBackground, value, true);
-        return value.data;
-
-    }
-
     private String getWelcomeMessage() {
         int timeOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int coffee = 0x2615;
@@ -175,14 +128,14 @@ public class HomeFragment extends Fragment {
         int greeting = 0x1F64B;
         int moon = 0x1F31C;
 
-        if (timeOfDay >= 0 && timeOfDay < 12) {
-            return "Good Morning\n" + getEmojiByUnicode(coffee);
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
-            return "Good Afternoon\n" + getEmojiByUnicode(sun);
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
-            return "Good Evening\n" + getEmojiByUnicode(greeting);
+        if (timeOfDay < 12) {
+            return "Good Morning " + getEmojiByUnicode(coffee);
+        } else if (timeOfDay < 16) {
+            return "Good Afternoon " + getEmojiByUnicode(sun);
+        } else if (timeOfDay < 21) {
+            return "Good Evening " + getEmojiByUnicode(greeting);
         } else {
-            return "Good Night\n" + getEmojiByUnicode(moon);
+            return "Good Night " + getEmojiByUnicode(moon);
         }
     }
 
@@ -191,8 +144,28 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        this.mHealthSessionsLiveData.observe(getViewLifecycleOwner(), healthSessions -> {
+            Log.d(TAG, String.valueOf(healthSessions));
+            this.mHomeAdapter.updateSessions();
+        });
+
+        this.mGamificationsLiveData.observe(getViewLifecycleOwner(), gamifications -> this.mHomeAdapter.setData(gamifications));
+
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
-//        this.gamificationsLiveData.removeObservers(getViewLifecycleOwner());
+
+        if (this.mHealthSessionsLiveData != null) {
+            this.mHealthSessionsLiveData.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mGamificationsLiveData != null) {
+            this.mGamificationsLiveData.removeObservers(getViewLifecycleOwner());
+        }
     }
 }

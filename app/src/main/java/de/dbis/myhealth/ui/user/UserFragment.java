@@ -69,7 +69,6 @@ public class UserFragment extends Fragment {
 
     private void save(View view) {
         this.mUserViewModel.save();
-        Toast.makeText(requireContext(), "Your personal data has been saved successfully", Toast.LENGTH_LONG).show();
         this.hideKeyboardFrom(requireContext(), view);
     }
 

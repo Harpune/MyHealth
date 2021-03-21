@@ -50,6 +50,7 @@ public class QuestionnairesViewModel extends AndroidViewModel {
 
         // firestore
         this.firestore = FirebaseFirestore.getInstance();
+//        this.firestore.useEmulator("127.0.0.1", 8080);
         // settings
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)

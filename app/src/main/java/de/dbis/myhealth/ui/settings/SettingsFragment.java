@@ -3,12 +3,10 @@ package de.dbis.myhealth.ui.settings;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.CheckBoxPreference;
-import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
@@ -41,7 +39,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private QuestionnairesViewModel mQuestionnairesViewModel;
 
     // Services
-    private SettingsViewModel mSettingsViewModel;
+    private SpotifyViewModel mSpotifyViewModel;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -50,7 +48,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
-        this.mSettingsViewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
+        this.mSpotifyViewModel = new ViewModelProvider(requireActivity()).get(SpotifyViewModel.class);
 
         this.setupDarkMode();
         this.setupQuestionnaire();
@@ -173,7 +171,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             playOnLocalDevice.setOnPreferenceChangeListener((preference, newValue) -> {
                 Boolean enabled = (Boolean) newValue;
                 if (enabled) {
-                    this.mSettingsViewModel.switchToLocalDevice();
+                    this.mSpotifyViewModel.switchToLocalDevice();
                 }
                 return true;
             });

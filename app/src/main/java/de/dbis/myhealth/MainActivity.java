@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,14 +40,18 @@ import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
 import com.spotify.android.appremote.api.error.NotLoggedInException;
 import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
-import de.dbis.myhealth.ui.settings.SettingsViewModel;
+import de.dbis.myhealth.ui.settings.SpotifyViewModel;
+import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 import kaaes.spotify.webapi.android.SpotifyApi;
 
@@ -58,8 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     // View Models
-    public SettingsViewModel mSettingsViewModel;
+    public SpotifyViewModel mSpotifyViewModel;
     public UserViewModel mUserViewModel;
+    private StatsViewModel mStatsViewModel;
 
     // Views
     public FloatingActionButton mFab;
@@ -71,12 +77,41 @@ public class MainActivity extends AppCompatActivity {
     private Preference mPreference;
     private AppBarConfiguration mAppBarConfiguration;
     private NavController mNavController;
-
     private MenuItem mSpotifyMenuItem;
 
+    // LiveData
     private LiveData<PlayerState> mPlayerStateLiveData;
     private LiveData<SpotifyAppRemote> mSpotifyAppRemoteLiveData;
     private LiveData<SpotifyTrack> mSpotifyTrackLiveData;
+
+    // Timer
+    private StopWatch mStopWatch;
+    private Handler mHandler;
+    private final static long INTERVAL_UPDATE = 1000L;
+    private final static long INTERVAL_DELAY = 2000L;
+
+    private final Runnable updater = new Runnable() {
+        @Override
+        public void run() {
+            mHandler.postDelayed(this, INTERVAL_UPDATE);
+
+            // increment app opened
+            mStatsViewModel.incrementAppTime(INTERVAL_UPDATE);
+
+            // increment spotify played
+            boolean spotifyEnabled = mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
+            if (spotifyEnabled) {
+                String currentTrackId = mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
+                PlayerState playerState = mSpotifyViewModel.getPlayerState().getValue();
+                if (playerState != null && playerState.track != null && !playerState.isPaused) { // check player
+                    Track currentTrack = playerState.track;
+                    if (currentTrack != null && currentTrack.uri.endsWith(currentTrackId)) {
+                        mStatsViewModel.incrementMusicTime(currentTrackId, INTERVAL_UPDATE);
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,15 +126,22 @@ public class MainActivity extends AppCompatActivity {
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 //        this.mSharedPreferences.edit().clear().apply();
 
-        this.mSettingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        // view models
+        this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        this.mStatsViewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
         // navigation
         this.mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
+
+        // timer
+        this.mStopWatch = StopWatch.createStarted();
+        this.mHandler = new Handler();
     }
+
 
     /**
      * Gets update from each fragment to set individual clickListener
@@ -121,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(this.mBottomAppBar);
 
         this.mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_user, R.id.nav_home, R.id.nav_questionnaires, R.id.nav_settings)
+                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_settings_item)
                 .setOpenableLayout(drawer)
                 .build();
 
@@ -133,13 +175,13 @@ public class MainActivity extends AppCompatActivity {
             HideBottomViewOnScrollBehavior<BottomAppBar> behavior = this.mBottomAppBar.getBehavior();
 
             // setup fab
-            if (destination.getId() == R.id.nav_home) {
+            if (destination.getId() == R.id.nav_home_item) {
                 this.mFab.show();
                 this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_send_24));
             } else if (destination.getId() == R.id.nav_questionnaire) {
                 this.mFab.show();
                 this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_24));
-            } else if (destination.getId() == R.id.nav_user) {
+            } else if (destination.getId() == R.id.nav_user_item) {
                 this.mFab.show();
                 this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_save_24));
             } else {
@@ -178,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             this.connectToApiOrAuth();
             this.connectToSpotifyApp();
         } else {
-            this.mSettingsViewModel.disconnect();
+            this.mSpotifyViewModel.disconnect();
         }
     }
 
@@ -186,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
      * Connect to the SpotifyApp
      */
     private void connectToSpotifyApp() {
-        this.mSettingsViewModel.disconnect();
+        this.mSpotifyViewModel.disconnect();
         SpotifyAppRemote.connect(this, this.mConnectionParams, this.mConnectionListener);
     }
 
@@ -198,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         if (accessToken != null) {
             SpotifyApi spotifyApi = new SpotifyApi();
             spotifyApi.setAccessToken(accessToken);
-            this.mSettingsViewModel.setSpotifyApi(spotifyApi);
+            this.mSpotifyViewModel.setSpotifyApi(spotifyApi);
         } else {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);
             builder.setScopes(new String[]{"streaming", "app-remote-control"});
@@ -216,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onConnected(SpotifyAppRemote spotifyAppRemote) {
             Log.d(TAG, "Connected to Spotify!");
-            mSettingsViewModel.setSpotifyAppRemote(spotifyAppRemote);
+            mSpotifyViewModel.setSpotifyAppRemote(spotifyAppRemote);
         }
 
         @Override
@@ -244,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
         if (trackId != null) {
             SpotifyTrack spotifyTrack = this.mPreference.getObject(trackId, SpotifyTrack.class);
             if (spotifyTrack != null) {
-                this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
+                this.mSpotifyViewModel.setCurrentSpotifyTrack(spotifyTrack);
             } else {
                 Log.w(TAG, "Could not find SpotifyTrack with id in Preference: " + trackId);
             }
@@ -273,18 +315,18 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == ApplicationConstants.SPOTIFY_MENU_ITEM) {
             // play or stop
-            PlayerState playerState = this.mSettingsViewModel.getPlayerState().getValue();
+            PlayerState playerState = this.mSpotifyViewModel.getPlayerState().getValue();
             if (playerState != null) {
                 if (playerState.isPaused) {
-                    SpotifyTrack spotifyTrack = this.mSettingsViewModel.getCurrentSpotifyTrack().getValue();
+                    SpotifyTrack spotifyTrack = this.mSpotifyViewModel.getCurrentSpotifyTrack().getValue();
                     if (spotifyTrack != null) {
-                        this.mSettingsViewModel.play(spotifyTrack);
+                        this.mSpotifyViewModel.play(spotifyTrack);
                     } else {
                         Toast.makeText(this, "No Track set", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
-                    this.mSettingsViewModel.pause();
+                    this.mSpotifyViewModel.pause();
                 }
             }
         }
@@ -325,7 +367,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-
         return theme;
     }
 
@@ -362,17 +403,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart called");
+
+        // Timer
+        if (this.mStopWatch.isStopped()) {
+            this.mStopWatch.start();
+        }
+        this.mHandler.postDelayed(updater, INTERVAL_DELAY);
 
         this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
-        this.mSpotifyTrackLiveData = this.mSettingsViewModel.getCurrentSpotifyTrack();
-        this.mSpotifyAppRemoteLiveData = this.mSettingsViewModel.getSpotifyRemoteApp();
-        this.mPlayerStateLiveData = this.mSettingsViewModel.getPlayerState();
+        this.mSpotifyTrackLiveData = this.mSpotifyViewModel.getCurrentSpotifyTrack();
+        this.mSpotifyAppRemoteLiveData = this.mSpotifyViewModel.getSpotifyRemoteApp();
+        this.mPlayerStateLiveData = this.mSpotifyViewModel.getPlayerState();
 
         // Observe current SpotifyTrack to Play on change.
-        this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> {
-            Log.d(TAG, "!!!!!! Played: " + spotifyTrack.getTrack().name);
-            this.mSettingsViewModel.play(spotifyTrack);
-        });
+        this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> this.mSpotifyViewModel.play(spotifyTrack));
 
         // Observe SpotifyRemoteApp to check if App is connected to Spotify.
         this.mSpotifyAppRemoteLiveData.observe(this, spotifyAppRemote -> {
@@ -383,25 +428,13 @@ public class MainActivity extends AppCompatActivity {
                 // setup current selected track
                 String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
                 this.setupSpotifyTrack(trackId);
-//                if (trackId != null) {
-//                    // get track id from shared preferences
-//                    this.mSettingsViewModel.getSpotifyTrackById(trackId).observe(this, spotifyTrack -> {
-//                        // set spotifyTrack id from shared preferences
-//                        if (spotifyTrack != null) {
-//                            Log.d(TAG, "!!!!! Trying to set current Track");
-//                            this.mSettingsViewModel.setCurrentSpotifyTrack(spotifyTrack);
-//                        }
-//                    });
-//                } else {
-//                    Log.d(TAG, "No track set to play");
-//                }
             } else {
                 // not connected
                 this.toggleMusicMenuItem(false);
             }
         });
 
-        // Setup playerstate
+        // Observe PlayerState and set icon accordingly
         this.mPlayerStateLiveData.observe(this, playerState -> {
             if (this.mSpotifyMenuItem != null) {
                 // use icon depending on playerstate
@@ -414,8 +447,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (this.mStopWatch.isSuspended()) {
+            this.mStopWatch.resume();
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+
+        Log.d(TAG, "onStop called");
+
+        if (this.mStopWatch.isStarted()) {
+            this.mStopWatch.suspend();
+        }
+
+        if (this.mHandler != null) {
+            this.mHandler.removeCallbacks(updater);
+        }
+
         if (this.mPlayerStateLiveData != null) {
             this.mPlayerStateLiveData.removeObservers(this);
         }
@@ -428,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
             this.mSpotifyTrackLiveData.removeObservers(this);
         }
 
-        this.mSettingsViewModel.disconnect();
+        this.mSpotifyViewModel.disconnect();
         this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
     }
 }

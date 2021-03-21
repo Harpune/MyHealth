@@ -3,11 +3,9 @@ package de.dbis.myhealth.models;
 
 import android.util.Log;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.Exclude;
-
-import org.jetbrains.annotations.NotNull;
 
 public class Question implements Cloneable {
     private String text;
@@ -49,7 +47,7 @@ public class Question implements Cloneable {
         this.result = result;
     }
 
-    @NotNull
+    @NonNull
     public Object clone() {
         try {
             return super.clone();
@@ -59,7 +57,7 @@ public class Question implements Cloneable {
     }
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
@@ -72,7 +70,7 @@ public class Question implements Cloneable {
         return q.getText().equalsIgnoreCase(this.getText());
     }
 
-    @NotNull
+    @NonNull
     @Override
     public String toString() {
         return "Question{" +
@@ -85,12 +83,6 @@ public class Question implements Cloneable {
         YES_NO,
         YES_NO_SOMETIMES,
         SLIDER_0_10,
-        SLIDER_0_100;
-    }
-
-    public enum ResultType {
-        YES_NO,
-        YES_NO_MAYBE,
-        SCALED
+        SLIDER_0_100
     }
 }

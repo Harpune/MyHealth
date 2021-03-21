@@ -9,12 +9,12 @@
         <import type="android.view.View" />
 
         <variable
-            name="homeViewModel"
-            type="de.dbis.myhealth.ui.home.HomeViewModel" />
+            name="spotifyViewModel"
+            type="de.dbis.myhealth.ui.settings.SpotifyViewModel" />
 
         <variable
-            name="settingsViewModel"
-            type="de.dbis.myhealth.ui.settings.SettingsViewModel" />
+            name="message"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,9 +25,22 @@
         <include
             android:id="@+id/layout_player_state"
             layout="@layout/item_player_state"
-            android:visibility="@{settingsViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
-            bind:currentSpotifyTrack="@{settingsViewModel.currentSpotifyTrack}"
-            bind:playerState="@{settingsViewModel.playerState}" />
+            android:visibility="@{spotifyViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            bind:currentSpotifyTrack="@{spotifyViewModel.currentSpotifyTrack}"
+            bind:playerState="@{spotifyViewModel.playerState}" />
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:text="@{message}"
+            android:textAppearance="@android:style/TextAppearance.Material.Title"
+            app:layout_constraintTop_toBottomOf="@id/layout_player_state" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/home_recyclerview"
@@ -36,7 +49,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layout_player_state" />
+            app:layout_constraintTop_toBottomOf="@id/header_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

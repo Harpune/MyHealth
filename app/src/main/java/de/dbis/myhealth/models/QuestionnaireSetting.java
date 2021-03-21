@@ -1,27 +1,21 @@
 package de.dbis.myhealth.models;
 
-import androidx.annotation.NonNull;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 
 public class QuestionnaireSetting {
-    @NonNull
     private String questionnaireId;
     private List<Question> removedQuestions;
 
-    public QuestionnaireSetting(@NotNull String questionnaireId, List<Question> removedQuestions) {
+    public QuestionnaireSetting(String questionnaireId, List<Question> removedQuestions) {
         this.questionnaireId = questionnaireId;
         this.removedQuestions = removedQuestions;
     }
 
-    @NotNull
     public String getQuestionnaireId() {
         return questionnaireId;
     }
 
-    public void setQuestionnaireId(@NotNull String questionnaireId) {
+    public void setQuestionnaireId(String questionnaireId) {
         this.questionnaireId = questionnaireId;
     }
 

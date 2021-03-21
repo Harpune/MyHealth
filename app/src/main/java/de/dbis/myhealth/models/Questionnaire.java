@@ -4,19 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.Exclude;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 
 public class Questionnaire {
-    @NonNull
+
     private String id;
     private String title;
     private String description;
     private List<Question> questions;
 
     public Questionnaire() {
-        
     }
 
     public Questionnaire(String title, String description, List<Question> questions) {
@@ -25,7 +22,6 @@ public class Questionnaire {
         this.questions = questions;
     }
 
-    @NotNull
     @Exclude
     public String getId() {
         return id;
@@ -59,7 +55,6 @@ public class Questionnaire {
         this.questions = questions;
     }
 
-    @NotNull
     @Override
     public String toString() {
         return "Questionnaire{" +

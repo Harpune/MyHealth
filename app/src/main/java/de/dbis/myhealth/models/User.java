@@ -15,7 +15,7 @@ public class User {
     private String gender;
     private Date updateDate;
 
-    public User() {
+    public User(){
 
     }
 

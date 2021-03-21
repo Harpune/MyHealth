@@ -1,8 +1,15 @@
 package de.dbis.myhealth.adapter;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -10,25 +17,45 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemHomeBinding;
 import de.dbis.myhealth.models.Gamification;
+import de.dbis.myhealth.models.HealthSession;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder> {
+    private final static String TAG = "HomeAdapter";
+
     private List<Gamification> gamifications;
     private final Activity activity;
     private final LifecycleOwner lifecycleOwner;
 
     public static class HomeViewHolder extends RecyclerView.ViewHolder {
         private final ItemHomeBinding binding;
+        private final ImageView imageView;
+        private final ProgressBar progressBar;
+        private final TextView statText;
 
         public HomeViewHolder(@NonNull ItemHomeBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            this.imageView = binding.getRoot().findViewById(R.id.imageView);
+            this.progressBar = binding.getRoot().findViewById(R.id.progress);
+            this.statText = binding.getRoot().findViewById(R.id.stat_text);
         }
 
         public void bind(Gamification gamification) {
             this.binding.setGamification(gamification);
             this.binding.executePendingBindings();
+
+            // set image
+            byte[] decodedString = Base64.decode(gamification.getImageResource(), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            this.imageView.setImageBitmap(decodedByte);
+
+            // book
+            if (gamification.getId().equalsIgnoreCase(this.binding.getRoot().getResources().getString(R.string.gameOneKey))) {
+                this.progressBar.setMax(10);
+            }
         }
     }
 
@@ -41,6 +68,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
     public void setData(List<Gamification> gamifications) {
         this.gamifications = gamifications;
         notifyDataSetChanged();
+    }
+
+    public void updateSessions(List<HealthSession> healthSessions) {
+
     }
 
     @NonNull

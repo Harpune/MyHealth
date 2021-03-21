@@ -40,14 +40,16 @@ import de.dbis.myhealth.models.QuestionResult;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.QuestionnaireSetting;
+import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class QuestionnaireFragment extends Fragment {
     private final static String TAG = "QuestionnaireFragment";
 
-    // Questionaire relatec
+    // Questionnaire related
     private QuestionnairesViewModel mQuestionnairesViewModel;
     private UserViewModel mUserViewModel;
+    private StatsViewModel mStatsViewModel;
     private SharedPreferences mSharedPreferences;
     private QuestionAdapter mQuestionAdapter;
     private QuestionnaireSetting mQuestionnaireSetting;
@@ -81,6 +83,7 @@ public class QuestionnaireFragment extends Fragment {
         // Get current questionnaire
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        this.mStatsViewModel = new ViewModelProvider(requireActivity()).get(StatsViewModel.class);
 
         // Get questionnaire
         this.mQuestionnairesLiveData = this.mQuestionnairesViewModel.getSelectedQuestionnaire();
@@ -207,8 +210,10 @@ public class QuestionnaireFragment extends Fragment {
                                 questionResults
                         );
 
+
                         // save result
-                        this.mQuestionnairesViewModel.sendResult(result);
+//                        this.mQuestionnairesViewModel.sendResult(result);
+                        this.mStatsViewModel.addQuestionnaireResult(result);
                         this.mQuestionnairesViewModel.resetSelected();
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                     })

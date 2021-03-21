@@ -11,22 +11,20 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 
 import java.util.Date;
 
 import de.dbis.myhealth.models.User;
 
+import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_SESSIONS;
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_USERS;
 
 public class UserViewModel extends AndroidViewModel {
     private final static String TAG = "UserViewModel";
 
-    private final FirebaseAuth mAuth;
+    private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore firestore;
     private final MutableLiveData<User> mUser;
     private final MutableLiveData<FirebaseUser> mFirebaseUser;
@@ -35,8 +33,9 @@ public class UserViewModel extends AndroidViewModel {
         super(application);
 
         // NETWORK
-        this.mAuth = FirebaseAuth.getInstance();
+        this.firebaseAuth = FirebaseAuth.getInstance();
         this.firestore = FirebaseFirestore.getInstance();
+
         // settings
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
@@ -48,22 +47,24 @@ public class UserViewModel extends AndroidViewModel {
         this.mFirebaseUser = new MutableLiveData<>();
 
         // Get user from firebase
-        FirebaseUser firebaseUser = this.mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = this.firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             this.setFirebaseUser(firebaseUser);
         } else {
             this.signIn();
         }
 
+        this.firestore.clearPersistence();
+
     }
 
     private void signIn() {
-        this.mAuth.signInAnonymously()
+        this.firebaseAuth.signInAnonymously()
                 .addOnCompleteListener(ContextCompat.getMainExecutor(getApplication()), task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d("Firebase Login", "signInAnonymously:success");
-                        this.setFirebaseUser(this.mAuth.getCurrentUser());
+                        this.setFirebaseUser(this.firebaseAuth.getCurrentUser());
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("Firebase Login", "signInAnonymously:failure", task.getException());
@@ -93,6 +94,7 @@ public class UserViewModel extends AndroidViewModel {
     private void subscribeToUser() {
         FirebaseUser firebaseUser = this.mFirebaseUser.getValue();
         if (firebaseUser != null) {
+
             this.firestore.collection(FIREBASE_COLLECTION_USERS)
                     .document(firebaseUser.getUid())
                     .addSnapshotListener((snapshot, error) -> {
@@ -106,12 +108,16 @@ public class UserViewModel extends AndroidViewModel {
                             User user = snapshot.toObject(User.class);
                             setUser(user);
                         } else {
-                            Log.d(TAG, "No results found");
+                            Log.d(TAG, "No results found so we will create a user");
+                            this.firestore.collection(FIREBASE_COLLECTION_USERS)
+                                    .document(firebaseUser.getUid())
+                                    .set(new User(firebaseUser.getUid()));
                         }
                     });
 
         }
     }
+
 
     public void save() {
         User user = this.mUser.getValue();
@@ -119,7 +125,9 @@ public class UserViewModel extends AndroidViewModel {
             user.setUpdateDate(new Date());
             this.firestore.collection(FIREBASE_COLLECTION_USERS)
                     .document(user.getUserId())
-                    .set(user);
+                    .set(user)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(getApplication().getApplicationContext(), "Your profile was saved", Toast.LENGTH_LONG).show())
+                    .addOnFailureListener(e -> Toast.makeText(getApplication().getApplicationContext(), "Failed saving your profile", Toast.LENGTH_LONG).show());
         }
     }
 }

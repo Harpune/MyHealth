@@ -11,20 +11,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.fitness.SessionsClient;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.types.Empty;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
 
-import java.util.List;
-
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.SpotifyTrack;
-import de.dbis.myhealth.repository.SpotifyRepository;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Track;
@@ -32,10 +26,10 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class SettingsViewModel extends AndroidViewModel {
-    private final static String TAG = "SettingsViewModel";
+public class SpotifyViewModel extends AndroidViewModel {
+    private final static String TAG = "SpotifyViewModel";
 
-    private SharedPreferences mSharedPreferences;
+    private final SharedPreferences mSharedPreferences;
 
     private final MutableLiveData<SpotifyApi> mSpotifyApi;
     private final MutableLiveData<SpotifyAppRemote> mSpotifyAppRemote;
@@ -43,8 +37,7 @@ public class SettingsViewModel extends AndroidViewModel {
     private final MutableLiveData<PlayerContext> mPlayerContext;
     private final MutableLiveData<SpotifyTrack> mSpotifyTrack;
 
-
-    public SettingsViewModel(Application application) {
+    public SpotifyViewModel(Application application) {
         super(application);
 
         this.mSharedPreferences = getApplication().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
