@@ -149,7 +149,6 @@ public class HomeFragment extends Fragment {
 
         this.mHealthSessionsLiveData.observe(getViewLifecycleOwner(), healthSessions -> {
             Log.d(TAG, String.valueOf(healthSessions));
-            this.mHomeAdapter.updateSessions();
         });
 
         this.mGamificationsLiveData.observe(getViewLifecycleOwner(), gamifications -> this.mHomeAdapter.setData(gamifications));

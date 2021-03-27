@@ -120,11 +120,14 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
      * Connect to the Spotify API or authenticate if no accesstoken is set.
      */
     public void connectToApiOrAuth() {
-
         String accessToken = this.mSharedPreferences.getString(getString(R.string.access_token), null);
         if (accessToken != null) {
-            SpotifyApi spotifyApi = new SpotifyApi();
-            spotifyApi.setAccessToken(accessToken);
+            SpotifyApi spotifyApi = this.mSpotifyViewModel.getSpotifyApi().getValue();
+
+            if (spotifyApi == null) {
+                spotifyApi = new SpotifyApi();
+                spotifyApi.setAccessToken(accessToken);
+            }
             this.mSpotifyViewModel.setSpotifyApi(spotifyApi);
         } else {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI);

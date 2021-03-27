@@ -12,6 +12,8 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.Capabilities;
 import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
@@ -182,7 +184,9 @@ public class SpotifyViewModel extends AndroidViewModel {
                 @Override
                 public void failure(RetrofitError error) {
                     Log.d(TAG, "Get Track", error);
+                    Log.d(TAG, "AAAAAAA" + error.getResponse().getReason());
                     Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
+
                 }
             });
 
@@ -195,6 +199,7 @@ public class SpotifyViewModel extends AndroidViewModel {
                 @Override
                 public void failure(RetrofitError error) {
                     Log.d(TAG, "Get Track", error);
+                    Log.d(TAG, error.getResponse().getReason());
                     Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
@@ -202,6 +207,7 @@ public class SpotifyViewModel extends AndroidViewModel {
 
         return mediatorLiveData;
     }
+
 
     public LiveData<SpotifyTrack> getCurrentSpotifyTrack() {
         return this.mSpotifyTrack;
