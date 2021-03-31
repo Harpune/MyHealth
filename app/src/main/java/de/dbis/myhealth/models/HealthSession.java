@@ -1,5 +1,7 @@
 package de.dbis.myhealth.models;
 
+import android.util.Log;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +71,10 @@ public class HealthSession {
         return timeAppOpened;
     }
 
+    public void incrementTimeAppOpened(long intervalUpdate) {
+        this.timeAppOpened += intervalUpdate;
+    }
+
     public void setTimeAppOpened(long timeAppOpened) {
         this.timeAppOpened = timeAppOpened;
     }
@@ -77,7 +83,12 @@ public class HealthSession {
         return timeMusic;
     }
 
+    public void incrementTimeMusic(String trackId, long intervalUpdate) {
+        this.timeMusic.merge(trackId, intervalUpdate, Long::sum);
+    }
+
     public void setTimeMusic(Map<String, Long> timeMusic) {
         this.timeMusic = timeMusic;
     }
+
 }

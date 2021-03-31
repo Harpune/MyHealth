@@ -47,6 +47,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.apache.commons.lang3.time.StopWatch;
 
+import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
@@ -63,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     // View Models
+    private StatsViewModel mStatsViewModel;
     public SpotifyViewModel mSpotifyViewModel;
     public UserViewModel mUserViewModel;
-    private StatsViewModel mStatsViewModel;
 
     // Views
     public FloatingActionButton mFab;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem mSpotifyMenuItem;
 
     // LiveData
+    private LiveData<HealthSession> mHealthSessionLiveData;
     private LiveData<PlayerState> mPlayerStateLiveData;
     private LiveData<SpotifyAppRemote> mSpotifyAppRemoteLiveData;
     private LiveData<SpotifyTrack> mSpotifyTrackLiveData;
@@ -411,6 +413,13 @@ public class MainActivity extends AppCompatActivity {
         }
         this.mHandler.postDelayed(updater, INTERVAL_DELAY);
 
+        // Session
+        this.mHealthSessionLiveData = this.mStatsViewModel.getHealthSession();
+        this.mHealthSessionLiveData.observe(this, healthSession -> {
+            Log.d(TAG, String.valueOf(healthSession.getTimeAppOpened()));
+        });
+
+        // spotify
         this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
         this.mSpotifyTrackLiveData = this.mSpotifyViewModel.getCurrentSpotifyTrack();
         this.mSpotifyAppRemoteLiveData = this.mSpotifyViewModel.getSpotifyRemoteApp();
@@ -462,6 +471,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (this.mStopWatch.isStarted()) {
             this.mStopWatch.suspend();
+        }
+
+        if (this.mHealthSessionLiveData != null) {
+            this.mHealthSessionLiveData.removeObservers(this);
         }
 
         if (this.mHandler != null) {

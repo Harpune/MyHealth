@@ -114,7 +114,6 @@ public class UserViewModel extends AndroidViewModel {
                                     .set(new User(firebaseUser.getUid()));
                         }
                     });
-
         }
     }
 

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -17,9 +18,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -107,6 +112,7 @@ public class StatsViewModel extends AndroidViewModel {
     public void incrementAppTime(long intervalUpdate) {
         HealthSession healthSession = this.getHealthSession().getValue();
         if (healthSession != null) {
+            // update on server
             this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(healthSession.getId())
                     .update("timeAppOpened", FieldValue.increment(intervalUpdate));
@@ -116,25 +122,21 @@ public class StatsViewModel extends AndroidViewModel {
     public void incrementMusicTime(String trackId, long intervalUpdate) {
         HealthSession healthSession = this.getHealthSession().getValue();
         if (healthSession != null) {
-            Long time = healthSession.getTimeMusic().getOrDefault(trackId, 0L);
-            if (time != null) {
-                this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
-                        .document(healthSession.getId())
-                        .update("timeMusic." + trackId, time + intervalUpdate);
-            }
+            // update on server
+            this.firestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("timeMusic." + trackId, FieldValue.increment(intervalUpdate));
         }
     }
 
     public void addQuestionnaireResult(QuestionnaireResult questionnaireResult) {
         HealthSession healthSession = this.getHealthSession().getValue();
         if (healthSession != null) {
-            DocumentReference documentReference = this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
+            this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(healthSession.getId())
                     .collection(FIREBASE_COLLECTION_RESULTS)
                     .document();
-
-            questionnaireResult.setResultId(documentReference.getId());
-            documentReference.set(questionnaireResult);
         }
 
     }
@@ -161,7 +163,7 @@ public class StatsViewModel extends AndroidViewModel {
             documentReference.set(startedHealthSession);
 
             // create listener
-            documentReference.addSnapshotListener((documentSnapshot, error) -> {
+            documentReference.addSnapshotListener(MetadataChanges.INCLUDE, (documentSnapshot, error) -> {
                 if (error != null) {
                     Log.w(TAG, "Listen failed.", error);
                     return;
@@ -179,6 +181,7 @@ public class StatsViewModel extends AndroidViewModel {
 
     public void loadHealthSessions() {
         this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
+                .whereEqualTo("userId", this.firebaseAuth.getCurrentUser().getUid())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
