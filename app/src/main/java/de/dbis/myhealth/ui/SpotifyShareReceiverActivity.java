@@ -30,7 +30,7 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ActivitySpotifyReceiverBinding;
 import de.dbis.myhealth.models.SpotifyTrack;
-import de.dbis.myhealth.ui.settings.SpotifyViewModel;
+import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 import kaaes.spotify.webapi.android.SpotifyApi;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_CLIENT_ID;
@@ -79,37 +79,39 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
             // check if already added
             if (this.mTrackIds.contains(this.mTrackId)) {
                 Log.d(TAG, "Track-ID " + this.mTrackId + " already exists");
-            }
-
-            // request spotify track with spotify api (observed after being set in connectToApiOrAuth())
-            this.mSpotifyApiLiveData.observe(this, spotifyApi -> {
-                this.mSpotifyTrackLiveData = this.mSpotifyViewModel.loadSpotifyTrack(this.mTrackId);
-                this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> this.mSpotifyReceiverBinding.setSpotifyTrack(spotifyTrack));
-            });
-
-            // check if spotify is enabled
-            boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
-            if (enabled) {
-                // Connect is enabled. Disconnect otherwise.
-                this.connectToApiOrAuth();
+                Toast.makeText(SpotifyShareReceiverActivity.this, "This song is already saved in MyHealth.", Toast.LENGTH_LONG).show();
+                finish();
             } else {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Enable Spotify in your app")
-                        .setMessage("You have to allow MyHealth to access Spotify before continuing")
-                        .setCancelable(false)
-                        .setPositiveButton("Enable", (dialogInterface, i) -> {
-                            this.mSharedPreferences
-                                    .edit()
-                                    .putBoolean(getString(R.string.spotify_key), true)
-                                    .apply();
-                            this.connectToApiOrAuth();
-                        })
-                        .setNegativeButton("No", (dialogInterface, i) ->
-                        {
-                            Toast.makeText(this, "Sorry. Could't connect to Spotify without your permission.", Toast.LENGTH_LONG).show();
-                            finish();
-                        })
-                        .show();
+                // request spotify track with spotify api (observed after being set in connectToApiOrAuth())
+                this.mSpotifyApiLiveData.observe(this, spotifyApi -> {
+                    this.mSpotifyTrackLiveData = this.mSpotifyViewModel.loadSpotifyTrack(this.mTrackId);
+                    this.mSpotifyTrackLiveData.observe(this, spotifyTrack -> this.mSpotifyReceiverBinding.setSpotifyTrack(spotifyTrack));
+                });
+
+                // check if spotify is enabled
+                boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
+                if (enabled) {
+                    // Connect is enabled. Disconnect otherwise.
+                    this.connectToApiOrAuth();
+                } else {
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("Enable Spotify in your app")
+                            .setMessage("You have to allow MyHealth to access Spotify before continuing.")
+                            .setCancelable(false)
+                            .setPositiveButton("Enable", (dialogInterface, i) -> {
+                                this.mSharedPreferences
+                                        .edit()
+                                        .putBoolean(getString(R.string.spotify_key), true)
+                                        .apply();
+                                this.connectToApiOrAuth();
+                            })
+                            .setNegativeButton("No", (dialogInterface, i) ->
+                            {
+                                Toast.makeText(this, "Sorry. Could't connect to Spotify without your permission.", Toast.LENGTH_LONG).show();
+                                finish();
+                            })
+                            .show();
+                }
             }
         } else {
             Toast.makeText(this, "Could not get necessary data to include Spotify track into the app.", Toast.LENGTH_LONG).show();
@@ -202,7 +204,14 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                     // get track Id
                     String[] lines = sharedText.split("\\r?\\n");
                     Uri uri = Uri.parse(lines[1]);
-                    return uri.getLastPathSegment();
+
+                    // check if its a track
+                    if (uri.getPathSegments().contains("track")) {
+                        return uri.getLastPathSegment();
+                    } else {
+                        Toast.makeText(this, "Only tracks can be added to MyHealth.", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
                 }
             }
         }

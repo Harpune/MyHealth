@@ -26,6 +26,7 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
+import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_TRACKS_KEY;
 

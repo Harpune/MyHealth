@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -10,7 +9,15 @@
 
         <variable
             name="spotifyViewModel"
-            type="de.dbis.myhealth.ui.settings.SpotifyViewModel" />
+            type="de.dbis.myhealth.ui.spotify.SpotifyViewModel" />
+
+        <variable
+            name="homeFragment"
+            type="de.dbis.myhealth.ui.home.HomeFragment" />
+
+        <variable
+            name="spotifyEnabled"
+            type="boolean" />
 
         <variable
             name="message"
@@ -22,15 +29,109 @@
         android:layout_height="match_parent"
         tools:context=".ui.home.HomeFragment">
 
-        <include
-            android:id="@+id/layout_player_state"
-            layout="@layout/item_player_state"
-            android:visibility="@{spotifyViewModel.spotifyRemoteApp.connected ? View.VISIBLE : View.GONE}"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/spotify_track_info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="73dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:onClick="@{(v) -> homeFragment.openSpotifyTrackInfoFragment(v)}"
+            android:orientation="vertical"
+            android:visibility="@{spotifyEnabled ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            bind:currentSpotifyTrack="@{spotifyViewModel.currentSpotifyTrack}"
-            bind:playerState="@{spotifyViewModel.playerState}" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/spotifyTrackIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="20dp"
+                android:contentDescription="@string/music"
+                android:src="@{spotifyViewModel.currentSpotifyTrack.track.uri.equalsIgnoreCase(spotifyViewModel.playerState.track.uri) ? @drawable/ic_baseline_music_note_24 : @drawable/ic_baseline_music_off_24}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/circleImageView" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/spotifyTrackGoToDetailPageIcon"
+                app:layout_constraintStart_toEndOf="@id/spotifyTrackIcon"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/first_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:ellipsize="marquee"
+                        android:fontFamily="sans-serif"
+                        android:singleLine="true"
+                        android:text="@{spotifyViewModel.playerState.track.name}"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/second_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:fontFamily="sans-serif"
+                        android:singleLine="true"
+                        android:text="@{spotifyViewModel.playerState.track.artist.name}"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/spotifyTrackGoToDetailPageIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="20dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/music"
+                android:src="@drawable/ic_baseline_chevron_right_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="?colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/header_title"
@@ -40,7 +141,7 @@
             android:padding="@dimen/activity_horizontal_margin"
             android:text="@{message}"
             android:textAppearance="@android:style/TextAppearance.Material.Title"
-            app:layout_constraintTop_toBottomOf="@id/layout_player_state" />
+            app:layout_constraintTop_toBottomOf="@id/spotify_track_info_layout" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/home_recyclerview"

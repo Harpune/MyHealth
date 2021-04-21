@@ -11,6 +11,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_questionnaires">Questionnaires</string>
     <string name="menu_questionnaire">Questionnaire</string>
+    <string name="menu_stats">Statistics</string>
     <string name="start">Start</string>
 
     <!-- Preference Titles -->
@@ -189,6 +190,37 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
-    <string name="menu_stats">Statistics</string>
+
+    <!-- Spotify data -->
+    <string name="track_name">Song</string>
+    <string name="track_artist">Artist</string>
+    <string name="track_album">Album</string>
+    <string name="artist_icon">Artist icon</string>
+    <string name="spotify_icon">Spotify Icon</string>
+    <string name="track_acousticness">Acousticness</string>
+    <string name="track_danceability">Danceability</string>
+    <string name="track_energy">Energy</string>
+    <string name="track_instrumentalness">Instrumentalness</string>
+    <string name="track_liveness">Liveness</string>
+    <string name="track_speechiness">Speechiness</string>
+    <string name="track_valence">Valence</string>
+    <string name="track_duration">Duration</string>
+    <string name="spotify_duration">%02d:%02d min</string>
+    <string name="track_tempo">Tempo</string>
+    <string name="spotify_tempo">%d bpm</string>
+    <string name="track_loudness">Loudness</string>
+    <string name="spotify_loudness">%d dB</string>
+    <string name="metrics">Metrics</string>
+    <string name="feel">Feel</string>
+
+    <string name="track_acousticness_description">A confidence measure from whether the track is acoustic.</string>
+    <string name="track_danceability_description">Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity.</string>
+    <string name="track_energy_description">Energy represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.</string>
+    <string name="track_instrumentalness_description">Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”.</string>
+    <string name="track_liveness_description">Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live.</string>
+    <string name="track_speechiness_description">Speechiness detects the presence of spoken words in a track.</string>
+    <string name="track_valence_description">Valence describes the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</string>
+    <string name="no_track_set">Set a track to see its metrics</string>
+
 
 </resources>

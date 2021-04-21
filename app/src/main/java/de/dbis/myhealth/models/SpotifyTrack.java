@@ -1,10 +1,13 @@
 package de.dbis.myhealth.models;
 
+import android.graphics.Bitmap;
+
 import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.NotNull;
 
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 
 
@@ -13,6 +16,7 @@ public class SpotifyTrack {
     private String trackId;
     private Track track;
     private AudioFeaturesTrack audioFeaturesTrack;
+    private Image image;
 
     public SpotifyTrack(@NotNull String trackId) {
         this.trackId = trackId;
@@ -47,5 +51,13 @@ public class SpotifyTrack {
 
     public void setAudioFeaturesTrack(AudioFeaturesTrack audioFeaturesTrack) {
         this.audioFeaturesTrack = audioFeaturesTrack;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

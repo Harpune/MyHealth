@@ -9,7 +9,11 @@
         android:id="@+id/nav_home_item"
         android:name="de.dbis.myhealth.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_item_to_spotifyFragment"
+            app:destination="@id/spotifyFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_questionnaires_item"
@@ -52,5 +56,10 @@
         android:id="@+id/nav_spotify_share_receiver"
         android:name="de.dbis.myhealth.ui.SpotifyShareReceiverActivity"
         tools:layout="@layout/activity_spotify_receiver" />
+    <fragment
+        android:id="@+id/spotifyFragment"
+        android:name="de.dbis.myhealth.ui.spotify.SpotifyFragment"
+        android:label="spotify_fragment"
+        tools:layout="@layout/fragment_spotify" />
 
 </navigation>

@@ -1,8 +1,9 @@
-package de.dbis.myhealth.ui.settings;
+package de.dbis.myhealth.ui.spotify;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,11 +19,14 @@ import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Repeat;
 
+import java.util.Optional;
+
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.SpotifyTrack;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -38,6 +42,7 @@ public class SpotifyViewModel extends AndroidViewModel {
     private final MutableLiveData<PlayerState> mPlayerState;
     private final MutableLiveData<PlayerContext> mPlayerContext;
     private final MutableLiveData<SpotifyTrack> mSpotifyTrack;
+    private final MutableLiveData<Bitmap> mTrackImage;
 
     public SpotifyViewModel(Application application) {
         super(application);
@@ -50,6 +55,7 @@ public class SpotifyViewModel extends AndroidViewModel {
         this.mPlayerState = new MutableLiveData<>();
         this.mPlayerContext = new MutableLiveData<>();
         this.mSpotifyTrack = new MutableLiveData<>();
+        this.mTrackImage = new MutableLiveData<>();
     }
 
     public void disconnect() {
@@ -139,34 +145,61 @@ public class SpotifyViewModel extends AndroidViewModel {
         this.mPlayerContext.setValue(playerContext);
     }
 
+    public LiveData<Bitmap> getCurrentTrackImage() {
+        return this.mTrackImage;
+    }
+
+    public void setCurrentTrackImage(Bitmap trackImage) {
+        this.mTrackImage.setValue(trackImage);
+    }
+
     public LiveData<SpotifyTrack> loadSpotifyTrack(String id) {
         // LiveData updated by SpotifyAPI-Callbacks
         MutableLiveData<Track> trackLiveData = new MutableLiveData<>();
         MutableLiveData<AudioFeaturesTrack> audioFeaturesTrackLiveData = new MutableLiveData<>();
+        MutableLiveData<Image> imageLiveData = new MutableLiveData<>();
 
         // MediatorLiveData returns all callback data if present
         MediatorLiveData<SpotifyTrack> mediatorLiveData = new MediatorLiveData<>();
 
-        // Check if audioFeaturesTrackLiveData is finished on Track-Callback
+        // Check if LiveData is finished
         mediatorLiveData.addSource(trackLiveData, value -> {
             Track track = trackLiveData.getValue();
             AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
-            if (track != null && audioFeaturesTrack != null) {
+            Image image = imageLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null && image != null) {
                 SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
                 spotifyTrack.setTrack(track);
                 spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                spotifyTrack.setImage(image);
                 mediatorLiveData.setValue(spotifyTrack);
             }
         });
 
-        // Check if trackLiveData is finished on AudioFeaturesTrack-Callback
+        // Check if LiveData is finished
         mediatorLiveData.addSource(audioFeaturesTrackLiveData, value -> {
             Track track = trackLiveData.getValue();
             AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
-            if (track != null && audioFeaturesTrack != null) {
+            Image image = imageLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null && image != null) {
                 SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
                 spotifyTrack.setTrack(track);
                 spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                spotifyTrack.setImage(image);
+                mediatorLiveData.setValue(spotifyTrack);
+            }
+        });
+
+        // Check if LiveData is finished
+        mediatorLiveData.addSource(imageLiveData, value -> {
+            Track track = trackLiveData.getValue();
+            AudioFeaturesTrack audioFeaturesTrack = audioFeaturesTrackLiveData.getValue();
+            Image image = imageLiveData.getValue();
+            if (track != null && audioFeaturesTrack != null && image != null) {
+                SpotifyTrack spotifyTrack = new SpotifyTrack(track.id);
+                spotifyTrack.setTrack(track);
+                spotifyTrack.setAudioFeaturesTrack(audioFeaturesTrack);
+                spotifyTrack.setImage(image);
                 mediatorLiveData.setValue(spotifyTrack);
             }
         });
@@ -178,13 +211,16 @@ public class SpotifyViewModel extends AndroidViewModel {
             spotifyApi.getService().getTrack(id, new Callback<Track>() {
                 @Override
                 public void success(Track track, Response response) {
+                    // set track
                     trackLiveData.setValue(track);
+
+                    // set image
+                    Image image = track.album.images.stream().max((a, b) -> a.height - b.height).orElse(new Image());
+                    imageLiveData.setValue(image);
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
-                    Log.d(TAG, "Get Track", error);
-                    Log.d(TAG, "AAAAAAA" + error.getResponse().getReason());
                     Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
 
                 }
@@ -198,8 +234,6 @@ public class SpotifyViewModel extends AndroidViewModel {
 
                 @Override
                 public void failure(RetrofitError error) {
-                    Log.d(TAG, "Get Track", error);
-                    Log.d(TAG, error.getResponse().getReason());
                     Toast.makeText(getApplication(), error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });

@@ -65,4 +65,9 @@
     <style name="Toolbar" parent="Theme.Green">
         <item name="android:textColorSecondary">@color/white</item>
     </style>
+
+    <style name="circleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.common.internal.ServiceSpecificExtraArgs;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,6 +40,8 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.ui.home.HomeViewModel;
+import de.dbis.myhealth.ui.user.UserViewModel;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_GAMIFICATION;
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_RESULTS;
@@ -81,8 +84,6 @@ public class StatsViewModel extends AndroidViewModel {
 
         // init
         this.startNewSession();
-        this.loadHealthSessions();
-        this.loadGamifications();
     }
 
     public LiveData<List<Gamification>> getGamifications() {
@@ -179,9 +180,10 @@ public class StatsViewModel extends AndroidViewModel {
         }
     }
 
-    public void loadHealthSessions() {
+    public void loadHealthSessions(FirebaseUser firebaseUser) {
+
         this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
-                .whereEqualTo("userId", this.firebaseAuth.getCurrentUser().getUid())
+                .whereEqualTo("userId", firebaseUser.getUid())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
