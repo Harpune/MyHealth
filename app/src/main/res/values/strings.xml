@@ -221,6 +221,9 @@
     <string name="track_speechiness_description">Speechiness detects the presence of spoken words in a track.</string>
     <string name="track_valence_description">Valence describes the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</string>
     <string name="no_track_set">Set a track to see its metrics</string>
+    <string name="remove_all_tracks">Remove all tracks</string>
+    <string name="remove_all_tracks_key">remove_all_tracks_key</string>
+    <string name="remove_all_tracks_description">Reset all of your save tracks</string>
 
 
 </resources>
