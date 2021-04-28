@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     // Timer
     private StopWatch mStopWatch;
     private Handler mHandler;
-    private final static long INTERVAL_UPDATE = 1000L;
+    private final static long INTERVAL_UPDATE = 10000L;
     private final static long INTERVAL_DELAY = 2000L;
 
     private final Runnable updater = new Runnable() {

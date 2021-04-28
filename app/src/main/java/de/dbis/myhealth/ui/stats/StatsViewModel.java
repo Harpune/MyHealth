@@ -72,14 +72,13 @@ public class StatsViewModel extends AndroidViewModel {
 
         // firebase
         this.firestore = FirebaseFirestore.getInstance();
-//        this.firestore.useEmulator("127.0.0.1", 8080);
         this.firebaseAuth = FirebaseAuth.getInstance();
-//        this.firebaseAuth.useEmulator("127.0.0.1", 9099);
 
         // settings
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build();
+
         this.firestore.setFirestoreSettings(settings);
 
         // init
@@ -181,7 +180,6 @@ public class StatsViewModel extends AndroidViewModel {
     }
 
     public void loadHealthSessions(FirebaseUser firebaseUser) {
-
         this.firestore.collection(FIREBASE_COLLECTION_SESSIONS)
                 .whereEqualTo("userId", firebaseUser.getUid())
                 .get()
@@ -212,7 +210,6 @@ public class StatsViewModel extends AndroidViewModel {
                         if (querySnapshot != null) {
                             List<Gamification> gamifications = querySnapshot.getDocuments().stream().map(document -> document.toObject(Gamification.class)).collect(Collectors.toList());
                             this.setGamifications(gamifications);
-
                         }
                     }
                 });
