@@ -257,7 +257,35 @@
     <string name="format_time">%1$tH:%1$tM</string>
     <string name="switch_on_off">Click to switch on or off</string>
     <string name="personal_information_added" translatable="false">personal_information_added</string>
-    <string name="not_set_track">The running song is not your Song save in the myHealth app.</string>
+    <string name="not_set_track">The current song is not your song set in the myHealth app</string>
+    <string name="tfi_description">The Tinnitus Functional Index (TFI) is the first tinnitus questionnaire documented for responsiveness, and has the potential to become the new standard for evaluating the effects of intervention for tinnitus, with clinical patients and in research studies.</string>
+    <string name="thi_description">The purpose of this questionnaire is to identify the problems your tinnitus may be causing you. Check \"Yes\", \"Sometimes\", or \"No\" for each question. Please answer all questions.</string>
+    <string name="deleted_questions">Deleted questions</string>
+    <string name="submit_results">Submit results</string>
+    <string name="submit_results_summary">Have you finished filling out the questionnaire? You have answered %d out of %d questions.</string>
+    <string name="save_as_fast_start">Save as fast start</string>
+    <string name="save_as_fast_start_summary">You can select this questionnaire as favourite to fast start on the home page.</string>
+    <string name="save_as_fast_start_confirmation">Your new favourite questionnaire is %s now.</string>
+    <string name="set_fast_start_in_settings">Set Questionnaire for fast access in Settings.</string>
+    <string name="no_questionnaire_available">No questionnaires are available.</string>
+    <string name="could_not_find_questionnaire">Couldn\'t find selected questionnaire.</string>
+    <string name="restart">Restart</string>
+    <string name="restart_confirmation">To apply the new design, the app has to restart.</string>
+    <string name="cancel">Cancel</string>
+    <string name="download_spotify">Download Spotify</string>
+    <string name="download_spotify_confirmation">To include a some music you have to download Spotify</string>
+    <string name="ok">Ok</string>
+    <string name="login_spotify">Login to Spotify</string>
+    <string name="login_spotify_confirmation">You are not logged in you Spotify app.</string>
+    <string name="login">Login</string>
+    <string name="track_already_saved">This song is already saved in MyHealth.</string>
+    <string name="enable_spotify">Enable Spotify in the app</string>
+    <string name="enable_spotify_confirmation">You have to allow MyHealth to access Spotify before continuing.</string>
+    <string name="enable_spotify_canceled">Could\'t connect to Spotify without your permission.</string>
+    <string name="get_track_error">Could not get necessary data to include Spotify track into the app.</string>
+    <string name="grant_permission">Please grant permission</string>
+    <string name="new_track_added">\'%s\' by \'%s\' was added to MyHealth.</string>
+    <string name="not_a_track">Only tracks can be added to MyHealth.</string>
 
 
 </resources>

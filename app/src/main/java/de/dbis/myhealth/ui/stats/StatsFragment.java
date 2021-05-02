@@ -515,6 +515,12 @@ public class StatsFragment extends Fragment {
                 .toLocalDate();
     }
 
+    public static Date convertToDate(LocalDate dateToConvert) {
+        return java.util.Date.from(dateToConvert.atStartOfDay()
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+    }
+
     @SuppressLint("DefaultLocale")
     public static String getDurationFormat(long value) {
         int seconds = (int) (value / 1000) % 60;

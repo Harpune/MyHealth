@@ -121,16 +121,16 @@ public class HomeFragment extends Fragment {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
                 // TODO create dialog/snackbar to ask user to go to settings
-                Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.set_fast_start_in_settings), Toast.LENGTH_LONG).show();
             } else if (questionnaires == null) {
-                Toast.makeText(getContext(), "No questionnaires are available.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.no_questionnaire_available), Toast.LENGTH_LONG).show();
             } else {
                 Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
                 if (questionnaire.isPresent()) {
                     this.mQuestionnairesViewModel.select(questionnaire.get());
                     Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
                 } else {
-                    Toast.makeText(getContext(), "Couldn't find selected questionnaire.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), getString(R.string.could_not_find_questionnaire), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -177,6 +177,7 @@ public class HomeFragment extends Fragment {
         this.mAllHealthSessions.observe(getViewLifecycleOwner(), this::handleHealthSessions);
 
         this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> {
+
             this.mHomeAdapter.setData(gamifications);
         });
 

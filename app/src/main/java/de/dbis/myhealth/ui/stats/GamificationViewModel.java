@@ -3,19 +3,19 @@ package de.dbis.myhealth.ui.stats;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -42,6 +42,7 @@ public class GamificationViewModel extends AndroidViewModel {
         this.mGamifications = new MutableLiveData<>();
 
         this.generateGamifications();
+//        generateGamificationToFirestore();
     }
 
     public void setGamifications(List<Gamification> gamifications) {
@@ -138,14 +139,15 @@ public class GamificationViewModel extends AndroidViewModel {
                 .sorted(Date::compareTo)
                 .map(StatsFragment::convertToLocalDate)
                 .distinct()
-                .limit(6)
+                .limit(7)
                 .collect(Collectors.toList());
 
-        int consecutiveDatesAmount = 1;
+        int consecutiveDatesAmount = 0;
+        LocalDate localDate = LocalDate.now();
         for (int i = 0; i < appOpenedDates.size(); i++) {
-            LocalDate date = appOpenedDates.get(i).minusDays(1L);
-            if (appOpenedDates.stream().anyMatch(a -> a.equals(date))) {
+            if (appOpenedDates.contains(localDate)) {
                 consecutiveDatesAmount++;
+                localDate.minusDays(1L);
             } else {
                 break;
             }
@@ -164,14 +166,15 @@ public class GamificationViewModel extends AndroidViewModel {
                 .sorted(Date::compareTo)
                 .map(StatsFragment::convertToLocalDate)
                 .distinct()
-                .limit(6)
+                .limit(7)
                 .collect(Collectors.toList());
 
-        int consecutiveDatesAmount = 1;
+        int consecutiveDatesAmount = 0;
+        LocalDate localDate = LocalDate.now();
         for (int i = 0; i < localDates.size(); i++) {
-            LocalDate date = localDates.get(i).minusDays(1L);
-            if (localDates.contains(date)) {
+            if (localDates.contains(localDate)) {
                 consecutiveDatesAmount++;
+                localDate.minusDays(1L);
             } else {
                 break;
             }
@@ -237,15 +240,19 @@ public class GamificationViewModel extends AndroidViewModel {
         return t -> seen.add(keyExtractor.apply(t));
     }
 
-//    public void generateGamifications() {
-//        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
-//        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
-//        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
-//
-//        for (int i = 0; i < descriptions.length; i++) {
-//            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], 10);
-//            this.firestore.collection("gamification").document(gamification.getId()).set(gamification);
-//        }
-//    }
+    public void generateGamificationToFirestore() {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection(ApplicationConstants.FIREBASE_COLLECTION_GAMIFICATION + "_" + Locale.getDefault().getLanguage());
+
+        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
+        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
+        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
+        long[] goals = this.generateGoals(ids);
+
+        for (int i = 0; i < descriptions.length; i++) {
+            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], goals[i], 0L);
+            firestore.collection(ApplicationConstants.FIREBASE_COLLECTION_GAMIFICATION + "_" + Locale.getDefault().getLanguage()).document(gamification.getId()).set(gamification);
+        }
+    }
 
 }

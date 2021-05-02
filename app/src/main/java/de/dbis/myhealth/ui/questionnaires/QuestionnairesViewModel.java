@@ -13,9 +13,14 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
+import de.dbis.myhealth.ApplicationConstants;
+import de.dbis.myhealth.R;
+import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.QuestionnaireSetting;
@@ -90,7 +95,7 @@ public class QuestionnairesViewModel extends AndroidViewModel {
     }
 
     public void subscribeToQuestionnaires() {
-        this.firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES)
+        this.firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES + "_" + Locale.getDefault().getLanguage())
                 .addSnapshotListener((task, error) -> {
                     Log.d(TAG, "Something changed!");
                     if (error != null) {
@@ -121,4 +126,38 @@ public class QuestionnairesViewModel extends AndroidViewModel {
                     }
                 });
     }
+
+//    private void generateTHI() {
+//        String[] questionStrings = getApplication().getResources().getStringArray(R.array.thi_survey_questions);
+//        List<Question> questions = new ArrayList<>();
+//        for (int i = 0; i < questionStrings.length; i++) {
+//            Question question = new Question(questionStrings[i], Question.QuestionType.YES_NO_SOMETIMES);
+//            questions.add(question);
+//        }
+//
+//        Questionnaire questionnaire = new Questionnaire("Tinnitus Handicap Inventory", getApplication().getString(R.string.thi_description), questions);
+//        this.firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES + "_" + Locale.getDefault().getLanguage())
+//                .document("THI")
+//                .set(questionnaire);
+//    }
+//
+//    private void generateTFI() {
+//        String[] questionStrings = getApplication().getResources().getStringArray(R.array.tfi_survey_questions);
+//
+//        List<Question> questions = new ArrayList<>();
+//        for (int i = 0; i < questionStrings.length; i++) {
+//            Question question;
+//            if (i == 0 || i == 1 || i == 2) {
+//                question = new Question(questionStrings[i], Question.QuestionType.SLIDER_0_100);
+//            } else {
+//                question = new Question(questionStrings[i], Question.QuestionType.SLIDER_0_10);
+//            }
+//            questions.add(question);
+//        }
+//
+//        Questionnaire questionnaire = new Questionnaire("Tinnitus Functional Index", getApplication().getString(R.string.tfi_description), questions);
+//        this.firestore.collection(FIREBASE_COLLECTION_QUESTIONNAIRES + "_" + Locale.getDefault().getLanguage())
+//                .document("TFI")
+//                .set(questionnaire);
+//    }
 }

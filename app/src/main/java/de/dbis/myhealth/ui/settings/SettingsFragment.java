@@ -64,10 +64,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (darkModePreference != null) {
             darkModePreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Restart")
+                        .setTitle(getString(R.string.restart))
                         .setCancelable(false)
-                        .setMessage("To apply the new design, the app has to restart.")
-                        .setPositiveButton("Restart", (dialogInterface, i) -> {
+                        .setMessage(getString(R.string.restart_confirmation))
+                        .setPositiveButton(getString(R.string.restart), (dialogInterface, i) -> {
                             // get result
                             Boolean enabled = (Boolean) newValue;
 
@@ -84,7 +84,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                             }
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
                 return false;
             });
@@ -96,10 +96,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (themePreference != null) {
             themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Restart")
+                        .setTitle(getString(R.string.restart))
                         .setCancelable(false)
-                        .setMessage("To apply the new design, the app has to restart.")
-                        .setPositiveButton("Restart", (dialogInterface, i) -> {
+                        .setMessage(getString(R.string.restart_confirmation))
+                        .setPositiveButton(getString(R.string.restart), (dialogInterface, i) -> {
                             // update preference manually
                             requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE)
                                     .edit()
@@ -110,7 +110,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             // recreate
                             requireActivity().recreate();
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
                 return false;
             });

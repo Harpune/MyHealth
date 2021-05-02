@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -21,6 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -195,6 +198,7 @@ public class StatsViewModel extends AndroidViewModel {
     }
 
     public void loadHealthSessions(FirebaseUser firebaseUser) {
+        Date date = StatsFragment.convertToDate(LocalDate.now().minusDays(7));
         // get health sessions
         this.firestore
                 .collection(FIREBASE_COLLECTION_SESSIONS)

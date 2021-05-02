@@ -176,5 +176,35 @@
     <string name="good_night">Gute Nacht</string>
     <string name="general_header">Allgemein</string>
     <string name="general_greeting_title">Begrüßung</string>
+    <string name="tfi_description">Der Tinnitus-Funktionsindex (TFI) ist der erste Tinnitus-Fragebogen, dessen Aussagekraft dokumentiert ist. Er hat das Potenzial, der neue Standard für die Bewertung der Auswirkungen von Interventionen bei Tinnitus zu werden, sowohl bei klinischen Patienten als auch in Forschungsstudien.</string>
+    <string name="thi_description">Der Zweck dieses Fragebogens ist es, die Probleme zu identifizieren, die Ihr Tinnitus Ihnen verursachen könnte. Kreuzen Sie für jede Frage \"Ja\", \"Manchmal\" oder \"Nein\" an. Bitte beantworten Sie alle Fragen.</string>
+    <string name="not_set_track">Der aktuelle Song ist nicht Ihr in der myHealth-App eingestellter Song</string>
+    <string name="switch_on_off">Anklicken, um ein- oder auszuschalten</string>
+    <string name="deleted_questions">Entfernte Fragen</string>
+    <string name="submit_results">Ergebnis abschicken</string>
+    <string name="submit_results_summary">Sind Sie mit dem Ausfüllen des Fragebogens fertig? Sie haben %d von %d Fragen beantwortet.</string>
+    <string name="save_as_fast_start">Als neuen Schnellstart speichern</string>
+    <string name="save_as_fast_start_summary">Sie können diesen Fragebogen als Favorit für den Schnellstart auf der Startseite auswählen.</string>
+    <string name="save_as_fast_start_confirmation">Ihr neuer Schnellstart-Fragebogen ist jetzt %s.</string>
+    <string name="set_fast_start_in_settings">Stellen Sie den Fragebogen für den schnellen Zugriff in den Einstellungen ein.</string>
+    <string name="no_questionnaire_available">Es sind keine Fragebögen vorhanden.</string>
+    <string name="could_not_find_questionnaire">Der ausgewählte Fragebogen konnte nicht gefunden werden.</string>
+    <string name="restart">Neustarten</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="download_spotify">Spotify herunterladen</string>
+    <string name="ok">Ok</string>
+    <string name="login_spotify">Bei Spotify anmelden</string>
+    <string name="login">Anmelden</string>
+    <string name="download_spotify_confirmation">Um Musik einzubinden, müssen Sie Spotify herunterladen</string>
+    <string name="login_spotify_confirmation">Sie sind nicht in Ihrer Spotify-App angemeldet.</string>
+    <string name="track_already_saved">Dieser Song ist bereits in MyHealth gespeichert.</string>
+    <string name="enable_spotify">Aktivieren Sie Spotify der App</string>
+    <string name="enable_spotify_confirmation">Sie müssen MyHealth den Zugriff auf Spotify erlauben, bevor Sie fortfahren.</string>
+    <string name="enable_spotify_canceled">Es konnte ohne Ihre Erlaubnis keine Verbindung zu Spotify hergestellt werden</string>
+    <string name="get_track_error">Konnte die notwendigen Daten nicht erhalten, um den Spotify-Titel in die App aufzunehmen.</string>
+    <string name="grant_permission">Bitte erteilen Sie die Erlaubnis</string>
+    <string name="new_track_added">\'%s\' von \'%s\' wurde zu MyHealth hinzugefügt.</string>
+    <string name="not_a_track">Zu MyHealth können nur Musiktitel hinzugefügt werden.</string>
+    <string name="restart_confirmation">Um das neue Design anzuwenden, muss die App neu gestartet werden.</string>
 
 </resources>

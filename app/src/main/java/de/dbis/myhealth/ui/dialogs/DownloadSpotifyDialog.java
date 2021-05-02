@@ -22,9 +22,9 @@ public class DownloadSpotifyDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Download Spotify")
-                .setMessage("To include a some music you have to download Spotify")
-                .setPositiveButton("Ok", (dialogInterface, i) -> {
+                .setTitle(getString(R.string.download_spotify))
+                .setMessage(getString(R.string.download_spotify_confirmation))
+                .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
                     dialogInterface.dismiss();
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.spotify.music")));
@@ -32,7 +32,7 @@ public class DownloadSpotifyDialog extends DialogFragment {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.spotify.music")));
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, i) ->
+                .setNegativeButton(getString(R.string.cancel), (dialog, i) ->
                         PreferenceManager.getDefaultSharedPreferences(requireContext())
                                 .edit()
                                 .putBoolean(getString(R.string.spotify_key), false)
