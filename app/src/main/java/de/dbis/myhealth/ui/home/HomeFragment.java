@@ -53,6 +53,11 @@ public class HomeFragment extends Fragment {
 
     // LiveData
     private LiveData<Bitmap> mCurrentTrackImageLiveData;
+    private LiveData<List<HealthSession>> mAllHealthSessions;
+    private LiveData<HealthSession> mCurrentHealthSession;
+
+    // Data
+    private List<Gamification> mGamifications;
 
     // Views
     private ShapeableImageView mTrackImageView;
@@ -78,10 +83,13 @@ public class HomeFragment extends Fragment {
         mFragmentHomeBinding.setSpotifyViewModel(this.mSpotifyViewModel);
         mFragmentHomeBinding.setHomeFragment(this);
         mFragmentHomeBinding.setSpotifyEnabled(this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+        mFragmentHomeBinding.setGreetingEnabled(this.mSharedPreferences.getBoolean(getString(R.string.general_greeting_key), false));
         mFragmentHomeBinding.setMessage(this.getWelcomeMessage());
 
         // live data
         this.mCurrentTrackImageLiveData = this.mSpotifyViewModel.getCurrentTrackImage();
+        this.mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
+        this.mAllHealthSessions = this.mStatsViewModel.getAllHealthSessions();
 
         // set fab action in activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
@@ -97,8 +105,8 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(this.mHomeAdapter);
 
 
-        List<Gamification> gamifications = this.mStatsViewModel.getLocalGamifications();
-        this.mHomeAdapter.setData(gamifications);
+        this.mGamifications = this.mStatsViewModel.getLocalGamifications();
+        this.mHomeAdapter.setData(this.mGamifications);
 
         return root;
     }
@@ -142,13 +150,13 @@ public class HomeFragment extends Fragment {
         int moon = 0x1F31C;
 
         if (timeOfDay < 12) {
-            return "Good Morning " + getEmojiByUnicode(coffee);
+            return getString(R.string.good_morning) + " " + getEmojiByUnicode(coffee);
         } else if (timeOfDay < 16) {
-            return "Good Afternoon " + getEmojiByUnicode(sun);
+            return getString(R.string.good_afternoon) + " " + getEmojiByUnicode(sun);
         } else if (timeOfDay < 21) {
-            return "Good Evening " + getEmojiByUnicode(greeting);
+            return getString(R.string.good_evening) + " " + getEmojiByUnicode(greeting);
         } else {
-            return "Good Night " + getEmojiByUnicode(moon);
+            return getString(R.string.good_night) + " " + getEmojiByUnicode(moon);
         }
     }
 

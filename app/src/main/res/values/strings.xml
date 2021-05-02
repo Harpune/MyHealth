@@ -14,10 +14,23 @@
     <string name="menu_stats">Statistics</string>
     <string name="start">Start</string>
 
+    <!-- Greetings -->
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_evening">Good Evening</string>
+    <string name="good_night">Good Night</string>
+
     <!-- Preference Titles -->
+    <string name="general_header">General</string>
     <string name="design_header">Design</string>
     <string name="questionnaires_header">Questionnaires</string>
     <string name="music_header">Music</string>
+
+    <!-- General Preferences -->
+    <string name="general_title">General</string>
+    <string name="general_key" translatable="false">general</string>
+    <string name="general_greeting_title">Greeting</string>
+    <string name="general_greeting_key" translatable="false">general_greeting_key</string>
 
     <!-- Design Preferences -->
     <string name="dark_mode_title">Dark Mode</string>
@@ -242,6 +255,7 @@
     <string name="format">%1$tY-%1$tm-%1$td %1$tH:%1$tM</string>
     <string name="format_date">%1$tY-%1$tm-%1$td</string>
     <string name="format_time">%1$tH:%1$tM</string>
+    <string name="switch_on_off">Click to switch on or off</string>
 
 
 </resources>

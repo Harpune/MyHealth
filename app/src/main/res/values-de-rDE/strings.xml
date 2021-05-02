@@ -169,5 +169,12 @@
     <string name="format">%1$td.%1$tm.%1$tY %1$tH:%1$tM</string>
     <string name="format_date">%1$td.%1$tm.%1$tY</string>
     <string name="format_time">%1$tH:%1$tM</string>
+    <string name="general_title">Allgemein</string>
+    <string name="good_morning">Guten Morgen</string>
+    <string name="good_afternoon">Guten Tag</string>
+    <string name="good_evening">Guten Abend</string>
+    <string name="good_night">Gute Nacht</string>
+    <string name="general_header">Allgemein</string>
+    <string name="general_greeting_title">Begrüßung</string>
 
 </resources>

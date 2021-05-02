@@ -1,12 +1,23 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory app:title="@string/general_title">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_emoji_people_24"
+            app:key="@string/general_greeting_key"
+            app:summary="@string/switch_on_off"
+            app:title="@string/general_greeting_title"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/design_header">
 
         <SwitchPreference
             app:defaultValue="false"
             app:icon="@drawable/ic_baseline_invert_colors_24"
             app:key="@string/dark_mode_key"
-            app:summary="Click to switch on or off"
+            app:summary="@string/switch_on_off"
             app:title="@string/dark_mode_title"
             app:useSimpleSummaryProvider="true" />
 
@@ -32,16 +43,6 @@
 
     </PreferenceCategory>
 
-    <!--    <PreferenceCategory app:title="@string/sleep_tracking">-->
-
-    <!--        <CheckBoxPreference-->
-    <!--            app:defaultValue="false"-->
-    <!--            app:icon="@drawable/ic_baseline_directions_run_24"-->
-    <!--            app:key="@string/google_fit_key"-->
-    <!--            app:title="@string/google_fit" />-->
-
-    <!--    </PreferenceCategory>-->
-
     <PreferenceCategory app:title="@string/music">
 
         <CheckBoxPreference
@@ -49,13 +50,6 @@
             app:icon="@drawable/ic_baseline_music_note_24"
             app:key="@string/spotify_key"
             app:title="@string/spotify" />
-
-        <!--        <CheckBoxPreference-->
-        <!--            app:defaultValue="false"-->
-        <!--            app:dependency="@string/spotify_key"-->
-        <!--            app:icon="@drawable/ic_baseline_play_arrow_24"-->
-        <!--            app:key="@string/spotify_autoplay_key"-->
-        <!--            app:title="@string/spotify_autoplay" />-->
 
         <CheckBoxPreference
             app:defaultValue="false"
@@ -70,14 +64,6 @@
             app:key="@string/current_spotify_track_key"
             app:title="@string/current_spotify_track"
             app:useSimpleSummaryProvider="true" />
-
-        <!--        <EditTextPreference-->
-        <!--            android:key="@string/spotify_add"-->
-        <!--            android:title="@string/add_spotify_track"-->
-        <!--            app:dependency="@string/spotify_key"-->
-        <!--            app:icon="@drawable/ic_baseline_add_24" />-->
-
-        <!--        <DropDownPreference app:title="WOW" />-->
 
     </PreferenceCategory>
 
