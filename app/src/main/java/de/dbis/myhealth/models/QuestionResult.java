@@ -49,4 +49,14 @@ public class QuestionResult {
     public void setRemoved(boolean removed) {
         this.removed = removed;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionResult{" +
+                "value=" + value +
+                ", duration=" + duration +
+                ", questionNumber=" + questionNumber +
+                ", removed=" + removed +
+                '}';
+    }
 }

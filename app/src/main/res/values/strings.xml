@@ -128,7 +128,7 @@
     <string name="thiQuestionnaire4">4. Does your tinnitus make you feel confused? </string>
     <string name="thiQuestionnaire5">5. Because of your tinnitus, do you feel desperate?</string>
     <string name="thiQuestionnaire6">6. Do you complain a great deal about your tinnitus? </string>
-    <string name="thiQuestionnaire7">7. Because of your tinnitus, do you have trouble falling to sleep at night?</string>
+    <string name="thiQuestionnaire7">7. Do you feel as though you cannot escape your tinnitus?</string>
     <string name="thiQuestionnaire8">8. Do you feel as though you cannot escape your tinnitus? </string>
     <string name="thiQuestionnaire9">9. Does your tinnitus interfere with your ability to enjoy your social activities (such as going out to dinner, to the movies)? </string>
     <string name="thiQuestionnaire10">10. Because of your tinnitus, do you feel frustrated?</string>
@@ -224,7 +224,24 @@
     <string name="remove_all_tracks">Remove all tracks</string>
     <string name="remove_all_tracks_key" translatable="false">remove_all_tracks_key</string>
     <string name="remove_all_tracks_description">Reset all of your save tracks</string>
+
+    <string name="app_usage">App usage</string>
     <string name="statistic_time_usage_description">Time usage - This chart shows the amount of time you used the MyHealth app on that particular day. Additionally, it shows how long you listened to your selected song in each session.</string>
+    <string name="statistic_open_usage_description">Usage - The chart shows how many times you opened the app on the given day.</string>
+    <string name="statistic_time_usage_toast">The app was open for %s</string>
+    <string name="statistic_open_usage_once_toast">You have opened the app only once.</string>
+    <string name="statistic_open_usage_never_toast">You did not open the app that day</string>
+    <string name="statistic_open_usage_toast">You have opened the app %d times.</string>
+    <string name="no_data">No chart data available</string>
+    <string name="statistic_amount_questionnaires_description">Here you can see the number of questionnaires you have filled in during the last week.</string>
+    <string name="show_result_of_selected">Show result of selected</string>
+    <string name="removed">Removed</string>
+    <string name="number_abbreviation">No.</string>
+    <string name="result">Result</string>
+    <string name="format_result">Result of %1$tY-%1$tm-%1$td at %1$tH:%1$tM</string>
+    <string name="format">%1$tY-%1$tm-%1$td %1$tH:%1$tM</string>
+    <string name="format_date">%1$tY-%1$tm-%1$td</string>
+    <string name="format_time">%1$tH:%1$tM</string>
 
 
 </resources>

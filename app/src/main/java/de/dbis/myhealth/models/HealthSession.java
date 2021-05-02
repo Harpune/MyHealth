@@ -1,6 +1,6 @@
 package de.dbis.myhealth.models;
 
-import android.util.Log;
+import com.google.firebase.firestore.Exclude;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,7 @@ public class HealthSession {
     private String id;
     private String userId;
     private Date date;
+    @Exclude
     private List<QuestionnaireResult> questionnaireResults;
     private Map<String, ?> savedPreferences;
     private long timeAppOpened;

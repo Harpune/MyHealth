@@ -44,7 +44,17 @@
         android:id="@+id/nav_stats_item"
         android:name="de.dbis.myhealth.ui.stats.StatsFragment"
         android:label="@string/menu_stats"
-        tools:layout="@layout/fragment_stats" />
+        tools:layout="@layout/fragment_stats">
+        <action
+            android:id="@+id/action_nav_stats_item_to_resultFragment"
+            app:destination="@id/nav_result_item" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_result_item"
+        android:name="de.dbis.myhealth.ui.stats.results.ResultFragment"
+        android:label="fragment_result"
+        tools:layout="@layout/fragment_result" />
 
     <fragment
         android:id="@+id/nav_settings_item"

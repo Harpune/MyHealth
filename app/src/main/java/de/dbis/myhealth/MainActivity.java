@@ -31,7 +31,6 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.preference.PowerPreference;
 import com.preference.Preference;
@@ -444,13 +443,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Session
-        this.mHealthSessionLiveData = this.mStatsViewModel.getHealthSession();
+        this.mHealthSessionLiveData = this.mStatsViewModel.getCurrentHealthSession();
         this.mHealthSessionLiveData.observe(this, healthSession -> {
             Log.d(TAG, String.valueOf(healthSession.getTimeAppOpened()));
         });
 
         // Gamification
-        this.mStatsViewModel.loadGamifications();
+//        this.mStatsViewModel.loadGamifications();
 
         // spotify
         this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
