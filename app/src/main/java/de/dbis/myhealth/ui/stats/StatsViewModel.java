@@ -186,7 +186,7 @@ public class StatsViewModel extends AndroidViewModel {
                         if (documentSnapshot != null && documentSnapshot.exists()) {
                             HealthSession healthSession = documentSnapshot.toObject(HealthSession.class);
                             setCurrentHealthSession(healthSession);
-//                            addHealthSession(healthSession);
+                            addHealthSession(healthSession);
                         } else {
                             Log.d(TAG, "Current data: null");
                         }
@@ -247,30 +247,5 @@ public class StatsViewModel extends AndroidViewModel {
                         }
                     }
                 });
-    }
-
-    public List<Gamification> getLocalGamifications() {
-        List<Gamification> gamifications = new ArrayList<>();
-        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
-        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
-        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
-
-        for (int i = 0; i < descriptions.length; i++) {
-            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], new ArrayList<>());
-            gamifications.add(gamification);
-        }
-
-        return gamifications;
-    }
-
-    public void generateGamifications() {
-        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
-        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
-        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
-
-        for (int i = 0; i < descriptions.length; i++) {
-            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], new ArrayList<>());
-            this.firestore.collection("gamification").document(gamification.getId()).set(gamification);
-        }
     }
 }

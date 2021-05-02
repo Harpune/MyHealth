@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
+import de.dbis.myhealth.ui.stats.GamificationViewModel;
 import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 
@@ -50,14 +52,13 @@ public class HomeFragment extends Fragment {
     private UserViewModel mUserViewModel;
     private StatsViewModel mStatsViewModel;
     private QuestionnairesViewModel mQuestionnairesViewModel;
+    private GamificationViewModel mGamificationViewModel;
 
     // LiveData
     private LiveData<Bitmap> mCurrentTrackImageLiveData;
     private LiveData<List<HealthSession>> mAllHealthSessions;
     private LiveData<HealthSession> mCurrentHealthSession;
-
-    // Data
-    private List<Gamification> mGamifications;
+    private LiveData<List<Gamification>> mGamifications;
 
     // Views
     private ShapeableImageView mTrackImageView;
@@ -76,6 +77,7 @@ public class HomeFragment extends Fragment {
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mStatsViewModel = new ViewModelProvider(requireActivity()).get(StatsViewModel.class);
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        this.mGamificationViewModel = new ViewModelProvider(requireActivity()).get(GamificationViewModel.class);
 
         // bindings
         FragmentHomeBinding mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
@@ -90,6 +92,7 @@ public class HomeFragment extends Fragment {
         this.mCurrentTrackImageLiveData = this.mSpotifyViewModel.getCurrentTrackImage();
         this.mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
         this.mAllHealthSessions = this.mStatsViewModel.getAllHealthSessions();
+        this.mGamifications = this.mGamificationViewModel.getGamifications();
 
         // set fab action in activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
@@ -103,10 +106,6 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
         recyclerView.setAdapter(this.mHomeAdapter);
-
-
-        this.mGamifications = this.mStatsViewModel.getLocalGamifications();
-        this.mHomeAdapter.setData(this.mGamifications);
 
         return root;
     }
@@ -175,15 +174,38 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        this.mAllHealthSessions.observe(getViewLifecycleOwner(), this::handleHealthSessions);
+
+        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> {
+            this.mHomeAdapter.setData(gamifications);
+        });
+
     }
+
 
     @Override
     public void onStop() {
         super.onStop();
 
-        if (this.mCurrentTrackImageLiveData != null) {
+        if (this.mCurrentTrackImageLiveData != null && this.mCurrentTrackImageLiveData.hasObservers()) {
             this.mCurrentTrackImageLiveData.removeObservers(getViewLifecycleOwner());
         }
+
+        if (this.mAllHealthSessions != null && this.mAllHealthSessions.hasObservers()) {
+            this.mAllHealthSessions.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mCurrentHealthSession != null && this.mCurrentHealthSession.hasObservers()) {
+            this.mCurrentHealthSession.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mGamifications != null && this.mGamifications.hasObservers()) {
+            this.mGamifications.removeObservers(getViewLifecycleOwner());
+        }
+    }
+
+    private void handleHealthSessions(List<HealthSession> healthSessions) {
+        this.mGamificationViewModel.matchWithHealthSessions(healthSessions);
     }
 
     public void openSpotifyTrackInfoFragment(View view) {

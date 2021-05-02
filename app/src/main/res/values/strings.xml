@@ -256,6 +256,7 @@
     <string name="format_date">%1$tY-%1$tm-%1$td</string>
     <string name="format_time">%1$tH:%1$tM</string>
     <string name="switch_on_off">Click to switch on or off</string>
+    <string name="personal_information_added" translatable="false">personal_information_added</string>
 
 
 </resources>

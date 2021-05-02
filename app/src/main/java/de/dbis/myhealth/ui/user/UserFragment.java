@@ -67,9 +67,18 @@ public class UserFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     private void save(View view) {
         this.mUserViewModel.save();
         this.hideKeyboardFrom(requireContext(), view);
+        requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(getString(R.string.personal_information_added), true)
+                .apply();
     }
 
     public void hideKeyboardFrom(Context context, View view) {

@@ -516,7 +516,7 @@ public class StatsFragment extends Fragment {
     }
 
     @SuppressLint("DefaultLocale")
-    private String getDurationFormat(long value) {
+    public static String getDurationFormat(long value) {
         int seconds = (int) (value / 1000) % 60;
         int minutes = (int) ((value / (1000 * 60)) % 60);
         int hours = (int) ((value / (1000 * 60 * 60)) % 24);
