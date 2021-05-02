@@ -59,7 +59,6 @@ public class QuestionnairesViewModel extends AndroidViewModel {
 
         // subscribe to data
         this.subscribeToQuestionnaires();
-        this.subscribeToResults();
     }
 
     public LiveData<List<Questionnaire>> getAllQuestionnaires() {
@@ -88,17 +87,6 @@ public class QuestionnairesViewModel extends AndroidViewModel {
 
     public LiveData<QuestionnaireSetting> getQuestionnaireSetting() {
         return this.mQuestionnaireSetting;
-    }
-
-    /**
-     * Save result of the questionnaire in firabe. Get ID beforehand to keep reference.
-     *
-     * @param result Result of any questionnaire.
-     */
-    public void sendResult(QuestionnaireResult result) {
-        DocumentReference documentReference = this.firestore.collection(FIREBASE_COLLECTION_RESULTS).document();
-        result.setResultId(documentReference.getId());
-        documentReference.set(result);
     }
 
     public void subscribeToQuestionnaires() {
@@ -130,34 +118,6 @@ public class QuestionnairesViewModel extends AndroidViewModel {
                         Log.d(TAG, "Questionnaires from Firestore: " + questionnaires.toString());
                     } else {
                         Log.d(TAG, "No Questionnaires");
-                    }
-                });
-    }
-
-    private void subscribeToResults() {
-        this.firestore.collection(FIREBASE_COLLECTION_RESULTS)
-                .addSnapshotListener((task, error) -> {
-                    Log.d(TAG, "QuestionnaireResult changed!");
-                    if (error != null) {
-                        Log.w(TAG, "Listen failed", error);
-                        return;
-                    }
-
-                    if (task != null && !task.isEmpty()) {
-                        Log.d(TAG, "Current data: " + task.toString());
-                        List<QuestionnaireResult> questionnaireResults = task.getDocuments().stream()
-                                .map(documentSnapshot -> {
-                                    QuestionnaireResult questionnaireResult = documentSnapshot.toObject(QuestionnaireResult.class);
-                                    if (questionnaireResult != null) {
-                                        questionnaireResult.setResultId(documentSnapshot.getId());
-                                    }
-                                    return questionnaireResult;
-                                })
-                                .collect(Collectors.toList());
-                        this.mAllQuestionnaireResults.setValue(questionnaireResults);
-                        Log.d(TAG, "Questionnaire results from Firestore: " + questionnaireResults.toString());
-                    } else {
-                        Log.d(TAG, "No results found");
                     }
                 });
     }

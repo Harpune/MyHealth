@@ -96,4 +96,18 @@ public class QuestionnaireResult {
     public void setQuestionResults(List<QuestionResult> questionResults) {
         this.questionResults = questionResults;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionnaireResult{" +
+                "resultId='" + resultId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", questionnaireId='" + questionnaireId + '\'' +
+                ", trackId='" + trackId + '\'' +
+                ", startExecutionDate=" + startExecutionDate +
+                ", duration=" + duration +
+                ", averageDuration=" + averageDuration +
+                ", questionResults=" + questionResults +
+                '}';
+    }
 }

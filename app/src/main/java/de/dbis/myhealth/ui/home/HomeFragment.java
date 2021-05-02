@@ -41,7 +41,6 @@ import de.dbis.myhealth.ui.user.UserViewModel;
 public class HomeFragment extends Fragment {
     private final static String TAG = "HomeFragment";
 
-    private FragmentHomeBinding mFragmentHomeBinding;
     private SharedPreferences mSharedPreferences;
     private HomeAdapter mHomeAdapter;
 
@@ -53,8 +52,6 @@ public class HomeFragment extends Fragment {
     private QuestionnairesViewModel mQuestionnairesViewModel;
 
     // LiveData
-    private LiveData<List<HealthSession>> mHealthSessionsLiveData;
-    private LiveData<List<Gamification>> mGamificationsLiveData;
     private LiveData<Bitmap> mCurrentTrackImageLiveData;
 
     // Views
@@ -76,23 +73,21 @@ public class HomeFragment extends Fragment {
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
         // bindings
-        this.mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
-        this.mFragmentHomeBinding.setLifecycleOwner(getViewLifecycleOwner());
-        this.mFragmentHomeBinding.setSpotifyViewModel(this.mSpotifyViewModel);
-        this.mFragmentHomeBinding.setHomeFragment(this);
-        this.mFragmentHomeBinding.setSpotifyEnabled(this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false));
-        this.mFragmentHomeBinding.setMessage(this.getWelcomeMessage());
+        FragmentHomeBinding mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
+        mFragmentHomeBinding.setLifecycleOwner(getViewLifecycleOwner());
+        mFragmentHomeBinding.setSpotifyViewModel(this.mSpotifyViewModel);
+        mFragmentHomeBinding.setHomeFragment(this);
+        mFragmentHomeBinding.setSpotifyEnabled(this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+        mFragmentHomeBinding.setMessage(this.getWelcomeMessage());
 
         // live data
-        this.mHealthSessionsLiveData = this.mStatsViewModel.getHealthSessions();
-        this.mGamificationsLiveData = this.mStatsViewModel.getGamifications();
         this.mCurrentTrackImageLiveData = this.mSpotifyViewModel.getCurrentTrackImage();
 
         // set fab action in activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
 
         // views
-        View root = this.mFragmentHomeBinding.getRoot();
+        View root = mFragmentHomeBinding.getRoot();
         this.mTrackImageView = root.findViewById(R.id.spotifyTrackIcon);
 
         // Recyclerview
@@ -100,6 +95,10 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
         recyclerView.setAdapter(this.mHomeAdapter);
+
+
+        List<Gamification> gamifications = this.mStatsViewModel.getLocalGamifications();
+        this.mHomeAdapter.setData(gamifications);
 
         return root;
     }
@@ -161,14 +160,6 @@ public class HomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        // observe health sessions
-        this.mHealthSessionsLiveData.observe(getViewLifecycleOwner(), healthSessions -> {
-            Log.d(TAG, String.valueOf(healthSessions));
-        });
-
-        // observe gamification values
-        this.mGamificationsLiveData.observe(getViewLifecycleOwner(), gamifications -> this.mHomeAdapter.setData(gamifications));
-
         // observe current spotify track image
         this.mCurrentTrackImageLiveData.observe(getViewLifecycleOwner(), image -> {
             if (image != null) {
@@ -181,14 +172,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
-        if (this.mHealthSessionsLiveData != null) {
-            this.mHealthSessionsLiveData.removeObservers(getViewLifecycleOwner());
-        }
-
-        if (this.mGamificationsLiveData != null) {
-            this.mGamificationsLiveData.removeObservers(getViewLifecycleOwner());
-        }
 
         if (this.mCurrentTrackImageLiveData != null) {
             this.mCurrentTrackImageLiveData.removeObservers(getViewLifecycleOwner());

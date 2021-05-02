@@ -7,17 +7,118 @@
         <variable
             name="statsViewModel"
             type="de.dbis.myhealth.ui.stats.StatsViewModel" />
+
+        <variable
+            name="resultViewModel"
+            type="de.dbis.myhealth.ui.stats.results.ResultViewModel" />
+
+        <variable
+            name="statsFragment"
+            type="de.dbis.myhealth.ui.stats.StatsFragment" />
+
     </data>
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.stats.StatsFragment">
+        android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Hello" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:context=".ui.stats.StatsFragment">
 
-    </FrameLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:ellipsize="end"
+                android:text="@string/questionnaires"
+                android:textAppearance="@android:style/TextAppearance.Material.Title" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/answered_questionnaires_line_chart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:ellipsize="end"
+                android:text="@string/statistic_amount_questionnaires_description"
+                android:textAppearance="@android:style/TextAppearance.Material.Caption" />
+
+            <Button
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="8dp"
+                android:enabled="@{resultViewModel.selectedQuestionnaireResults.size() > 0}"
+                android:onClick="@{(v) -> statsFragment.showSelectedResults(v)}"
+                android:text="@string/show_result_of_selected" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
+                android:text="@string/app_usage"
+                android:textAppearance="@android:style/TextAppearance.Material.Title" />
+
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/app_opened_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:ellipsize="end"
+                android:text="@string/statistic_open_usage_description"
+                android:textAppearance="@android:style/TextAppearance.Material.Caption" />
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/app_used_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/chart_height"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:ellipsize="end"
+                android:text="@string/statistic_time_usage_description"
+                android:textAppearance="@android:style/TextAppearance.Material.Caption" />
+        </LinearLayout>
+
+    </ScrollView>
 </layout>

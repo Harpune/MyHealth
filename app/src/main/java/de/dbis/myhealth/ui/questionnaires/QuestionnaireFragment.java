@@ -213,7 +213,7 @@ public class QuestionnaireFragment extends Fragment {
 
                         // save result
 //                        this.mQuestionnairesViewModel.sendResult(result);
-                        this.mStatsViewModel.addQuestionnaireResult(result);
+                        this.mStatsViewModel.uploadQuestionnaireResult(result);
                         this.mQuestionnairesViewModel.resetSelected();
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                     })

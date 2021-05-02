@@ -2,7 +2,7 @@
     <string name="app_name">MyHealth</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">MyHealth</string>
+    <string name="nav_header_title" translatable="false">MyHealth</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -22,35 +22,35 @@
     <!-- Design Preferences -->
     <string name="dark_mode_title">Dark Mode</string>
     <string name="theme_title">Theme</string>
-    <string name="dark_mode_key">dark</string>
-    <string name="theme_key">theme</string>
+    <string name="dark_mode_key" translatable="false">dark</string>
+    <string name="theme_key" translatable="false">theme</string>
 
     <!-- Questionnaires Preferences -->
     <string name="type_title">Type</string>
-    <string name="type_key">type</string>
+    <string name="type_key" translatable="false">type</string>
     <string name="questionnaires">Questionnaire</string>
-    <string name="questionnaire_fast_start_key">fast_start</string>
+    <string name="questionnaire_fast_start_key" translatable="false">fast_start</string>
     <string name="questionnaire_fast_start">Fast start</string>
 
-    <string name="q1">Q1</string>
-    <string name="q2">Q2</string>
+    <string name="q1" translatable="false">Q1</string>
+    <string name="q2" translatable="false">Q2</string>
 
     <!-- Music Preferences -->
     <string name="music">Music</string>
     <string name="music_title">Player</string>
-    <string name="music_key">player</string>
-    <string name="spotify">Spotify</string>
-    <string name="spotify_key">spotify</string>
-    <string name="playlist">Playlist</string>
-    <string name="spotify_playlist_key">playlist</string>
+    <string name="music_key" translatable="false">player</string>
+    <string name="spotify" translatable="false">Spotify</string>
+    <string name="spotify_key" translatable="false">spotify</string>
+    <string name="playlist" translatable="false">Playlist</string>
+    <string name="spotify_playlist_key" translatable="false">playlist</string>
     <string name="spotify_autoplay">Autoplay on start</string>
-    <string name="spotify_autoplay_key">autoplay</string>
-    <string name="spotify_add">spotify_add</string>
-    <string name="spotify_play_on_device_key">spotify_play_on_device_key</string>
+    <string name="spotify_autoplay_key" translatable="false">autoplay</string>
+    <string name="spotify_add" translatable="false">spotify_add</string>
+    <string name="spotify_play_on_device_key" translatable="false">spotify_play_on_device_key</string>
     <string name="spotify_play_on_device">Always play on this device</string>
 
-    <string name="access_token">access_token</string>
-    <string name="current_spotify_track_key">current_spotify_track_key</string>
+    <string name="access_token" translatable="false">access_token</string>
+    <string name="current_spotify_track_key" translatable="false">current_spotify_track_key</string>
     <string name="play">Play</string>
     <string name="track">Track</string>
     <string name="current_spotify_track">Current track</string>
@@ -58,26 +58,26 @@
 
     <!-- Sleep Preferences -->
     <string name="sleep_tracking">Sleep tracking</string>
-    <string name="google_fit">Google Fit</string>
-    <string name="google_fit_key">googleFit</string>
+    <string name="google_fit" translatable="false">Google Fit</string>
+    <string name="google_fit_key" translatable="false">googleFit</string>
 
     <!-- Themes -->
     <string name="green_theme">Green</string>
-    <string name="green_theme_key">green</string>
+    <string name="green_theme_key" translatable="false">green</string>
     <string name="blue_theme">Blue</string>
-    <string name="blue_theme_key">blue</string>
+    <string name="blue_theme_key" translatable="false">blue</string>
     <string name="red_theme">Red</string>
-    <string name="red_theme_key">red</string>
+    <string name="red_theme_key" translatable="false">red</string>
 
     <!-- rankable key -->
     <string name="questionnaires_label">Questionnaires</string>
-    <string name="firstrun">firstrun</string>
-    <string name="showSpotifyLoginDialog">showSpotifyLoginDialog</string>
-    <string name="showSpotifyDownloadDialog">showSpotifyDownloadDialog</string>
+    <string name="firstrun" translatable="false">firstrun</string>
+    <string name="showSpotifyLoginDialog" translatable="false">showSpotifyLoginDialog</string>
+    <string name="showSpotifyDownloadDialog" translatable="false">showSpotifyDownloadDialog</string>
     <string name="services_header">Services</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="maybe">Sometimes</string>
+    <string name="maybe">Maybe</string>
     <string name="sometimes">Sometimes</string>
 
     <!-- THI-Survey -->
@@ -128,7 +128,7 @@
     <string name="thiQuestionnaire4">4. Does your tinnitus make you feel confused? </string>
     <string name="thiQuestionnaire5">5. Because of your tinnitus, do you feel desperate?</string>
     <string name="thiQuestionnaire6">6. Do you complain a great deal about your tinnitus? </string>
-    <string name="thiQuestionnaire7">7. Because of your tinnitus, do you have trouble falling to sleep at night?</string>
+    <string name="thiQuestionnaire7">7. Do you feel as though you cannot escape your tinnitus?</string>
     <string name="thiQuestionnaire8">8. Do you feel as though you cannot escape your tinnitus? </string>
     <string name="thiQuestionnaire9">9. Does your tinnitus interfere with your ability to enjoy your social activities (such as going out to dinner, to the movies)? </string>
     <string name="thiQuestionnaire10">10. Because of your tinnitus, do you feel frustrated?</string>
@@ -156,15 +156,15 @@
     <string name="thiResultUnknown">Unknown: Could not calculate result</string>
 
     <!-- Gamifications -->
-    <string name="gamePaperKey">paper</string>
-    <string name="gameDiamondKey">diamond</string>
-    <string name="gameOneKey">one</string>
-    <string name="gameBookKey">book</string>
-    <string name="gameGlassesKey">glasses</string>
-    <string name="gameCheckKey">check</string>
-    <string name="gameMedalKey">medal</string>
-    <string name="gameCarKey">car</string>
-    <string name="gameStarKey">star</string>
+    <string name="gamePaperKey" translatable="false">paper</string>
+    <string name="gameDiamondKey" translatable="false">diamond</string>
+    <string name="gameOneKey" translatable="false">one</string>
+    <string name="gameBookKey" translatable="false">book</string>
+    <string name="gameGlassesKey" translatable="false">glasses</string>
+    <string name="gameCheckKey" translatable="false">check</string>
+    <string name="gameMedalKey" translatable="false">medal</string>
+    <string name="gameCarKey" translatable="false">car</string>
+    <string name="gameStarKey" translatable="false">star</string>
     <string name="gamePaper">Submit 10 questionnaires</string>
     <string name="gameDiamond">Submit a questionnaire 7 days in a row</string>
     <string name="gameOne">Install the app</string>
@@ -195,8 +195,8 @@
     <string name="track_name">Song</string>
     <string name="track_artist">Artist</string>
     <string name="track_album">Album</string>
-    <string name="artist_icon">Artist icon</string>
-    <string name="spotify_icon">Spotify Icon</string>
+    <string name="artist_icon" translatable="false">Artist icon</string>
+    <string name="spotify_icon" translatable="false">Spotify Icon</string>
     <string name="track_acousticness">Acousticness</string>
     <string name="track_danceability">Danceability</string>
     <string name="track_energy">Energy</string>
@@ -205,11 +205,11 @@
     <string name="track_speechiness">Speechiness</string>
     <string name="track_valence">Valence</string>
     <string name="track_duration">Duration</string>
-    <string name="spotify_duration">%02d:%02d min</string>
+    <string name="spotify_duration" translatable="false">%02d:%02d min</string>
     <string name="track_tempo">Tempo</string>
-    <string name="spotify_tempo">%d bpm</string>
+    <string name="spotify_tempo" translatable="false">%d bpm</string>
     <string name="track_loudness">Loudness</string>
-    <string name="spotify_loudness">%d dB</string>
+    <string name="spotify_loudness" translatable="false">%d dB</string>
     <string name="metrics">Metrics</string>
     <string name="feel">Feel</string>
 
@@ -222,8 +222,26 @@
     <string name="track_valence_description">Valence describes the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).</string>
     <string name="no_track_set">Set a track to see its metrics</string>
     <string name="remove_all_tracks">Remove all tracks</string>
-    <string name="remove_all_tracks_key">remove_all_tracks_key</string>
+    <string name="remove_all_tracks_key" translatable="false">remove_all_tracks_key</string>
     <string name="remove_all_tracks_description">Reset all of your save tracks</string>
+
+    <string name="app_usage">App usage</string>
+    <string name="statistic_time_usage_description">Time usage - This chart shows the amount of time you used the MyHealth app on that particular day. Additionally, it shows how long you listened to your selected song in each session.</string>
+    <string name="statistic_open_usage_description">Usage - The chart shows how many times you opened the app on the given day.</string>
+    <string name="statistic_time_usage_toast">The app was open for %s</string>
+    <string name="statistic_open_usage_once_toast">You have opened the app only once.</string>
+    <string name="statistic_open_usage_never_toast">You did not open the app that day</string>
+    <string name="statistic_open_usage_toast">You have opened the app %d times.</string>
+    <string name="no_data">No chart data available</string>
+    <string name="statistic_amount_questionnaires_description">Here you can see the number of questionnaires you have filled in during the last week.</string>
+    <string name="show_result_of_selected">Show result of selected</string>
+    <string name="removed">Removed</string>
+    <string name="number_abbreviation">No.</string>
+    <string name="result">Result</string>
+    <string name="format_result">Result of %1$tY-%1$tm-%1$td at %1$tH:%1$tM</string>
+    <string name="format">%1$tY-%1$tm-%1$td %1$tH:%1$tM</string>
+    <string name="format_date">%1$tY-%1$tm-%1$td</string>
+    <string name="format_time">%1$tH:%1$tM</string>
 
 
 </resources>
