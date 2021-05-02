@@ -40,8 +40,6 @@ public class SpotifyFragment extends Fragment {
     private FragmentSpotifyBinding mFragmentSpotifyBinding;
     private SpotifyViewModel mSpotifyViewModel;
     private SharedPreferences mSharedPreferences;
-    private LiveData<SpotifyTrack> mSpotifyTrackLiveData;
-    private LiveData<Bitmap> mTrackImageLiveData;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,10 +65,7 @@ public class SpotifyFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        ShapeableImageView trackImageView = this.mRoot.findViewById(R.id.trackImageView);
         ImageView albumImage = this.mRoot.findViewById(R.id.albumImage);
-        //this.mTrackImageLiveData = this.mSpotifyViewModel.getCurrentTrackImage();
-        //this.mTrackImageLiveData.observe(getViewLifecycleOwner(), albumImage::setImageBitmap);
         LiveData<SpotifyTrack> mSpotifyTrackLiveData = this.mSpotifyViewModel.getCurrentSpotifyTrack();
         mSpotifyTrackLiveData.observe(getViewLifecycleOwner(), spotifyTrack -> {
             Image image = spotifyTrack.getImage();
@@ -84,8 +79,5 @@ public class SpotifyFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        if (this.mTrackImageLiveData != null) {
-            this.mTrackImageLiveData.removeObservers(getViewLifecycleOwner());
-        }
     }
 }
