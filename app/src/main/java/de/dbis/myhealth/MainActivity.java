@@ -53,6 +53,7 @@ import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
+import de.dbis.myhealth.ui.intro.IntroActivity;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
@@ -133,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 //        this.mSharedPreferences.edit().clear().apply();
 
+        startActivity(new Intent(this, IntroActivity.class));
+
+
         // view models
         this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
@@ -170,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(this.mBottomAppBar);
 
         this.mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_settings_item)
+                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_intro_item, R.id.nav_settings_item)
                 .setOpenableLayout(drawer)
                 .build();
 

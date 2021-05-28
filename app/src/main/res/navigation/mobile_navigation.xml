@@ -72,4 +72,10 @@
         android:label="spotify_fragment"
         tools:layout="@layout/fragment_spotify" />
 
+    <activity
+        android:id="@+id/nav_intro_item"
+        android:name="de.dbis.myhealth.ui.intro.IntroActivity"
+        android:label="activity_intro"
+        tools:layout="@layout/activity_intro" />
+
 </navigation>

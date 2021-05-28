@@ -206,5 +206,10 @@
     <string name="new_track_added">\'%s\' von \'%s\' wurde zu MyHealth hinzugefügt.</string>
     <string name="not_a_track">Zu MyHealth können nur Musiktitel hinzugefügt werden.</string>
     <string name="restart_confirmation">Um das neue Design anzuwenden, muss die App neu gestartet werden.</string>
+    <string name="menu_intro">Einführung anzeigen</string>
+    <string name="app_settings">App Einstellungen</string>
+    <string name="about_me">Über mich</string>
+    <string name="skip">Überspringen</string>
+    <string name="done">Los</string>
 
 </resources>

@@ -110,9 +110,9 @@ public class StatsFragment extends Fragment {
         this.mHealthSessionLiveData = this.mStatsViewModel.getAllHealthSessions();
         this.mHealthSessionLiveData.observe(getViewLifecycleOwner(), this::handleSessions);
         LiveData<HealthSession> mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
-        mCurrentHealthSession.observe(getViewLifecycleOwner(), healthSession -> {
-
-        });
+//        mCurrentHealthSession.observe(getViewLifecycleOwner(), healthSession -> {
+//
+//        });
     }
 
     private void handleSessions(List<HealthSession> healthSessions) {
