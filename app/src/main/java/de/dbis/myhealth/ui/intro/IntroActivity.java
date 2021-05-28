@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 
 import com.github.appintro.AppIntro;
 import com.github.appintro.AppIntroCustomLayoutFragment;
+import com.github.appintro.AppIntroPageTransformerType;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,8 @@ public class IntroActivity extends AppIntro {
         setSkipTextAppearance(R.style.TextAppearance_MaterialComponents_Button);
         setSkipText(getString(R.string.skip));
         setDoneText(getString(R.string.done));
+
+        setTransformer(AppIntroPageTransformerType.Fade.INSTANCE);
 
         int themeColor = getColor(R.color.green_900);
         String currentTheme = this.mSharedPreferences.getString(getString(R.string.theme_key), getString(R.string.green_theme_key));

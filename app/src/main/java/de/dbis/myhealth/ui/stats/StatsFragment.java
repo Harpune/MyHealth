@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,9 +53,8 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentStatsBinding;
 import de.dbis.myhealth.models.HealthSession;
-import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
-import de.dbis.myhealth.ui.stats.results.ResultViewModel;
+import de.dbis.myhealth.ui.results.ResultViewModel;
 
 public class StatsFragment extends Fragment {
 
@@ -109,10 +107,6 @@ public class StatsFragment extends Fragment {
 
         this.mHealthSessionLiveData = this.mStatsViewModel.getAllHealthSessions();
         this.mHealthSessionLiveData.observe(getViewLifecycleOwner(), this::handleSessions);
-        LiveData<HealthSession> mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
-//        mCurrentHealthSession.observe(getViewLifecycleOwner(), healthSession -> {
-//
-//        });
     }
 
     private void handleSessions(List<HealthSession> healthSessions) {

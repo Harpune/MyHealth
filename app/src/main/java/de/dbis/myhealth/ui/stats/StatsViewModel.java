@@ -182,16 +182,42 @@ public class StatsViewModel extends AndroidViewModel {
             documentReference.set(startedHealthSession).addOnSuccessListener(aVoid -> firestore
                     .collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(documentReference.getId())
-                    .addSnapshotListener((documentSnapshot, error) -> {
+                    .addSnapshotListener((healthDocument, error) -> {
                         if (error != null) {
                             Log.w(TAG, "Listen failed.", error);
                             return;
                         }
 
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            HealthSession healthSession = documentSnapshot.toObject(HealthSession.class);
-                            setCurrentHealthSession(healthSession);
-                            addHealthSession(healthSession);
+                        if (healthDocument != null && healthDocument.exists()) {
+                            HealthSession healthSession = healthDocument.toObject(HealthSession.class);
+                            if (healthSession != null) {
+                                healthDocument.getReference()
+                                        .collection(FIREBASE_COLLECTION_RESULTS)
+                                        .whereEqualTo("userId", firebaseUser.getUid())
+                                        .get()
+                                        .addOnCompleteListener(resultTask -> {
+                                            if (resultTask.isSuccessful()) {
+                                                QuerySnapshot resultSnapshot = resultTask.getResult();
+                                                if (resultSnapshot != null && !resultSnapshot.isEmpty()) {
+                                                    List<QuestionnaireResult> questionnaireResults = resultSnapshot.getDocuments().stream().map(resultDocument -> {
+                                                        QuestionnaireResult questionnaireResult = resultDocument.toObject(QuestionnaireResult.class);
+                                                        if (questionnaireResult != null) {
+                                                            questionnaireResult.setResultId(resultDocument.getId());
+                                                        }
+                                                        return questionnaireResult;
+                                                    }).collect(Collectors.toList());
+
+                                                    // add results
+                                                    healthSession.setQuestionnaireResults(questionnaireResults);
+                                                } else {
+                                                    healthSession.setQuestionnaireResults(new ArrayList<>());
+                                                }
+                                            }
+
+                                            addHealthSession(healthSession);
+                                            setCurrentHealthSession(healthSession);
+                                        });
+                            }
                         } else {
                             Log.d(TAG, "Current data: null");
                         }

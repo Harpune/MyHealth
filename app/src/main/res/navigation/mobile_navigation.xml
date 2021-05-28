@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/nav_result_item"
-        android:name="de.dbis.myhealth.ui.stats.results.ResultFragment"
+        android:name="de.dbis.myhealth.ui.results.ResultFragment"
         android:label="fragment_result"
         tools:layout="@layout/fragment_result" />
 
@@ -77,5 +77,11 @@
         android:name="de.dbis.myhealth.ui.intro.IntroActivity"
         android:label="activity_intro"
         tools:layout="@layout/activity_intro" />
+
+    <fragment
+        android:id="@+id/nav_information_item"
+        android:name="de.dbis.myhealth.ui.information.InformationFragment"
+        android:label="information_fragment"
+        tools:layout="@layout/fragment_information" />
 
 </navigation>

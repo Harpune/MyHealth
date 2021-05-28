@@ -134,7 +134,9 @@ public class MainActivity extends AppCompatActivity {
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 //        this.mSharedPreferences.edit().clear().apply();
 
-        startActivity(new Intent(this, IntroActivity.class));
+        if (!this.mSharedPreferences.getBoolean(getString(R.string.pref_on_boarding), false)) {
+            startActivity(new Intent(this, IntroActivity.class));
+        }
 
 
         // view models
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(this.mBottomAppBar);
 
         this.mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_intro_item, R.id.nav_settings_item)
+                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_intro_item, R.id.nav_settings_item, R.id.nav_information_item)
                 .setOpenableLayout(drawer)
                 .build();
 
