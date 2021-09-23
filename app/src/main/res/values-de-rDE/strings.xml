@@ -221,4 +221,5 @@
     <string name="information_questionnaire_description">Es stehen Ihnen 2 Fragebogen zur Verfügung. THI und TFI sind Fragebogen, die sich mit der Ursache von Tinnitus beschäftigen.\n</string>
     <string name="information_questionnaire_description_fast_start"><b>Schnellstart</b>\nUm schnell den gewünschten Fragebogen ausfüllen zu können, gibt es die Möglichkeit in den Einstellungen einen der beiden für den Schnellstart auszuwählen.\n</string>
     <string name="information_questionnaire_description_delete_questions"><b>Fragen löschen</b>\nDa einige Fragen für Sie unwichtig sein können oder ihnen redundant erscheinen, können Sie Fragen aus den Fragebögen entfernen, indem sie lange auf die jeweilige Frage klicken.</string>
+    <string name="spotify_volume">Lautstärke beim Starten</string>
 </resources>

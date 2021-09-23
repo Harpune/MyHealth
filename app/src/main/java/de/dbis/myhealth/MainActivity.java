@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private NavController mNavController;
     private MenuItem mSpotifyMenuItem;
+    private AudioManager mAudioManager;
 
     // LiveData
     private LiveData<HealthSession> mHealthSessionLiveData;
@@ -153,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
         // timer
         this.mStopWatch = StopWatch.createStarted();
         this.mHandler = new Handler();
+
+        // audio
+        this.mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
     }
 
 
@@ -215,6 +221,9 @@ public class MainActivity extends AppCompatActivity {
      * Check if Spotify is enabled in sharedPreferences and setup is so.
      */
     public void startSetupSpotify() {
+        int volume = this.getSpotifyVolume();
+        this.setSpotifyVolume(volume);
+
         boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
         this.setupSpotify(enabled);
 
@@ -291,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
      * Listener for preference changes. Mostly done in SettingsFragement
      */
     private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
+
+        if (s.equalsIgnoreCase(getString(R.string.spotify_volume_key))) {
+            int volume = this.getSpotifyVolume();
+            this.setSpotifyVolume(volume);
+        }
+
         if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
             this.setupSpotify(sharedPreferences.getBoolean(s, false));
         }
@@ -298,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
         if (s.equalsIgnoreCase(getString(R.string.current_spotify_track_key))) {
             this.setupSpotifyTrack(sharedPreferences.getString(s, null));
         }
+
     };
 
     /**
@@ -316,6 +332,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "SpotifyTrack is null");
         }
+    }
+
+    private void setSpotifyVolume(int volume) {
+        this.mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+    }
+
+    private int getSpotifyVolume() {
+        int savedVolume = this.mSharedPreferences.getInt(getString(R.string.spotify_volume_key), 25);
+        int maxStreamVolume = this.mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return Math.round(((float) maxStreamVolume / 100) * savedVolume);
     }
 
     /**

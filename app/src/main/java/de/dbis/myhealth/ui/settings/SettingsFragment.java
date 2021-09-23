@@ -10,6 +10,7 @@ import androidx.preference.CheckBoxPreference;
 import androidx.preference.DialogPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreference;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,6 +31,7 @@ import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_TRACKS_KEY;
+import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_VOLUME_KEY;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private final static String TAG = "SettingsFragment";
@@ -175,6 +177,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (enabled) {
                     this.mSpotifyViewModel.switchToLocalDevice();
                 }
+                return true;
+            });
+        }
+
+        SeekBarPreference volumePreference = findPreference(getString(R.string.spotify_volume_key));
+        if (volumePreference != null) {
+            volumePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                this.mPreference.setInt(SPOTIFY_VOLUME_KEY, (int) newValue);
                 return true;
             });
         }

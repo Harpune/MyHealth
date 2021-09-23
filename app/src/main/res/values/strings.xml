@@ -303,4 +303,6 @@
     <string name="information_questionnaire_description">There are 2 questionnaires at your choice. THI and TFI are questionnaires dealing with the cause of tinnitus.\n</string>
     <string name="information_questionnaire_description_fast_start"><b>Quick Start</b>\nIn order to be able to quickly fill out the desired questionnaire, there is the possibility to select one of the two for the quick start in the settings.\n</string>
     <string name="information_questionnaire_description_delete_questions"><b>Delete questions</b>\nSince some questions may be unimportant for you or seem redundant to you, you can remove questions from the questionnaires by long clicking on the respective question.</string>
+    <string name="spotify_volume_key" translatable="false">volume</string>
+    <string name="spotify_volume">Volume on start</string>
 </resources>

@@ -58,6 +58,14 @@
             app:key="@string/spotify_play_on_device_key"
             app:title="@string/spotify_play_on_device" />
 
+        <SeekBarPreference
+            app:defaultValue="25"
+            app:dependency="@string/spotify_key"
+            app:showSeekBarValue="true"
+            app:icon="@drawable/ic_baseline_volume_up_24"
+            app:key="@string/spotify_volume_key"
+            app:title="@string/spotify_volume" />
+
         <ListPreference
             app:dependency="@string/spotify_key"
             app:icon="@drawable/ic_baseline_library_music_24"
