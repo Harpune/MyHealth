@@ -221,11 +221,13 @@ public class MainActivity extends AppCompatActivity {
      * Check if Spotify is enabled in sharedPreferences and setup is so.
      */
     public void startSetupSpotify() {
-        int volume = this.getSpotifyVolume();
-        this.setSpotifyVolume(volume);
-
         boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
         this.setupSpotify(enabled);
+
+        if (enabled) {
+            int volume = this.getSpotifyVolume();
+            this.setSpotifyVolume(volume);
+        }
 
         String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
         this.setupSpotifyTrack(trackId);
