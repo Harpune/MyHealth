@@ -71,7 +71,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                app:expansion_expanded="true">
 
                 <!-- CONTENT -->
                 <TextView
@@ -145,7 +146,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                app:expansion_expanded="true">
 
                 <!-- CONTENT -->
                 <LinearLayout
@@ -247,7 +249,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                app:expansion_expanded="true">
 
                 <!-- CONTENT -->
                 <LinearLayout
