@@ -306,4 +306,8 @@
     <string name="spotify_volume_key" translatable="false">volume</string>
     <string name="spotify_volume">Volume on start</string>
     <string name="information_caption" >Here is a short description on the apps features.</string>
+    <string name="app_intro_slide_1_description">With MyHealth, you can fill out their tinnitus questionnaires quickly and conveniently on your smartphone. Through various setting options, you can set up the app according to your wishes and adapt it to your needs.</string>
+    <string name="app_intro_slide_2_description">Fill out your questionnaires in the app and submit them directly.</string>
+    <string name="app_intro_slide_3_description">To help you focus on filling out the questionnaires without the distraction of your tinnitus, you can add songs, sounds and noises that will be launched via Spotify once opened.</string>
+    <string name="app_intro_slide_4_description">For a good overview and direct feedback, complete challenges and view your progress in tinnitus awareness.</string>
 </resources>

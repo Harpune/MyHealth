@@ -47,8 +47,9 @@ public class IntroActivity extends AppIntro {
 
 
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_1));
-        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_1));
-        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_1));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_2));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_3));
+        addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.item_intro_slide_4));
     }
 
     @Override
