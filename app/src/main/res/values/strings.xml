@@ -294,15 +294,16 @@
     <string name="skip">Skip</string>
     <string name="done">Done</string>
     <string name="menu_information">Information</string>
-    <string name="information_statistic_description">In the statistics overview you can see the results of your past week. This includes the submitted questionnaires, as well as your statistics regarding the use of the app.</string>
-    <string name="information_music_description">You can play a song every time you open the app. This song can be added via Spotify.</string>
-    <string name="information_music_description_add_new_song"><b>Add new songs</b>\n\n\t1. Open <b>Spotify</b>\n\t2. navigate to the desired song\n\t3. Click on <b>Share</b>\n\t4. Select MyHealth\n\t5. Save</string>
-    <string name="information_music_description_problem">If a problem occurs, disable and re-enable Spotify under Settings and try again.</string>
-    <string name="information_music_description_change_song"><b>Change song</b>\n\nYou can switch between the added songs by selecting the respective song under <b>Settings</b>.</string>
+    <string name="information_statistic_description">In the statistics overview you can see the results of your past week. This includes the submitted questionnaires, as well as your statistics regarding the use of the app.\n</string>
+    <string name="information_music_description">You can play a song every time you open the app. This song can be added via Spotify.\n</string>
+    <string name="information_music_description_add_new_song"><b>Add new songs</b>\n\t1. Open <b>Spotify</b>\n\t2. navigate to the desired song\n\t3. Click on <b>Share</b>\n\t4. Select MyHealth\n\t5. Save\n</string>
+    <string name="information_music_description_problem">If a problem occurs, disable and re-enable Spotify under Settings and try again.\n</string>
+    <string name="information_music_description_change_song"><b>Change song</b>\nYou can switch between the added songs by selecting the respective song under <b>Settings</b>.\n</string>
     <string name="add_new_song">Add new song</string>
     <string name="information_questionnaire_description">There are 2 questionnaires at your choice. THI and TFI are questionnaires dealing with the cause of tinnitus.\n</string>
     <string name="information_questionnaire_description_fast_start"><b>Quick Start</b>\nIn order to be able to quickly fill out the desired questionnaire, there is the possibility to select one of the two for the quick start in the settings.\n</string>
-    <string name="information_questionnaire_description_delete_questions"><b>Delete questions</b>\nSince some questions may be unimportant for you or seem redundant to you, you can remove questions from the questionnaires by long clicking on the respective question.</string>
+    <string name="information_questionnaire_description_delete_questions"><b>Delete questions</b>\nSince some questions may be unimportant for you or seem redundant to you, you can remove questions from the questionnaires by long clicking on the respective question.\n</string>
     <string name="spotify_volume_key" translatable="false">volume</string>
     <string name="spotify_volume">Volume on start</string>
+    <string name="information_caption" >Here is a short description on the apps features.</string>
 </resources>

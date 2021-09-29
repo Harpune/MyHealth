@@ -8,10 +8,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:context=".ui.information.InformationFragment">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/information_caption"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,7 +32,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
                 app:expansion_headerIndicator="@id/statisticHeaderIndicator"
                 app:expansion_layout="@id/statisticExpansionLayout"
                 app:expansion_toggleOnClick="true">
@@ -33,9 +40,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center_vertical|left"
-                    android:adjustViewBounds="true"
-                    app:srcCompat="@drawable/ic_baseline_query_stats_24"
-                    tools:ignore="RtlHardcoded" />
+                    app:srcCompat="@drawable/ic_baseline_query_stats_24" />
 
                 <!-- HEADER -->
                 <TextView
@@ -73,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/information_statistic_description"
-                    android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                    android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
             </com.github.florent37.expansionpanel.ExpansionLayout>
 
@@ -152,26 +157,26 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_music_description"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_music_description_add_new_song"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/information_music_description_problem"
-                        android:textAppearance="@android:style/TextAppearance.Material.Small" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Caption" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_music_description_change_song"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
 
                 </LinearLayout>
@@ -254,19 +259,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_questionnaire_description"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_questionnaire_description_fast_start"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/information_questionnaire_description_delete_questions"
-                        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                        android:textAppearance="@android:style/TextAppearance.Material.Body1" />
 
 
                 </LinearLayout>
