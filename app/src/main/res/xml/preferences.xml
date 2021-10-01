@@ -9,6 +9,15 @@
             app:summary="@string/switch_on_off"
             app:title="@string/general_greeting_title"
             app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_assignment_24"
+            app:key="@string/general_start_questionnaire_key"
+            app:summary="@string/general_start_questionnaire_summary"
+            app:title="@string/general_start_questionnaire"
+            app:useSimpleSummaryProvider="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/design_header">
@@ -61,9 +70,9 @@
         <SeekBarPreference
             app:defaultValue="25"
             app:dependency="@string/spotify_key"
-            app:showSeekBarValue="true"
             app:icon="@drawable/ic_baseline_volume_up_24"
             app:key="@string/spotify_volume_key"
+            app:showSeekBarValue="true"
             app:title="@string/spotify_volume" />
 
         <ListPreference

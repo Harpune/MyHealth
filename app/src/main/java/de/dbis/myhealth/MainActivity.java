@@ -25,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -149,6 +150,11 @@ public class MainActivity extends AppCompatActivity {
 
         // navigation
         this.mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        if (this.mSharedPreferences.getBoolean(getString(R.string.general_start_questionnaire_key), false)) {
+            NavGraph navGraph = this.mNavController.getGraph();
+            navGraph.setStartDestination(R.id.nav_questionnaires_item);
+            this.mNavController.setGraph(navGraph);
+        }
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
@@ -188,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationUI.setupWithNavController(navigationView, this.mNavController);
         NavigationUI.setupWithNavController(this.mBottomAppBar, this.mNavController, this.mAppBarConfiguration);
+
+        // this.mNavController.getGraph().setStartDestination(R.id.nav_home_item);
+        this.mNavController.getGraph().setStartDestination(R.id.nav_questionnaires_item);
 
         // check for current fragment
         this.mNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {

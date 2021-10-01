@@ -227,4 +227,5 @@
     <string name="app_intro_slide_3_description">Damit Sie sich auf das Ausfüllen der Fragebögen konzentrieren  können ohne die Ablenkung durch Ihren Tinnitus, können Sie Lieder, Geräusche und Laute hinzufügen, die nach dem Öffnen über Spotify gestartet werden.</string>
     <string name="app_intro_slide_2_description">Füllen Sie Ihre Fragebögen in der App aus und senden Sie sie direkt ab.</string>
     <string name="app_intro_slide_4_description">Für einen guten Überblick und ein direktes Feedback, schließen sie Herausforderungen ab und sehen Sie den Ihren Verlauf in der Tinnituswahrnemung an.</string>
+    <string name="questionnaires_caption">Klicken sie lange auf einen Fragebogen, um ihn als Schnellstart zu verwenden.</string>
 </resources>

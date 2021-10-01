@@ -6,8 +6,10 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
+import androidx.navigation.Navigation;
 import androidx.preference.CheckBoxPreference;
-import androidx.preference.DialogPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
@@ -54,11 +56,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mSpotifyViewModel = new ViewModelProvider(requireActivity()).get(SpotifyViewModel.class);
 
+//        this.setupGeneral();
         this.setupDarkMode();
         this.setupQuestionnaire();
         this.setupTheme();
         this.setupSpotify();
     }
+
+//    private void setupGeneral() {
+//        SwitchPreference greetingQuestionnairePreference = findPreference(getString(R.string.general_start_questionnaire_key));
+//        if (greetingQuestionnairePreference != null) {
+//            greetingQuestionnairePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+//                Boolean enabled = (Boolean) newValue;
+//
+//                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+//                NavGraph navGraph = navController.getGraph();
+//                if (enabled) {
+//                    navGraph.setStartDestination(R.id.nav_questionnaires_item);
+//                } else {
+//                    navGraph.setStartDestination(R.id.nav_home_item);
+//                }
+//                navController.setGraph(navGraph);
+//
+//                return true;
+//            });
+//        }
+//    }
 
     private void setupDarkMode() {
         // Preferences

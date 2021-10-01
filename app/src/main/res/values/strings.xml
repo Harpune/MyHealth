@@ -270,7 +270,7 @@
     <string name="no_questionnaire_available">No questionnaires are available.</string>
     <string name="could_not_find_questionnaire">Couldn\'t find selected questionnaire.</string>
     <string name="restart">Restart</string>
-    <string name="restart_confirmation">To apply the new design, the app has to restart.</string>
+    <string name="restart_confirmation">To apply the new setting, the app has to restart.</string>
     <string name="cancel">Cancel</string>
     <string name="download_spotify">Download Spotify</string>
     <string name="download_spotify_confirmation">To include a some music you have to download Spotify</string>
@@ -305,9 +305,13 @@
     <string name="information_questionnaire_description_delete_questions"><b>Delete questions</b>\nSince some questions may be unimportant for you or seem redundant to you, you can remove questions from the questionnaires by long clicking on the respective question.\n</string>
     <string name="spotify_volume_key" translatable="false">volume</string>
     <string name="spotify_volume">Volume on start</string>
-    <string name="information_caption" >Here is a short description on the apps features.</string>
+    <string name="information_caption">Here is a short description on the apps features.</string>
     <string name="app_intro_slide_1_description">With MyHealth, you can fill out their tinnitus questionnaires quickly and conveniently on your smartphone. Through various setting options, you can set up the app according to your wishes and adapt it to your needs.</string>
     <string name="app_intro_slide_2_description">Fill out your questionnaires in the app and submit them directly.</string>
     <string name="app_intro_slide_3_description">To help you focus on filling out the questionnaires without the distraction of your tinnitus, you can add songs, sounds and noises that will be launched via Spotify once opened.</string>
     <string name="app_intro_slide_4_description">For a good overview and direct feedback, complete challenges and view your progress in tinnitus awareness.</string>
+    <string name="questionnaires_caption">Long press on a questionnaire to use it as a quick start.</string>
+    <string name="general_start_questionnaire_key">general_start_questionnaire_key</string>
+    <string name="general_start_questionnaire">Start with questionnaire selection</string>
+    <string name="general_start_questionnaire_summary">Set the questionnaire selection as home screen</string>
 </resources>
