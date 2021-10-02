@@ -228,4 +228,9 @@
     <string name="app_intro_slide_2_description">Füllen Sie Ihre Fragebögen in der App aus und senden Sie sie direkt ab.</string>
     <string name="app_intro_slide_4_description">Für einen guten Überblick und ein direktes Feedback, schließen sie Herausforderungen ab und sehen Sie den Ihren Verlauf in der Tinnituswahrnemung an.</string>
     <string name="questionnaires_caption">Klicken sie lange auf einen Fragebogen, um ihn als Schnellstart zu verwenden.</string>
+    <string name="general_start_questionnaire">Starte mit der Fragebogenauswahl</string>
+    <string name="general_start_questionnaire_summary">Die Grafenbogenauswahl wird zu der neuen Startseite</string>
+    <string name="general_gamification">Gamification</string>
+    <string name="general_gamification_summary">Wähle die Aufgaben aus, die aktiviert werden sollen</string>
+    <string name="general_greeting_summary">Ein kleiner Willkommensgruß</string>
 </resources>

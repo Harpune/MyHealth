@@ -76,6 +76,8 @@
         <item>@string/other</item>
     </string-array>
 
+    <string-array name="empty_array" />
+
     <string-array name="gamification_keys">
         <item>@string/gamePaperKey</item>
         <item>@string/gameDiamondKey</item>

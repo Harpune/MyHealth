@@ -311,7 +311,11 @@
     <string name="app_intro_slide_3_description">To help you focus on filling out the questionnaires without the distraction of your tinnitus, you can add songs, sounds and noises that will be launched via Spotify once opened.</string>
     <string name="app_intro_slide_4_description">For a good overview and direct feedback, complete challenges and view your progress in tinnitus awareness.</string>
     <string name="questionnaires_caption">Long press on a questionnaire to use it as a quick start.</string>
-    <string name="general_start_questionnaire_key">general_start_questionnaire_key</string>
+    <string name="general_start_questionnaire_key" translatable="false">general_start_questionnaire_key</string>
     <string name="general_start_questionnaire">Start with questionnaire selection</string>
     <string name="general_start_questionnaire_summary">Set the questionnaire selection as home screen</string>
+    <string name="general_gamification_key" translatable="false">general_gamification_key</string>
+    <string name="general_gamification_summary">Select the tasks you want to complete</string>
+    <string name="general_gamification">Gamification</string>
+    <string name="general_greeting_summary">Get a friendly greet depending on the daytime</string>
 </resources>

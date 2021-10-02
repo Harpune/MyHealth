@@ -3,6 +3,7 @@ package de.dbis.myhealth.ui.stats;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,8 +28,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -162,8 +165,19 @@ public class StatsViewModel extends AndroidViewModel {
         FirebaseUser firebaseUser = this.firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             // get set preference
-            Map<String, ?> preference = this.mSharedPreferences.getAll();
-            preference.remove(getApplication().getString(R.string.access_token));
+
+            Map<String, Object> preference = new HashMap<>();
+            try {
+                preference = (Map<String, Object>) this.mSharedPreferences.getAll();
+                preference.remove(getApplication().getString(R.string.access_token));
+                HashSet<String> gamificationMap = (HashSet<String>) preference.get(getApplication().getString(R.string.general_gamification_key));
+                List<String> gamificationList = new ArrayList<>(gamificationMap);
+
+                preference.put(getApplication().getString(R.string.general_gamification_key), gamificationList);
+
+            } catch (ClassCastException e) {
+                Log.e(TAG, "Casting error", e);
+            }
 
             // create session
             HealthSession startedHealthSession = new HealthSession(

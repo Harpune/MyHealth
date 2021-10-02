@@ -52,6 +52,9 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.apache.commons.lang3.time.StopWatch;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;

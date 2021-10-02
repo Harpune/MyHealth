@@ -1,10 +1,13 @@
 package de.dbis.myhealth.adapter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.util.ArraySet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,16 +21,21 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.ItemHomeBinding;
 import de.dbis.myhealth.models.Gamification;
-import de.dbis.myhealth.models.HealthSession;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder> {
     private final static String TAG = "HomeAdapter";
 
+    private SharedPreferences mSharedPreferences;
     private List<Gamification> gamifications;
+    private Map<Gamification, Boolean> gamificationsSelection;
+    private boolean[] mGamificationSelections;
     private final Activity activity;
     private final LifecycleOwner lifecycleOwner;
 
@@ -79,11 +87,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
     public HomeAdapter(Activity activity, LifecycleOwner lifecycleOwner) {
         this.activity = activity;
         this.lifecycleOwner = lifecycleOwner;
+        this.mSharedPreferences = activity.getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+        this.setupGamificationPreference();
+
     }
 
+    private void setupGamificationPreference() {
+        //[glasses, one, diamond, paper, star, car, book, medal, check]
+        Set<String> selections = this.mSharedPreferences.getStringSet(this.activity.getString(R.string.general_gamification_key), new ArraySet<>());
+    }
 
     public void setData(List<Gamification> gamifications) {
         this.gamifications = gamifications;
+        // TODO update gamificaition according to selection
         notifyDataSetChanged();
     }
 

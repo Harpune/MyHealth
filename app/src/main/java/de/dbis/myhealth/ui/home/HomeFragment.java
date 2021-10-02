@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
@@ -109,7 +110,6 @@ public class HomeFragment extends Fragment {
 
         return root;
     }
-
 
     /**
      * Click on Fab in HomeFragment: FastStart Questionnaiere.
