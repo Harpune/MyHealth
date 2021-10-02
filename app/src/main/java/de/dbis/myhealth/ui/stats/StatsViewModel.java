@@ -44,6 +44,7 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.SpotifySession;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_RESULTS;
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_SESSIONS;
@@ -145,7 +146,29 @@ public class StatsViewModel extends AndroidViewModel {
             this.firestore
                     .collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(healthSession.getId())
-                    .update("timeMusic." + trackId, FieldValue.increment(intervalUpdate));
+                    .update("spotifySession." + trackId + ".time", FieldValue.increment(intervalUpdate));
+        }
+    }
+
+    public void setVolume(String trackId, int volume) {
+        HealthSession healthSession = this.getCurrentHealthSession().getValue();
+        if (healthSession != null) {
+            // update on server
+            this.firestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("spotifySession." + trackId + ".volume", volume);
+        }
+    }
+
+    public void updatePreference() {
+        HealthSession healthSession = this.getCurrentHealthSession().getValue();
+        if (healthSession != null) {
+            Map<String, Object> preferences = this.getPreferences();
+            this.firestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId());
+
         }
     }
 
@@ -158,26 +181,23 @@ public class StatsViewModel extends AndroidViewModel {
                     .document()
                     .set(questionnaireResult);
         }
-
     }
 
     public void startNewSession() {
         FirebaseUser firebaseUser = this.firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             // get set preference
+            Map<String, Object> preference = this.getPreferences();
 
-            Map<String, Object> preference = new HashMap<>();
-            try {
-                preference = (Map<String, Object>) this.mSharedPreferences.getAll();
-                preference.remove(getApplication().getString(R.string.access_token));
-                HashSet<String> gamificationMap = (HashSet<String>) preference.get(getApplication().getString(R.string.general_gamification_key));
-                List<String> gamificationList = new ArrayList<>(gamificationMap);
+            // get spotify session
+            String currentSpotifyTrack = this.mSharedPreferences.getString(getApplication().getString(R.string.current_spotify_track_key), "unknown");
+            SpotifySession spotifySession = new SpotifySession();
+            spotifySession.setId(currentSpotifyTrack);
+            spotifySession.setTime(0L);
+            spotifySession.setVolume(this.mSharedPreferences.getInt(getApplication().getString(R.string.spotify_volume_key), 25));
 
-                preference.put(getApplication().getString(R.string.general_gamification_key), gamificationList);
-
-            } catch (ClassCastException e) {
-                Log.e(TAG, "Casting error", e);
-            }
+            Map<String, SpotifySession> spotifySessions = new HashMap<>();
+            spotifySessions.put(currentSpotifyTrack, spotifySession);
 
             // create session
             HealthSession startedHealthSession = new HealthSession(
@@ -186,7 +206,7 @@ public class StatsViewModel extends AndroidViewModel {
                     new ArrayList<>(),
                     preference,
                     0L,
-                    new HashMap<>());
+                    spotifySessions);
 
             // upload session
             DocumentReference documentReference = this.firestore
@@ -293,5 +313,21 @@ public class StatsViewModel extends AndroidViewModel {
                         }
                     }
                 });
+    }
+
+    private Map<String, Object> getPreferences() {
+        Map<String, Object> preference = new HashMap<>();
+        try {
+            preference = (Map<String, Object>) this.mSharedPreferences.getAll();
+            preference.remove(getApplication().getString(R.string.access_token));
+            HashSet<String> gamificationMap = (HashSet<String>) preference.get(getApplication().getString(R.string.general_gamification_key));
+            List<String> gamificationList = new ArrayList<>(gamificationMap);
+
+            preference.put(getApplication().getString(R.string.general_gamification_key), gamificationList);
+
+        } catch (ClassCastException e) {
+            Log.e(TAG, "Casting error", e);
+        }
+        return preference;
     }
 }

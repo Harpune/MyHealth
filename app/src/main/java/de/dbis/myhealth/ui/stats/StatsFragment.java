@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.dbis.myhealth.ApplicationConstants;
@@ -54,6 +55,7 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentStatsBinding;
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.SpotifySession;
 import de.dbis.myhealth.ui.results.ResultViewModel;
 
 public class StatsFragment extends Fragment {
@@ -231,11 +233,13 @@ public class StatsFragment extends Fragment {
             long totalTime = list.stream().mapToLong(HealthSession::getTimeAppOpened).sum();
             long musicTime = list
                     .stream()
-                    .map(HealthSession::getTimeMusic)
+                    .map(HealthSession::getSpotifySession)
                     .collect(Collectors.toList())
                     .stream()
+                    .filter(Objects::nonNull)
                     .map(m -> m.values()
                             .stream()
+                            .map(SpotifySession::getTime)
                             .mapToLong(Long::longValue)
                             .sum())
                     .collect(Collectors.toList())

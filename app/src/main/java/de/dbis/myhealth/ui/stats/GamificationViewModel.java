@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -26,6 +27,7 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.HealthSession;
+import de.dbis.myhealth.models.SpotifySession;
 
 public class GamificationViewModel extends AndroidViewModel {
     private final String TAG = getClass().getSimpleName();
@@ -189,7 +191,13 @@ public class GamificationViewModel extends AndroidViewModel {
      */
     private long getAmountMusicListened(List<HealthSession> healthSessions) {
         return healthSessions.stream()
-                .mapToLong(healthSession -> healthSession.getTimeMusic().values().stream().mapToLong(Long::longValue).sum())
+                .mapToLong(healthSession -> {
+                    Map<String, SpotifySession> spotifySession = healthSession.getSpotifySession();
+                    if (spotifySession != null) {
+                        return spotifySession.values().stream().map(SpotifySession::getTime).mapToLong(Long::longValue).sum();
+                    }
+                    return 0;
+                })
                 .sum();
     }
 

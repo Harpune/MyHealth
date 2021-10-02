@@ -8,7 +8,6 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,9 +50,6 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import org.apache.commons.lang3.time.StopWatch;
-
-import java.util.ArrayList;
-import java.util.Set;
 
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.SpotifyTrack;
@@ -238,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (enabled) {
             int volume = this.getSpotifyVolume();
-            this.setSpotifyVolume(volume);
+            this.setupSpotifyVolume(volume);
         }
 
         String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
@@ -316,8 +312,9 @@ public class MainActivity extends AppCompatActivity {
     private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
 
         if (s.equalsIgnoreCase(getString(R.string.spotify_volume_key))) {
+            // update volume
             int volume = this.getSpotifyVolume();
-            this.setSpotifyVolume(volume);
+            this.setupSpotifyVolume(volume);
         }
 
         if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
@@ -348,7 +345,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setSpotifyVolume(int volume) {
+    private void setupSpotifyVolume(int volume) {
+        this.applySpotifyVolume(volume);
+
+
+        String currentTrackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), "unknown");
+        if (currentTrackId != null) {
+            PlayerState playerState = mSpotifyViewModel.getPlayerState().getValue();
+            if (playerState != null && playerState.track != null) { // check player
+                Track currentTrack = playerState.track;
+                if (!currentTrack.uri.endsWith(currentTrackId)) { // saved song is playing
+                    currentTrackId = currentTrack.uri.split("\\.")[currentTrack.uri.split("\\.").length - 1];
+                }
+            }
+        }
+
+        this.mStatsViewModel.setVolume(currentTrackId, this.mSharedPreferences.getInt(getString(R.string.spotify_volume_key), 25));
+    }
+
+    private void applySpotifyVolume(int volume) {
         this.mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
     }
 
