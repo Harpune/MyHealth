@@ -151,14 +151,34 @@ public class StatsViewModel extends AndroidViewModel {
     }
 
     public void updatePreference() {
-        // TODO updatePreference
         HealthSession healthSession = this.getCurrentHealthSession().getValue();
         if (healthSession != null) {
             Map<String, Object> preferences = this.getPreferences();
             this.mFirestore
                     .collection(FIREBASE_COLLECTION_SESSIONS)
-                    .document(healthSession.getId());
+                    .document(healthSession.getId())
+                    .update("savedPreferences", preferences);
+        }
+    }
 
+    public void addSpotifySession(String currentSpotifyTrack) {
+        HealthSession healthSession = this.getCurrentHealthSession().getValue();
+        if (healthSession != null) {
+
+            int volume = this.mSharedPreferences.getInt(getApplication().getString(R.string.spotify_volume_key), 25);
+
+            this.mFirestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("spotifySession." + currentSpotifyTrack + ".id", currentSpotifyTrack);
+            this.mFirestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("spotifySession." + currentSpotifyTrack + ".volume", volume);
+            this.mFirestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("spotifySession." + currentSpotifyTrack + ".time", FieldValue.increment(0));
         }
     }
 
@@ -180,12 +200,9 @@ public class StatsViewModel extends AndroidViewModel {
         // get spotify session
         String currentSpotifyTrack = this.mSharedPreferences.getString(getApplication().getString(R.string.current_spotify_track_key), "unknown");
         SpotifySession spotifySession = new SpotifySession();
-
-        if (this.mSharedPreferences.getBoolean(getApplication().getString(R.string.spotify_key), false)) {
-            spotifySession.setId(currentSpotifyTrack);
-            spotifySession.setTime(0L);
-            spotifySession.setVolume(this.mSharedPreferences.getInt(getApplication().getString(R.string.spotify_volume_key), 25));
-        }
+        spotifySession.setId(currentSpotifyTrack);
+        spotifySession.setTime(0L);
+        spotifySession.setVolume(this.mSharedPreferences.getInt(getApplication().getString(R.string.spotify_volume_key), 25));
 
         Map<String, SpotifySession> spotifySessions = new HashMap<>();
         spotifySessions.put(currentSpotifyTrack, spotifySession);

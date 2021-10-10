@@ -323,8 +323,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (s.equalsIgnoreCase(getString(R.string.current_spotify_track_key))) {
             this.setupSpotifyTrack(sharedPreferences.getString(s, null));
+            this.mStatsViewModel.addSpotifySession(sharedPreferences.getString(s, "unknown"));
         }
 
+        this.mStatsViewModel.updatePreference();
     };
 
     /**
