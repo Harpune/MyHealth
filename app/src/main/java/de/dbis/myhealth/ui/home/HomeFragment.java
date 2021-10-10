@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
         // Recyclerview
         RecyclerView recyclerView = root.findViewById(R.id.home_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
+        this.mHomeAdapter = new HomeAdapter(requireActivity());
         recyclerView.setAdapter(this.mHomeAdapter);
 
         return root;
