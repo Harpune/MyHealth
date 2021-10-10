@@ -21,9 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
@@ -35,6 +37,7 @@ import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
+import de.dbis.myhealth.ui.stats.GamificationViewModel;
 import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 
@@ -50,9 +53,13 @@ public class HomeFragment extends Fragment {
     private UserViewModel mUserViewModel;
     private StatsViewModel mStatsViewModel;
     private QuestionnairesViewModel mQuestionnairesViewModel;
+    private GamificationViewModel mGamificationViewModel;
 
     // LiveData
     private LiveData<Bitmap> mCurrentTrackImageLiveData;
+    private LiveData<List<HealthSession>> mAllHealthSessions;
+    private LiveData<HealthSession> mCurrentHealthSession;
+    private LiveData<List<Gamification>> mGamifications;
 
     // Views
     private ShapeableImageView mTrackImageView;
@@ -71,6 +78,7 @@ public class HomeFragment extends Fragment {
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mStatsViewModel = new ViewModelProvider(requireActivity()).get(StatsViewModel.class);
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        this.mGamificationViewModel = new ViewModelProvider(requireActivity()).get(GamificationViewModel.class);
 
         // bindings
         FragmentHomeBinding mFragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
@@ -78,10 +86,14 @@ public class HomeFragment extends Fragment {
         mFragmentHomeBinding.setSpotifyViewModel(this.mSpotifyViewModel);
         mFragmentHomeBinding.setHomeFragment(this);
         mFragmentHomeBinding.setSpotifyEnabled(this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false));
+        mFragmentHomeBinding.setGreetingEnabled(this.mSharedPreferences.getBoolean(getString(R.string.general_greeting_key), false));
         mFragmentHomeBinding.setMessage(this.getWelcomeMessage());
 
         // live data
         this.mCurrentTrackImageLiveData = this.mSpotifyViewModel.getCurrentTrackImage();
+        this.mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
+        this.mAllHealthSessions = this.mStatsViewModel.getAllHealthSessions();
+        this.mGamifications = this.mGamificationViewModel.getGamifications();
 
         // set fab action in activity
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
@@ -96,13 +108,8 @@ public class HomeFragment extends Fragment {
         this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
         recyclerView.setAdapter(this.mHomeAdapter);
 
-
-        List<Gamification> gamifications = this.mStatsViewModel.getLocalGamifications();
-        this.mHomeAdapter.setData(gamifications);
-
         return root;
     }
-
 
     /**
      * Click on Fab in HomeFragment: FastStart Questionnaiere.
@@ -113,17 +120,16 @@ public class HomeFragment extends Fragment {
         this.mQuestionnairesViewModel.getAllQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
-                // TODO create dialog/snackbar to ask user to go to settings
-                Toast.makeText(getContext(), "Set Questionnaire for fast access in Settings.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.set_fast_start_in_settings), Toast.LENGTH_LONG).show();
             } else if (questionnaires == null) {
-                Toast.makeText(getContext(), "No questionnaires are available.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.no_questionnaire_available), Toast.LENGTH_LONG).show();
             } else {
                 Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
                 if (questionnaire.isPresent()) {
                     this.mQuestionnairesViewModel.select(questionnaire.get());
                     Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
                 } else {
-                    Toast.makeText(getContext(), "Couldn't find selected questionnaire.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), getString(R.string.could_not_find_questionnaire), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -142,13 +148,13 @@ public class HomeFragment extends Fragment {
         int moon = 0x1F31C;
 
         if (timeOfDay < 12) {
-            return "Good Morning " + getEmojiByUnicode(coffee);
+            return getString(R.string.good_morning) + " " + getEmojiByUnicode(coffee);
         } else if (timeOfDay < 16) {
-            return "Good Afternoon " + getEmojiByUnicode(sun);
+            return getString(R.string.good_afternoon) + " " + getEmojiByUnicode(sun);
         } else if (timeOfDay < 21) {
-            return "Good Evening " + getEmojiByUnicode(greeting);
+            return getString(R.string.good_evening) + " " + getEmojiByUnicode(greeting);
         } else {
-            return "Good Night " + getEmojiByUnicode(moon);
+            return getString(R.string.good_night) + " " + getEmojiByUnicode(moon);
         }
     }
 
@@ -167,15 +173,39 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        this.mAllHealthSessions.observe(getViewLifecycleOwner(), this::handleHealthSessions);
+
+        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> {
+
+            this.mHomeAdapter.setData(gamifications);
+        });
+
     }
+
 
     @Override
     public void onStop() {
         super.onStop();
 
-        if (this.mCurrentTrackImageLiveData != null) {
+        if (this.mCurrentTrackImageLiveData != null && this.mCurrentTrackImageLiveData.hasObservers()) {
             this.mCurrentTrackImageLiveData.removeObservers(getViewLifecycleOwner());
         }
+
+        if (this.mAllHealthSessions != null && this.mAllHealthSessions.hasObservers()) {
+            this.mAllHealthSessions.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mCurrentHealthSession != null && this.mCurrentHealthSession.hasObservers()) {
+            this.mCurrentHealthSession.removeObservers(getViewLifecycleOwner());
+        }
+
+        if (this.mGamifications != null && this.mGamifications.hasObservers()) {
+            this.mGamifications.removeObservers(getViewLifecycleOwner());
+        }
+    }
+
+    private void handleHealthSessions(List<HealthSession> healthSessions) {
+        this.mGamificationViewModel.matchWithHealthSessions(healthSessions);
     }
 
     public void openSpotifyTrackInfoFragment(View view) {

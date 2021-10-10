@@ -111,7 +111,7 @@ public class QuestionnaireFragment extends Fragment {
                 toolbar.setOnMenuItemClickListener(item -> {
                     this.mStopWatch.suspend();
                     new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Deleted questions")
+                            .setTitle(getString(R.string.deleted_questions))
                             .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
                             .setPositiveButton("Enable", (dialogInterface, i) -> {
                                 for (int j = 0; j < enabled.length; j++) {
@@ -170,10 +170,10 @@ public class QuestionnaireFragment extends Fragment {
             }
 
             new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Submit results")
-                    .setMessage("Have you finished filling out the questionnaire? You have answered " + amountAnswered + " out of " + enabledQuestions + " questions.")
+                    .setTitle(getString(R.string.submit_results))
+                    .setMessage(getString(R.string.submit_results_summary, amountAnswered, enabledQuestions))
                     .setCancelable(false)
-                    .setPositiveButton("Yes", (dialogInterface, i) -> {
+                    .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
 
                         this.mStopWatch.stop();
 
@@ -217,7 +217,7 @@ public class QuestionnaireFragment extends Fragment {
                         this.mQuestionnairesViewModel.resetSelected();
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                     })
-                    .setNegativeButton("No", (dialogInterface, i) -> this.mStopWatch.resume())
+                    .setNegativeButton(getString(R.string.no), (dialogInterface, i) -> this.mStopWatch.resume())
                     .show();
         }
 

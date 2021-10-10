@@ -14,10 +14,23 @@
     <string name="menu_stats">Statistics</string>
     <string name="start">Start</string>
 
+    <!-- Greetings -->
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_evening">Good Evening</string>
+    <string name="good_night">Good Night</string>
+
     <!-- Preference Titles -->
+    <string name="general_header">General</string>
     <string name="design_header">Design</string>
     <string name="questionnaires_header">Questionnaires</string>
     <string name="music_header">Music</string>
+
+    <!-- General Preferences -->
+    <string name="general_title">General</string>
+    <string name="general_key" translatable="false">general</string>
+    <string name="general_greeting_title">Greeting</string>
+    <string name="general_greeting_key" translatable="false">general_greeting_key</string>
 
     <!-- Design Preferences -->
     <string name="dark_mode_title">Dark Mode</string>
@@ -242,6 +255,67 @@
     <string name="format">%1$tY-%1$tm-%1$td %1$tH:%1$tM</string>
     <string name="format_date">%1$tY-%1$tm-%1$td</string>
     <string name="format_time">%1$tH:%1$tM</string>
-
-
+    <string name="switch_on_off">Click to switch on or off</string>
+    <string name="personal_information_added" translatable="false">personal_information_added</string>
+    <string name="not_set_track">The current song is not your song set in the myHealth app</string>
+    <string name="tfi_description">The Tinnitus Functional Index (TFI) is the first tinnitus questionnaire documented for responsiveness, and has the potential to become the new standard for evaluating the effects of intervention for tinnitus, with clinical patients and in research studies.</string>
+    <string name="thi_description">The purpose of this questionnaire is to identify the problems your tinnitus may be causing you. Check \"Yes\", \"Sometimes\", or \"No\" for each question. Please answer all questions.</string>
+    <string name="deleted_questions">Deleted questions</string>
+    <string name="submit_results">Submit results</string>
+    <string name="submit_results_summary">Have you finished filling out the questionnaire? You have answered %d out of %d questions.</string>
+    <string name="save_as_fast_start">Save as fast start</string>
+    <string name="save_as_fast_start_summary">You can select this questionnaire as favourite to fast start on the home page.</string>
+    <string name="save_as_fast_start_confirmation">Your new favourite questionnaire is %s now.</string>
+    <string name="set_fast_start_in_settings">Set Questionnaire for fast access in Settings.</string>
+    <string name="no_questionnaire_available">No questionnaires are available.</string>
+    <string name="could_not_find_questionnaire">Couldn\'t find selected questionnaire.</string>
+    <string name="restart">Restart</string>
+    <string name="restart_confirmation">To apply the new setting, the app has to restart.</string>
+    <string name="cancel">Cancel</string>
+    <string name="download_spotify">Download Spotify</string>
+    <string name="download_spotify_confirmation">To include a some music you have to download Spotify</string>
+    <string name="ok">Ok</string>
+    <string name="login_spotify">Login to Spotify</string>
+    <string name="login_spotify_confirmation">You are not logged in you Spotify app.</string>
+    <string name="login">Login</string>
+    <string name="track_already_saved">This song is already saved in MyHealth.</string>
+    <string name="enable_spotify">Enable Spotify in the app</string>
+    <string name="enable_spotify_confirmation">You have to allow MyHealth to access Spotify before continuing.</string>
+    <string name="enable_spotify_canceled">Could\'t connect to Spotify without your permission.</string>
+    <string name="get_track_error">Could not get necessary data to include Spotify track into the app.</string>
+    <string name="grant_permission">Please grant permission</string>
+    <string name="new_track_added">\'%s\' by \'%s\' was added to MyHealth.</string>
+    <string name="not_a_track">Only tracks can be added to MyHealth.</string>
+    <string name="pref_on_boarding" translatable="false">pref_on_boarding</string>
+    <string name="title_activity_intro" translatable="false">IntroActivity</string>
+    <string name="menu_intro">Show Intro</string>
+    <string name="app_settings">App Settings</string>
+    <string name="about_me">About me</string>
+    <string name="skip">Skip</string>
+    <string name="done">Done</string>
+    <string name="menu_information">Information</string>
+    <string name="information_statistic_description">In the statistics overview you can see the results of your past week. This includes the submitted questionnaires, as well as your statistics regarding the use of the app.\n</string>
+    <string name="information_music_description">You can play a song every time you open the app. This song can be added via Spotify.\n</string>
+    <string name="information_music_description_add_new_song"><b>Add new songs</b>\n\t1. Open <b>Spotify</b>\n\t2. navigate to the desired song\n\t3. Click on <b>Share</b>\n\t4. Select MyHealth\n\t5. Save\n</string>
+    <string name="information_music_description_problem">If a problem occurs, disable and re-enable Spotify under Settings and try again.\n</string>
+    <string name="information_music_description_change_song"><b>Change song</b>\nYou can switch between the added songs by selecting the respective song under <b>Settings</b>.\n</string>
+    <string name="add_new_song">Add new song</string>
+    <string name="information_questionnaire_description">There are 2 questionnaires at your choice. THI and TFI are questionnaires dealing with the cause of tinnitus.\n</string>
+    <string name="information_questionnaire_description_fast_start"><b>Quick Start</b>\nIn order to be able to quickly fill out the desired questionnaire, there is the possibility to select one of the two for the quick start in the settings.\n</string>
+    <string name="information_questionnaire_description_delete_questions"><b>Delete questions</b>\nSince some questions may be unimportant for you or seem redundant to you, you can remove questions from the questionnaires by long clicking on the respective question.\n</string>
+    <string name="spotify_volume_key" translatable="false">volume</string>
+    <string name="spotify_volume">Volume on start</string>
+    <string name="information_caption">Here is a short description on the apps features.</string>
+    <string name="app_intro_slide_1_description">With MyHealth, you can fill out their tinnitus questionnaires quickly and conveniently on your smartphone. Through various setting options, you can set up the app according to your wishes and adapt it to your needs.</string>
+    <string name="app_intro_slide_2_description">Fill out your questionnaires in the app and submit them directly.</string>
+    <string name="app_intro_slide_3_description">To help you focus on filling out the questionnaires without the distraction of your tinnitus, you can add songs, sounds and noises that will be launched via Spotify once opened.</string>
+    <string name="app_intro_slide_4_description">For a good overview and direct feedback, complete challenges and view your progress in tinnitus awareness.</string>
+    <string name="questionnaires_caption">Long press on a questionnaire to use it as a quick start.</string>
+    <string name="general_start_questionnaire_key" translatable="false">general_start_questionnaire_key</string>
+    <string name="general_start_questionnaire">Start with questionnaire selection</string>
+    <string name="general_start_questionnaire_summary">Set the questionnaire selection as home screen</string>
+    <string name="general_gamification_key" translatable="false">general_gamification_key</string>
+    <string name="general_gamification_summary">Select the tasks you want to complete</string>
+    <string name="general_gamification">Gamification</string>
+    <string name="general_greeting_summary">Get a friendly greet depending on the daytime</string>
 </resources>

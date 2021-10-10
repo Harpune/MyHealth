@@ -20,16 +20,16 @@ public class SpotifyLoginDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Login to Spotify")
-                .setMessage("You are not logged in you Spotify app.")
-                .setPositiveButton("Login", (dialogInterface, i) -> {
+                .setTitle(getString(R.string.login_spotify))
+                .setMessage(R.string.login_spotify_confirmation)
+                .setPositiveButton(getString(R.string.login), (dialogInterface, i) -> {
                     dialogInterface.dismiss();
                     Intent launchIntent = requireActivity().getPackageManager().getLaunchIntentForPackage("com.spotify.music");
                     if (launchIntent != null) {
                         startActivity(launchIntent);
                     }
                 })
-                .setNegativeButton("Cancel", (dialog, i) ->
+                .setNegativeButton(getString(R.string.cancel), (dialog, i) ->
                         PreferenceManager.getDefaultSharedPreferences(requireContext())
                                 .edit()
                                 .putBoolean(getString(R.string.spotify_key), false)

@@ -51,10 +51,10 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
             this.binding.getRoot().setOnLongClickListener(view -> {
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                 new MaterialAlertDialogBuilder(view.getContext())
-                        .setTitle("Save as Favourite")
-                        .setMessage("You can select this questionnaire as favourite to fast start on the home page.")
-                        .setPositiveButton("Save", (dialogInterface, i) -> saveFavourite(getAdapterPosition()))
-                        .setNegativeButton("No", null)
+                        .setTitle(mActivity.getString(R.string.save_as_fast_start))
+                        .setMessage(mActivity.getString(R.string.save_as_fast_start_summary))
+                        .setPositiveButton(mActivity.getString(R.string.save), (dialogInterface, i) -> saveFavourite(getAdapterPosition()))
+                        .setNegativeButton(mActivity.getString(R.string.no), null)
                         .show();
                 return false;
             });
@@ -79,7 +79,7 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
                 .edit()
                 .putString(this.mActivity.getString(R.string.questionnaire_fast_start_key), questionnaire.getId())
                 .apply();
-        Toast.makeText(this.mActivity, "Your new favourite questionnaire is " + questionnaire.getTitle() + " now.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.mActivity, mActivity.getString(R.string.save_as_fast_start_confirmation, questionnaire.getId()), Toast.LENGTH_SHORT).show();
     }
 
     @NonNull

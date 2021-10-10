@@ -20,6 +20,10 @@
             type="boolean" />
 
         <variable
+            name="greetingEnabled"
+            type="boolean" />
+
+        <variable
             name="message"
             type="String" />
     </data>
@@ -37,7 +41,7 @@
             android:background="?attr/selectableItemBackground"
             android:onClick="@{(v) -> homeFragment.openSpotifyTrackInfoFragment(v)}"
             android:orientation="vertical"
-            android:visibility="@{spotifyEnabled ? View.VISIBLE : View.GONE}"
+            android:visibility="@{spotifyEnabled ? ((spotifyViewModel.currentSpotifyTrack != null) ? View.VISIBLE : View.GONE) : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -141,6 +145,7 @@
             android:padding="@dimen/activity_horizontal_margin"
             android:text="@{message}"
             android:textAppearance="@android:style/TextAppearance.Material.Title"
+            android:visibility="@{greetingEnabled ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/spotify_track_info_layout" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -152,6 +157,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/header_title"
             tools:listitem="@layout/item_home" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

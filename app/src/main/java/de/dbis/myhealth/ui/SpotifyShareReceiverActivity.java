@@ -79,7 +79,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
             // check if already added
             if (this.mTrackIds.contains(this.mTrackId)) {
                 Log.d(TAG, "Track-ID " + this.mTrackId + " already exists");
-                Toast.makeText(SpotifyShareReceiverActivity.this, "This song is already saved in MyHealth.", Toast.LENGTH_LONG).show();
+                Toast.makeText(SpotifyShareReceiverActivity.this, getString(R.string.track_already_saved), Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 // request spotify track with spotify api (observed after being set in connectToApiOrAuth())
@@ -95,26 +95,26 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                     this.connectToApiOrAuth();
                 } else {
                     new MaterialAlertDialogBuilder(this)
-                            .setTitle("Enable Spotify in your app")
-                            .setMessage("You have to allow MyHealth to access Spotify before continuing.")
+                            .setTitle(getString(R.string.enable_spotify))
+                            .setMessage(getString(R.string.enable_spotify_confirmation))
                             .setCancelable(false)
-                            .setPositiveButton("Enable", (dialogInterface, i) -> {
+                            .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
                                 this.mSharedPreferences
                                         .edit()
                                         .putBoolean(getString(R.string.spotify_key), true)
                                         .apply();
                                 this.connectToApiOrAuth();
                             })
-                            .setNegativeButton("No", (dialogInterface, i) ->
+                            .setNegativeButton(getString(R.string.no), (dialogInterface, i) ->
                             {
-                                Toast.makeText(this, "Sorry. Could't connect to Spotify without your permission.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, R.string.enable_spotify_canceled, Toast.LENGTH_LONG).show();
                                 finish();
                             })
                             .show();
                 }
             }
         } else {
-            Toast.makeText(this, "Could not get necessary data to include Spotify track into the app.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.get_track_error), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -173,7 +173,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                 }
             }
         } else {
-            Toast.makeText(this, "Please grant permission", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.grant_permission), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -187,7 +187,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
             this.mPreference.setObject(SPOTIFY_TRACKS_KEY, this.mTrackIds);
             this.mPreference.setObject(this.mTrackId, spotifyTrack);
 
-            Toast.makeText(this, "'" + spotifyTrack.getTrack().name + "' by '" + spotifyTrack.getTrack().artists.get(0).name + "' was added to MyHealth.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.new_track_added, spotifyTrack.getTrack().name, spotifyTrack.getTrack().artists.get(0).name), Toast.LENGTH_LONG).show();
             finish();
         }
     }
@@ -198,7 +198,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
+            if ("text/plain" .equals(type)) {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (sharedText != null) {
                     // get track Id
@@ -209,7 +209,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                     if (uri.getPathSegments().contains("track")) {
                         return uri.getLastPathSegment();
                     } else {
-                        Toast.makeText(this, "Only tracks can be added to MyHealth.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.not_a_track), Toast.LENGTH_LONG).show();
                         finish();
                     }
                 }

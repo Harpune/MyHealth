@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,15 +47,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.databinding.FragmentStatsBinding;
 import de.dbis.myhealth.models.HealthSession;
-import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
-import de.dbis.myhealth.ui.stats.results.ResultViewModel;
+import de.dbis.myhealth.models.SpotifySession;
+import de.dbis.myhealth.ui.results.ResultViewModel;
 
 public class StatsFragment extends Fragment {
 
@@ -109,10 +109,6 @@ public class StatsFragment extends Fragment {
 
         this.mHealthSessionLiveData = this.mStatsViewModel.getAllHealthSessions();
         this.mHealthSessionLiveData.observe(getViewLifecycleOwner(), this::handleSessions);
-        LiveData<HealthSession> mCurrentHealthSession = this.mStatsViewModel.getCurrentHealthSession();
-        mCurrentHealthSession.observe(getViewLifecycleOwner(), healthSession -> {
-
-        });
     }
 
     private void handleSessions(List<HealthSession> healthSessions) {
@@ -237,11 +233,13 @@ public class StatsFragment extends Fragment {
             long totalTime = list.stream().mapToLong(HealthSession::getTimeAppOpened).sum();
             long musicTime = list
                     .stream()
-                    .map(HealthSession::getTimeMusic)
+                    .map(HealthSession::getSpotifySession)
                     .collect(Collectors.toList())
                     .stream()
+                    .filter(Objects::nonNull)
                     .map(m -> m.values()
                             .stream()
+                            .map(SpotifySession::getTime)
                             .mapToLong(Long::longValue)
                             .sum())
                     .collect(Collectors.toList())
@@ -515,8 +513,14 @@ public class StatsFragment extends Fragment {
                 .toLocalDate();
     }
 
+    public static Date convertToDate(LocalDate dateToConvert) {
+        return java.util.Date.from(dateToConvert.atStartOfDay()
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+    }
+
     @SuppressLint("DefaultLocale")
-    private String getDurationFormat(long value) {
+    public static String getDurationFormat(long value) {
         int seconds = (int) (value / 1000) % 60;
         int minutes = (int) ((value / (1000 * 60)) % 60);
         int hours = (int) ((value / (1000 * 60 * 60)) % 24);

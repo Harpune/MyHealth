@@ -8,6 +8,8 @@
             name="gamification"
             type="de.dbis.myhealth.models.Gamification" />
 
+        <import type="de.dbis.myhealth.ui.stats.StatsFragment" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,10 +46,10 @@
             style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:max="@{gamification.goals.size() > 0 ? Math.round(gamification.goals.get(0)) : 100}"
+            android:max="@{Math.round(gamification.goal)}"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:progress="0"
+            android:progress="@{Math.round(gamification.value)}"
             app:layout_constraintBottom_toBottomOf="@id/imageView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/imageView"
@@ -64,8 +66,23 @@
             android:paddingBottom="4dp"
             android:text="@{gamification.description}"
             android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/value_text"
             app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintTop_toBottomOf="@id/progress" />
+
+        <TextView
+            android:id="@+id/value_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="@{gamification.id.equalsIgnoreCase(`glasses`) ? StatsFragment.getDurationFormat(gamification.value) + `/` + StatsFragment.getDurationFormat(gamification.goal) : String.valueOf(gamification.value) + `/` +String.valueOf(gamification.goal)}"
+            android:textAppearance="@android:style/TextAppearance.Material.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/stat_text"
             app:layout_constraintTop_toBottomOf="@id/progress" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
