@@ -184,6 +184,7 @@ public class StatsViewModel extends AndroidViewModel {
     }
 
     public void startNewSession() {
+        // TODO überarbeiten
         FirebaseUser firebaseUser = this.firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             // get set preference
@@ -325,7 +326,7 @@ public class StatsViewModel extends AndroidViewModel {
 
             preference.put(getApplication().getString(R.string.general_gamification_key), gamificationList);
 
-        } catch (ClassCastException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Casting error", e);
         }
         return preference;

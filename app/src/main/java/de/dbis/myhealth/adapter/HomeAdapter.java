@@ -20,9 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.R;
@@ -88,18 +90,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         this.activity = activity;
         this.lifecycleOwner = lifecycleOwner;
         this.mSharedPreferences = activity.getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
-        this.setupGamificationPreference();
 
-    }
-
-    private void setupGamificationPreference() {
-        //[glasses, one, diamond, paper, star, car, book, medal, check]
-        Set<String> selections = this.mSharedPreferences.getStringSet(this.activity.getString(R.string.general_gamification_key), new ArraySet<>());
     }
 
     public void setData(List<Gamification> gamifications) {
-        this.gamifications = gamifications;
-        // TODO update gamificaition according to selection
+        Set<String> enabledGamifications = this.mSharedPreferences.getStringSet(this.activity.getString(R.string.general_gamification_key), new HashSet<>());
+        this.gamifications = gamifications.stream().filter(gamification -> enabledGamifications.contains(gamification.getId())).collect(Collectors.toList());
         notifyDataSetChanged();
     }
 

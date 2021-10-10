@@ -120,7 +120,6 @@ public class HomeFragment extends Fragment {
         this.mQuestionnairesViewModel.getAllQuestionnaires().observe(getViewLifecycleOwner(), questionnaires -> {
             String questionnairePref = this.mSharedPreferences.getString(getString(R.string.questionnaire_fast_start_key), null);
             if (questionnairePref == null) {
-                // TODO create dialog/snackbar to ask user to go to settings
                 Toast.makeText(getContext(), getString(R.string.set_fast_start_in_settings), Toast.LENGTH_LONG).show();
             } else if (questionnaires == null) {
                 Toast.makeText(getContext(), getString(R.string.no_questionnaire_available), Toast.LENGTH_LONG).show();

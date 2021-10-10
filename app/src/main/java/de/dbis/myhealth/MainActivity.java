@@ -348,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
     private void setupSpotifyVolume(int volume) {
         this.applySpotifyVolume(volume);
 
-
         String currentTrackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), "unknown");
         if (currentTrackId != null) {
             PlayerState playerState = mSpotifyViewModel.getPlayerState().getValue();
