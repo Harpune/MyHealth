@@ -9,20 +9,38 @@
             android:icon="@drawable/ic_baseline_home_24"
             android:title="@string/menu_home" />
         <item
-            android:id="@+id/nav_user_item"
-            android:icon="@drawable/ic_baseline_person_24"
-            android:title="@string/menu_user" />
-        <item
             android:id="@+id/nav_questionnaires_item"
             android:icon="@drawable/ic_baseline_assignment_24"
             android:title="@string/menu_questionnaires" />
-        <item
-            android:id="@+id/nav_stats_item"
-            android:icon="@drawable/ic_baseline_query_stats_24"
-            android:title="@string/menu_stats" />
-        <item
-            android:id="@+id/nav_settings_item"
-            android:icon="@drawable/ic_baseline_settings_24"
-            android:title="@string/menu_settings" />
     </group>
+
+    <item android:title="@string/about_me">
+        <menu>
+            <item
+                android:id="@+id/nav_user_item"
+                android:icon="@drawable/ic_baseline_person_24"
+                android:title="@string/menu_user" />
+            <item
+                android:id="@+id/nav_stats_item"
+                android:icon="@drawable/ic_baseline_query_stats_24"
+                android:title="@string/menu_stats" />
+        </menu>
+    </item>
+
+    <item android:title="@string/app_settings">
+        <menu>
+            <item
+                android:id="@+id/nav_intro_item"
+                android:icon="@drawable/ic_baseline_emoji_people_24"
+                android:title="@string/menu_intro" />
+            <item
+                android:id="@+id/nav_information_item"
+                android:icon="@drawable/ic_baseline_info_24"
+                android:title="@string/menu_information" />
+            <item
+                android:id="@+id/nav_settings_item"
+                android:icon="@drawable/ic_baseline_settings_24"
+                android:title="@string/menu_settings" />
+        </menu>
+    </item>
 </menu>

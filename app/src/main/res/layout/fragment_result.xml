@@ -7,7 +7,7 @@
 
         <variable
             name="resultViewModel"
-            type="de.dbis.myhealth.ui.stats.results.ResultViewModel" />
+            type="de.dbis.myhealth.ui.results.ResultViewModel" />
 
         <variable
             name="questionnaire"
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".ui.stats.results.ResultFragment">
+        tools:context=".ui.results.ResultFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/result_recyclerview"

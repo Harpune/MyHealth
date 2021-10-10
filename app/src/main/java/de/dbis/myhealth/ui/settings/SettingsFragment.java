@@ -6,10 +6,13 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
+import androidx.navigation.Navigation;
 import androidx.preference.CheckBoxPreference;
-import androidx.preference.DialogPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreference;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,6 +33,7 @@ import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 
 import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_TRACKS_KEY;
+import static de.dbis.myhealth.ApplicationConstants.SPOTIFY_VOLUME_KEY;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private final static String TAG = "SettingsFragment";
@@ -52,11 +56,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         this.mQuestionnairesViewModel = new ViewModelProvider(requireActivity()).get(QuestionnairesViewModel.class);
         this.mSpotifyViewModel = new ViewModelProvider(requireActivity()).get(SpotifyViewModel.class);
 
+//        this.setupGeneral();
         this.setupDarkMode();
         this.setupQuestionnaire();
         this.setupTheme();
         this.setupSpotify();
     }
+
+//    private void setupGeneral() {
+//        SwitchPreference greetingQuestionnairePreference = findPreference(getString(R.string.general_start_questionnaire_key));
+//        if (greetingQuestionnairePreference != null) {
+//            greetingQuestionnairePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+//                Boolean enabled = (Boolean) newValue;
+//
+//                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+//                NavGraph navGraph = navController.getGraph();
+//                if (enabled) {
+//                    navGraph.setStartDestination(R.id.nav_questionnaires_item);
+//                } else {
+//                    navGraph.setStartDestination(R.id.nav_home_item);
+//                }
+//                navController.setGraph(navGraph);
+//
+//                return true;
+//            });
+//        }
+//    }
 
     private void setupDarkMode() {
         // Preferences
@@ -64,10 +89,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (darkModePreference != null) {
             darkModePreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Restart")
+                        .setTitle(getString(R.string.restart))
                         .setCancelable(false)
-                        .setMessage("To apply the new design, the app has to restart.")
-                        .setPositiveButton("Restart", (dialogInterface, i) -> {
+                        .setMessage(getString(R.string.restart_confirmation))
+                        .setPositiveButton(getString(R.string.restart), (dialogInterface, i) -> {
                             // get result
                             Boolean enabled = (Boolean) newValue;
 
@@ -84,7 +109,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                             }
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
                 return false;
             });
@@ -96,10 +121,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (themePreference != null) {
             themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Restart")
+                        .setTitle(getString(R.string.restart))
                         .setCancelable(false)
-                        .setMessage("To apply the new design, the app has to restart.")
-                        .setPositiveButton("Restart", (dialogInterface, i) -> {
+                        .setMessage(getString(R.string.restart_confirmation))
+                        .setPositiveButton(getString(R.string.restart), (dialogInterface, i) -> {
                             // update preference manually
                             requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE)
                                     .edit()
@@ -110,7 +135,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             // recreate
                             requireActivity().recreate();
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
                 return false;
             });
@@ -175,6 +200,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (enabled) {
                     this.mSpotifyViewModel.switchToLocalDevice();
                 }
+                return true;
+            });
+        }
+
+        SeekBarPreference volumePreference = findPreference(getString(R.string.spotify_volume_key));
+        if (volumePreference != null) {
+            volumePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                this.mPreference.setInt(SPOTIFY_VOLUME_KEY, (int) newValue);
                 return true;
             });
         }

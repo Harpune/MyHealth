@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,6 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -53,6 +55,7 @@ import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.SpotifyTrack;
 import de.dbis.myhealth.ui.dialogs.DownloadSpotifyDialog;
 import de.dbis.myhealth.ui.dialogs.SpotifyLoginDialog;
+import de.dbis.myhealth.ui.intro.IntroActivity;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private NavController mNavController;
     private MenuItem mSpotifyMenuItem;
+    private AudioManager mAudioManager;
 
     // LiveData
     private LiveData<HealthSession> mHealthSessionLiveData;
@@ -133,6 +137,11 @@ public class MainActivity extends AppCompatActivity {
         this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 //        this.mSharedPreferences.edit().clear().apply();
 
+        if (!this.mSharedPreferences.getBoolean(getString(R.string.pref_on_boarding), false)) {
+            startActivity(new Intent(this, IntroActivity.class));
+        }
+
+
         // view models
         this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
@@ -140,6 +149,11 @@ public class MainActivity extends AppCompatActivity {
 
         // navigation
         this.mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        if (this.mSharedPreferences.getBoolean(getString(R.string.general_start_questionnaire_key), false)) {
+            NavGraph navGraph = this.mNavController.getGraph();
+            navGraph.setStartDestination(R.id.nav_questionnaires_item);
+            this.mNavController.setGraph(navGraph);
+        }
         this.mCoordinatorLayout = findViewById(R.id.coordinator);
         this.mFab = findViewById(R.id.fab);
         this.initDrawerLayout();
@@ -147,6 +161,9 @@ public class MainActivity extends AppCompatActivity {
         // timer
         this.mStopWatch = StopWatch.createStarted();
         this.mHandler = new Handler();
+
+        // audio
+        this.mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
     }
 
 
@@ -170,12 +187,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(this.mBottomAppBar);
 
         this.mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_settings_item)
+                R.id.nav_user_item, R.id.nav_home_item, R.id.nav_questionnaires_item, R.id.nav_stats_item, R.id.nav_intro_item, R.id.nav_settings_item, R.id.nav_information_item)
                 .setOpenableLayout(drawer)
                 .build();
 
         NavigationUI.setupWithNavController(navigationView, this.mNavController);
         NavigationUI.setupWithNavController(this.mBottomAppBar, this.mNavController, this.mAppBarConfiguration);
+
+        // this.mNavController.getGraph().setStartDestination(R.id.nav_home_item);
+        this.mNavController.getGraph().setStartDestination(R.id.nav_questionnaires_item);
 
         // check for current fragment
         this.mNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -211,6 +231,11 @@ public class MainActivity extends AppCompatActivity {
     public void startSetupSpotify() {
         boolean enabled = this.mSharedPreferences.getBoolean(getString(R.string.spotify_key), false);
         this.setupSpotify(enabled);
+
+        if (enabled) {
+            int volume = this.getSpotifyVolume();
+            this.setupSpotifyVolume(volume);
+        }
 
         String trackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), null);
         this.setupSpotifyTrack(trackId);
@@ -285,6 +310,13 @@ public class MainActivity extends AppCompatActivity {
      * Listener for preference changes. Mostly done in SettingsFragement
      */
     private final SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, s) -> {
+
+        if (s.equalsIgnoreCase(getString(R.string.spotify_volume_key))) {
+            // update volume
+            int volume = this.getSpotifyVolume();
+            this.setupSpotifyVolume(volume);
+        }
+
         if (s.equalsIgnoreCase(getString(R.string.spotify_key))) {
             this.setupSpotify(sharedPreferences.getBoolean(s, false));
         }
@@ -292,6 +324,7 @@ public class MainActivity extends AppCompatActivity {
         if (s.equalsIgnoreCase(getString(R.string.current_spotify_track_key))) {
             this.setupSpotifyTrack(sharedPreferences.getString(s, null));
         }
+
     };
 
     /**
@@ -310,6 +343,33 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "SpotifyTrack is null");
         }
+    }
+
+    private void setupSpotifyVolume(int volume) {
+        this.applySpotifyVolume(volume);
+
+        String currentTrackId = this.mSharedPreferences.getString(getString(R.string.current_spotify_track_key), "unknown");
+        if (currentTrackId != null) {
+            PlayerState playerState = mSpotifyViewModel.getPlayerState().getValue();
+            if (playerState != null && playerState.track != null) { // check player
+                Track currentTrack = playerState.track;
+                if (!currentTrack.uri.endsWith(currentTrackId)) { // saved song is playing
+                    currentTrackId = currentTrack.uri.split("\\.")[currentTrack.uri.split("\\.").length - 1];
+                }
+            }
+        }
+
+        this.mStatsViewModel.setVolume(currentTrackId, this.mSharedPreferences.getInt(getString(R.string.spotify_volume_key), 25));
+    }
+
+    private void applySpotifyVolume(int volume) {
+        this.mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+    }
+
+    private int getSpotifyVolume() {
+        int savedVolume = this.mSharedPreferences.getInt(getString(R.string.spotify_volume_key), 25);
+        int maxStreamVolume = this.mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return Math.round(((float) maxStreamVolume / 100) * savedVolume);
     }
 
     /**

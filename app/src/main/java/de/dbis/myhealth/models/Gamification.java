@@ -11,17 +11,19 @@ public class Gamification {
     public String id;
     private String imageResource;
     private String description;
-    private List<Long> goals;
+    private long goal;
+    private long value;
 
     public Gamification() {
 
     }
 
-    public Gamification(String id, String imageResource, String description, List<Long> goals) {
+    public Gamification(String id, String imageResource, String description, long goal, long value) {
         this.id = id;
         this.imageResource = imageResource;
         this.description = description;
-        this.goals = goals;
+        this.goal = goal;
+        this.value = value;
     }
 
     public String getId() {
@@ -48,11 +50,19 @@ public class Gamification {
         this.description = description;
     }
 
-    public List<Long> getGoals() {
-        return goals;
+    public long getGoal() {
+        return goal;
     }
 
-    public void setGoals(List<Long> goals) {
-        this.goals = goals;
+    public void setGoal(long goals) {
+        this.goal = goals;
+    }
+
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
+        this.value = value;
     }
 }

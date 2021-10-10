@@ -1,4 +1,4 @@
-package de.dbis.myhealth.ui.stats.results;
+package de.dbis.myhealth.ui.results;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
@@ -20,11 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.dbis.myhealth.R;
-import de.dbis.myhealth.adapter.HomeAdapter;
 import de.dbis.myhealth.adapter.ResultAdapter;
 import de.dbis.myhealth.databinding.FragmentResultBinding;
-import de.dbis.myhealth.databinding.FragmentStatsBinding;
-import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.QuestionnaireResult;
 
 public class ResultFragment extends Fragment {

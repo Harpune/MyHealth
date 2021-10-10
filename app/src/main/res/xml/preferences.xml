@@ -1,4 +1,34 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/general_title">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_emoji_people_24"
+            app:key="@string/general_greeting_key"
+            app:summary="@string/general_greeting_summary"
+            app:title="@string/general_greeting_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_assignment_24"
+            app:key="@string/general_start_questionnaire_key"
+            app:summary="@string/general_start_questionnaire_summary"
+            app:title="@string/general_start_questionnaire"
+            app:useSimpleSummaryProvider="true" />
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/gamification_keys"
+            android:entries="@array/gamification_descriptions"
+            android:entryValues="@array/gamification_keys"
+            app:icon="@drawable/ic_baseline_videogame_asset_24"
+            app:key="@string/general_gamification_key"
+            app:summary="@string/general_gamification_summary"
+            app:title="@string/general_gamification" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/design_header">
 
@@ -6,7 +36,7 @@
             app:defaultValue="false"
             app:icon="@drawable/ic_baseline_invert_colors_24"
             app:key="@string/dark_mode_key"
-            app:summary="Click to switch on or off"
+            app:summary="@string/switch_on_off"
             app:title="@string/dark_mode_title"
             app:useSimpleSummaryProvider="true" />
 
@@ -32,16 +62,6 @@
 
     </PreferenceCategory>
 
-    <!--    <PreferenceCategory app:title="@string/sleep_tracking">-->
-
-    <!--        <CheckBoxPreference-->
-    <!--            app:defaultValue="false"-->
-    <!--            app:icon="@drawable/ic_baseline_directions_run_24"-->
-    <!--            app:key="@string/google_fit_key"-->
-    <!--            app:title="@string/google_fit" />-->
-
-    <!--    </PreferenceCategory>-->
-
     <PreferenceCategory app:title="@string/music">
 
         <CheckBoxPreference
@@ -50,13 +70,6 @@
             app:key="@string/spotify_key"
             app:title="@string/spotify" />
 
-        <!--        <CheckBoxPreference-->
-        <!--            app:defaultValue="false"-->
-        <!--            app:dependency="@string/spotify_key"-->
-        <!--            app:icon="@drawable/ic_baseline_play_arrow_24"-->
-        <!--            app:key="@string/spotify_autoplay_key"-->
-        <!--            app:title="@string/spotify_autoplay" />-->
-
         <CheckBoxPreference
             app:defaultValue="false"
             app:dependency="@string/spotify_key"
@@ -64,20 +77,20 @@
             app:key="@string/spotify_play_on_device_key"
             app:title="@string/spotify_play_on_device" />
 
+        <SeekBarPreference
+            app:defaultValue="25"
+            app:dependency="@string/spotify_key"
+            app:icon="@drawable/ic_baseline_volume_up_24"
+            app:key="@string/spotify_volume_key"
+            app:showSeekBarValue="true"
+            app:title="@string/spotify_volume" />
+
         <ListPreference
             app:dependency="@string/spotify_key"
             app:icon="@drawable/ic_baseline_library_music_24"
             app:key="@string/current_spotify_track_key"
             app:title="@string/current_spotify_track"
             app:useSimpleSummaryProvider="true" />
-
-        <!--        <EditTextPreference-->
-        <!--            android:key="@string/spotify_add"-->
-        <!--            android:title="@string/add_spotify_track"-->
-        <!--            app:dependency="@string/spotify_key"-->
-        <!--            app:icon="@drawable/ic_baseline_add_24" />-->
-
-        <!--        <DropDownPreference app:title="WOW" />-->
 
     </PreferenceCategory>
 

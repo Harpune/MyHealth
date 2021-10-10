@@ -1,11 +1,10 @@
-package de.dbis.myhealth.ui.stats.results;
+package de.dbis.myhealth.ui.results;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import de.dbis.myhealth.models.Questionnaire;

@@ -14,18 +14,18 @@ public class HealthSession {
     private List<QuestionnaireResult> questionnaireResults;
     private Map<String, ?> savedPreferences;
     private long timeAppOpened;
-    private Map<String, Long> timeMusic;
+    private Map<String, SpotifySession> spotifySession;
 
     public HealthSession() {
     }
 
-    public HealthSession(String userId, Date date, List<QuestionnaireResult> questionnaireResults, Map<String, ?> savedPreferences, long timeAppOpened, Map<String, Long> timeMusic) {
+    public HealthSession(String userId, Date date, List<QuestionnaireResult> questionnaireResults, Map<String, ?> savedPreferences, long timeAppOpened, Map<String, SpotifySession> spotifySession) {
         this.userId = userId;
         this.date = date;
         this.questionnaireResults = questionnaireResults;
         this.savedPreferences = savedPreferences;
         this.timeAppOpened = timeAppOpened;
-        this.timeMusic = timeMusic;
+        this.spotifySession = spotifySession;
     }
 
     public String getId() {
@@ -80,16 +80,11 @@ public class HealthSession {
         this.timeAppOpened = timeAppOpened;
     }
 
-    public Map<String, Long> getTimeMusic() {
-        return timeMusic;
+    public Map<String, SpotifySession> getSpotifySession() {
+        return spotifySession;
     }
 
-    public void incrementTimeMusic(String trackId, long intervalUpdate) {
-        this.timeMusic.merge(trackId, intervalUpdate, Long::sum);
+    public void setSpotifySession(Map<String, SpotifySession> spotifySession) {
+        this.spotifySession = spotifySession;
     }
-
-    public void setTimeMusic(Map<String, Long> timeMusic) {
-        this.timeMusic = timeMusic;
-    }
-
 }

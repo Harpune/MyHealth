@@ -7,6 +7,7 @@ public class ApplicationConstants {
 
     // Preferences
     public static final String SPOTIFY_TRACKS_KEY = "spotify";
+    public static final String SPOTIFY_VOLUME_KEY = "spotify_volume";
     public static final String USER_KEY = "users";
 
     // SPOTIFY

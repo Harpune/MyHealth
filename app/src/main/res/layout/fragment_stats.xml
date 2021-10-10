@@ -10,7 +10,7 @@
 
         <variable
             name="resultViewModel"
-            type="de.dbis.myhealth.ui.stats.results.ResultViewModel" />
+            type="de.dbis.myhealth.ui.results.ResultViewModel" />
 
         <variable
             name="statsFragment"

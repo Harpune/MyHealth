@@ -3,6 +3,7 @@ package de.dbis.myhealth.ui.stats;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,8 +11,11 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -21,9 +25,13 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -36,6 +44,7 @@ import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.QuestionnaireResult;
+import de.dbis.myhealth.models.SpotifySession;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_RESULTS;
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_SESSIONS;
@@ -137,7 +146,29 @@ public class StatsViewModel extends AndroidViewModel {
             this.firestore
                     .collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(healthSession.getId())
-                    .update("timeMusic." + trackId, FieldValue.increment(intervalUpdate));
+                    .update("spotifySession." + trackId + ".time", FieldValue.increment(intervalUpdate));
+        }
+    }
+
+    public void setVolume(String trackId, int volume) {
+        HealthSession healthSession = this.getCurrentHealthSession().getValue();
+        if (healthSession != null) {
+            // update on server
+            this.firestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId())
+                    .update("spotifySession." + trackId + ".volume", volume);
+        }
+    }
+
+    public void updatePreference() {
+        HealthSession healthSession = this.getCurrentHealthSession().getValue();
+        if (healthSession != null) {
+            Map<String, Object> preferences = this.getPreferences();
+            this.firestore
+                    .collection(FIREBASE_COLLECTION_SESSIONS)
+                    .document(healthSession.getId());
+
         }
     }
 
@@ -150,15 +181,24 @@ public class StatsViewModel extends AndroidViewModel {
                     .document()
                     .set(questionnaireResult);
         }
-
     }
 
     public void startNewSession() {
+        // TODO überarbeiten
         FirebaseUser firebaseUser = this.firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             // get set preference
-            Map<String, ?> preference = this.mSharedPreferences.getAll();
-            preference.remove(getApplication().getString(R.string.access_token));
+            Map<String, Object> preference = this.getPreferences();
+
+            // get spotify session
+            String currentSpotifyTrack = this.mSharedPreferences.getString(getApplication().getString(R.string.current_spotify_track_key), "unknown");
+            SpotifySession spotifySession = new SpotifySession();
+            spotifySession.setId(currentSpotifyTrack);
+            spotifySession.setTime(0L);
+            spotifySession.setVolume(this.mSharedPreferences.getInt(getApplication().getString(R.string.spotify_volume_key), 25));
+
+            Map<String, SpotifySession> spotifySessions = new HashMap<>();
+            spotifySessions.put(currentSpotifyTrack, spotifySession);
 
             // create session
             HealthSession startedHealthSession = new HealthSession(
@@ -167,7 +207,7 @@ public class StatsViewModel extends AndroidViewModel {
                     new ArrayList<>(),
                     preference,
                     0L,
-                    new HashMap<>());
+                    spotifySessions);
 
             // upload session
             DocumentReference documentReference = this.firestore
@@ -177,16 +217,42 @@ public class StatsViewModel extends AndroidViewModel {
             documentReference.set(startedHealthSession).addOnSuccessListener(aVoid -> firestore
                     .collection(FIREBASE_COLLECTION_SESSIONS)
                     .document(documentReference.getId())
-                    .addSnapshotListener((documentSnapshot, error) -> {
+                    .addSnapshotListener((healthDocument, error) -> {
                         if (error != null) {
                             Log.w(TAG, "Listen failed.", error);
                             return;
                         }
 
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            HealthSession healthSession = documentSnapshot.toObject(HealthSession.class);
-                            setCurrentHealthSession(healthSession);
-//                            addHealthSession(healthSession);
+                        if (healthDocument != null && healthDocument.exists()) {
+                            HealthSession healthSession = healthDocument.toObject(HealthSession.class);
+                            if (healthSession != null) {
+                                healthDocument.getReference()
+                                        .collection(FIREBASE_COLLECTION_RESULTS)
+                                        .whereEqualTo("userId", firebaseUser.getUid())
+                                        .get()
+                                        .addOnCompleteListener(resultTask -> {
+                                            if (resultTask.isSuccessful()) {
+                                                QuerySnapshot resultSnapshot = resultTask.getResult();
+                                                if (resultSnapshot != null && !resultSnapshot.isEmpty()) {
+                                                    List<QuestionnaireResult> questionnaireResults = resultSnapshot.getDocuments().stream().map(resultDocument -> {
+                                                        QuestionnaireResult questionnaireResult = resultDocument.toObject(QuestionnaireResult.class);
+                                                        if (questionnaireResult != null) {
+                                                            questionnaireResult.setResultId(resultDocument.getId());
+                                                        }
+                                                        return questionnaireResult;
+                                                    }).collect(Collectors.toList());
+
+                                                    // add results
+                                                    healthSession.setQuestionnaireResults(questionnaireResults);
+                                                } else {
+                                                    healthSession.setQuestionnaireResults(new ArrayList<>());
+                                                }
+                                            }
+
+                                            addHealthSession(healthSession);
+                                            setCurrentHealthSession(healthSession);
+                                        });
+                            }
                         } else {
                             Log.d(TAG, "Current data: null");
                         }
@@ -195,6 +261,7 @@ public class StatsViewModel extends AndroidViewModel {
     }
 
     public void loadHealthSessions(FirebaseUser firebaseUser) {
+        Date date = StatsFragment.convertToDate(LocalDate.now().minusDays(7));
         // get health sessions
         this.firestore
                 .collection(FIREBASE_COLLECTION_SESSIONS)
@@ -249,28 +316,19 @@ public class StatsViewModel extends AndroidViewModel {
                 });
     }
 
-    public List<Gamification> getLocalGamifications() {
-        List<Gamification> gamifications = new ArrayList<>();
-        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
-        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
-        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
+    private Map<String, Object> getPreferences() {
+        Map<String, Object> preference = new HashMap<>();
+        try {
+            preference = (Map<String, Object>) this.mSharedPreferences.getAll();
+            preference.remove(getApplication().getString(R.string.access_token));
+            HashSet<String> gamificationMap = (HashSet<String>) preference.get(getApplication().getString(R.string.general_gamification_key));
+            List<String> gamificationList = new ArrayList<>(gamificationMap);
 
-        for (int i = 0; i < descriptions.length; i++) {
-            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], new ArrayList<>());
-            gamifications.add(gamification);
+            preference.put(getApplication().getString(R.string.general_gamification_key), gamificationList);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Casting error", e);
         }
-
-        return gamifications;
-    }
-
-    public void generateGamifications() {
-        String[] ids = getApplication().getResources().getStringArray(R.array.gamification_keys);
-        String[] images = getApplication().getResources().getStringArray(R.array.gamification_images);
-        String[] descriptions = getApplication().getResources().getStringArray(R.array.gamification_descriptions);
-
-        for (int i = 0; i < descriptions.length; i++) {
-            Gamification gamification = new Gamification(ids[i], images[i], descriptions[i], new ArrayList<>());
-            this.firestore.collection("gamification").document(gamification.getId()).set(gamification);
-        }
+        return preference;
     }
 }
