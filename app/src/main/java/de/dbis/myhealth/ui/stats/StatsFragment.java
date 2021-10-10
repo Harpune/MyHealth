@@ -117,17 +117,20 @@ public class StatsFragment extends Fragment {
         BarData appOpenedData = new BarData();
         appOpenedData.addDataSet(appOpenedDataSet);
         this.mAppOpenedBarChart.setData(appOpenedData);
+        this.mAppOpenedBarChart.invalidate();
 
         // App used & music
         BarDataSet appUsedDataSet = this.getAppUsedBarDataSet(healthSessions);
         BarData appUsedData = new BarData();
         appUsedData.addDataSet(appUsedDataSet);
         this.mAppUsedBarChart.setData(appUsedData);
+        this.mAppUsedBarChart.invalidate();
 
         List<LineDataSet> answeredQuestionnairesDataSets = this.getAnsweredQuestionnairesDataSet(healthSessions);
         LineData answeredQuestionnairesData = new LineData();
         answeredQuestionnairesDataSets.forEach(answeredQuestionnairesData::addDataSet);
         this.mAnsweredQuestionnairesLineChart.setData(answeredQuestionnairesData);
+        this.mAnsweredQuestionnairesLineChart.invalidate();
     }
 
     private List<LineDataSet> getAnsweredQuestionnairesDataSet(List<HealthSession> healthSessions) {

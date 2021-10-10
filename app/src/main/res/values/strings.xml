@@ -318,4 +318,5 @@
     <string name="general_gamification_summary">Select the tasks you want to complete</string>
     <string name="general_gamification">Gamification</string>
     <string name="general_greeting_summary">Get a friendly greet depending on the daytime</string>
+    <string name="current_health_session_id">current_health_session_id</string>
 </resources>
