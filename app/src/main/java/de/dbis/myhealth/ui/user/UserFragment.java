@@ -2,24 +2,25 @@ package de.dbis.myhealth.ui.user;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
-import com.google.firebase.auth.FirebaseUser;
-import com.preference.PowerPreference;
 
 import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
@@ -33,11 +34,16 @@ public class UserFragment extends Fragment {
     private UserViewModel mUserViewModel;
     private LiveData<User> mUserLiveData;
 
+
+    private SharedPreferences mSharedPreferences;
+
     // Views
     private View root;
+    private ImageView imageView;
 
     // click listener on FAB
     private final View.OnClickListener mFabClickListener = this::save;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -46,14 +52,28 @@ public class UserFragment extends Fragment {
         // get view model
         this.mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
+
+        this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+
         // setup binding
         FragmentUserBinding mFragmentUserBinding = FragmentUserBinding.inflate(inflater, container, false);
         ((MainActivity) requireActivity()).setFabClickListener(this.mFabClickListener);
         mFragmentUserBinding.setUserViewModel(this.mUserViewModel);
         mFragmentUserBinding.setLifecycleOwner(getViewLifecycleOwner());
-
+        
         // get root view
         this.root = mFragmentUserBinding.getRoot();
+        this.imageView = this.root.findViewById(R.id.user_image_view);
+
+        // set current color theme
+        String currentTheme = this.mSharedPreferences.getString(getString(R.string.theme_key), getString(R.string.green_theme_key));
+        if (currentTheme.equalsIgnoreCase(getString(R.string.green_theme_key))) {
+            ImageViewCompat.setImageTintList(this.imageView, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.green_900)));
+        } else if (currentTheme.equalsIgnoreCase(getString(R.string.blue_theme_key))) {
+            ImageViewCompat.setImageTintList(this.imageView, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.blue_900)));
+        } else if (currentTheme.equalsIgnoreCase(getString(R.string.red_theme_key))) {
+            ImageViewCompat.setImageTintList(this.imageView, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.red_900)));
+        }
 
         // setup gender dropdown
         ArrayAdapter arrayAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender, R.layout.item_gender);

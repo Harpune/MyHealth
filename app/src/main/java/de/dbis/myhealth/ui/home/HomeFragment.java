@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
         // Recyclerview
         RecyclerView recyclerView = root.findViewById(R.id.home_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        this.mHomeAdapter = new HomeAdapter(requireActivity(), getViewLifecycleOwner());
+        this.mHomeAdapter = new HomeAdapter(requireActivity());
         recyclerView.setAdapter(this.mHomeAdapter);
 
         return root;
@@ -175,10 +175,7 @@ public class HomeFragment extends Fragment {
 
         this.mAllHealthSessions.observe(getViewLifecycleOwner(), this::handleHealthSessions);
 
-        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> {
-
-            this.mHomeAdapter.setData(gamifications);
-        });
+        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> this.mHomeAdapter.setData(gamifications));
 
     }
 

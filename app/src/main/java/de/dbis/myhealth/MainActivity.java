@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         // view models
-        this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        this.mSpotifyViewModel = new ViewModelProvider(this).get(SpotifyViewModel.class);
         this.mStatsViewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
         // navigation
@@ -323,8 +323,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (s.equalsIgnoreCase(getString(R.string.current_spotify_track_key))) {
             this.setupSpotifyTrack(sharedPreferences.getString(s, null));
+            this.mStatsViewModel.addSpotifySession(sharedPreferences.getString(s, "unknown"));
         }
 
+        this.mStatsViewModel.updatePreference();
     };
 
     /**
@@ -493,26 +495,33 @@ public class MainActivity extends AppCompatActivity {
         if (this.mStopWatch.isStopped()) {
             this.mStopWatch.start();
         }
-        this.mHandler.postDelayed(updater, INTERVAL_DELAY);
 
         // User
         this.mFirebaseUserLiveData = this.mUserViewModel.getFirebaseUser();
         this.mFirebaseUserLiveData.observe(this, firebaseUser -> {
-            // Get all sessions of user
-            this.mStatsViewModel.loadHealthSessions(firebaseUser);
+
+            // start a new session
+            this.mStatsViewModel.startNewSession(firebaseUser);
+
+            // get all other sessions
+            this.mHealthSessionLiveData = this.mStatsViewModel.getCurrentHealthSession();
+            this.mHealthSessionLiveData.observe(this, healthSession -> {
+                // Only start handler once
+                this.mHealthSessionLiveData.removeObservers(this);
+                this.mHandler.postDelayed(updater, INTERVAL_DELAY);
+                this.mStatsViewModel.loadHealthSessions(firebaseUser, healthSession);
+            });
+
+            // subscribe to changes of user information
+            this.mUserViewModel.subscribeToUser(firebaseUser);
+
         });
 
-        // Session
-        this.mHealthSessionLiveData = this.mStatsViewModel.getCurrentHealthSession();
-        this.mHealthSessionLiveData.observe(this, healthSession -> {
-            Log.d(TAG, String.valueOf(healthSession.getTimeAppOpened()));
-        });
+        // Preference Listener
+        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
 
-        // Gamification
-//        this.mStatsViewModel.loadGamifications();
 
         // spotify
-        this.mSharedPreferences.registerOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
         this.mSpotifyTrackLiveData = this.mSpotifyViewModel.getCurrentSpotifyTrack();
         this.mSpotifyAppRemoteLiveData = this.mSpotifyViewModel.getSpotifyRemoteApp();
         this.mPlayerStateLiveData = this.mSpotifyViewModel.getPlayerState();
@@ -590,13 +599,10 @@ public class MainActivity extends AppCompatActivity {
             this.mHandler.removeCallbacks(updater);
         }
 
-        this.removeSpotifyObservers();
+        if (this.mFirebaseUserLiveData != null) {
+            this.mFirebaseUserLiveData.removeObservers(this);
+        }
 
-        this.mSpotifyViewModel.disconnect();
-        this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
-    }
-
-    private void removeSpotifyObservers() {
         if (this.mPlayerStateLiveData != null) {
             this.mPlayerStateLiveData.removeObservers(this);
         }
@@ -608,5 +614,8 @@ public class MainActivity extends AppCompatActivity {
         if (this.mSpotifyTrackLiveData != null) {
             this.mSpotifyTrackLiveData.removeObservers(this);
         }
+
+        this.mSpotifyViewModel.disconnect();
+        this.mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this.sharedPreferenceChangeListener);
     }
 }

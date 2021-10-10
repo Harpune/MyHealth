@@ -318,4 +318,8 @@
     <string name="general_gamification_summary">Select the tasks you want to complete</string>
     <string name="general_gamification">Gamification</string>
     <string name="general_greeting_summary">Get a friendly greet depending on the daytime</string>
+    <string name="current_health_session_id" translatable="false">current_health_session_id</string>
+    <string name="remove_gamification_title">Remove item?</string>
+    <string name="remove_gamification_message">Remove this gamification item from the home screen. Your prggress will not be lost.</string>
+    <string name="remove">Remove</string>
 </resources>

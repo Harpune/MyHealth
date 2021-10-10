@@ -54,7 +54,7 @@ public class UserViewModel extends AndroidViewModel {
             this.signIn();
         }
 
-        this.firestore.clearPersistence();
+//        this.firestore.clearPersistence();
 
     }
 
@@ -76,7 +76,6 @@ public class UserViewModel extends AndroidViewModel {
 
     private void setFirebaseUser(FirebaseUser firebaseUser) {
         this.mFirebaseUser.setValue(firebaseUser);
-        this.subscribeToUser();
     }
 
     public LiveData<FirebaseUser> getFirebaseUser() {
@@ -91,30 +90,26 @@ public class UserViewModel extends AndroidViewModel {
         return this.mUser;
     }
 
-    private void subscribeToUser() {
-        FirebaseUser firebaseUser = this.mFirebaseUser.getValue();
-        if (firebaseUser != null) {
+    public void subscribeToUser(FirebaseUser firebaseUser) {
+        this.firestore.collection(FIREBASE_COLLECTION_USERS)
+                .document(firebaseUser.getUid())
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed", error);
+                        return;
+                    }
 
-            this.firestore.collection(FIREBASE_COLLECTION_USERS)
-                    .document(firebaseUser.getUid())
-                    .addSnapshotListener((snapshot, error) -> {
-                        if (error != null) {
-                            Log.w(TAG, "Listen failed", error);
-                            return;
-                        }
-
-                        if (snapshot != null && snapshot.exists()) {
-                            Log.d(TAG, "Current data: " + snapshot.getData());
-                            User user = snapshot.toObject(User.class);
-                            setUser(user);
-                        } else {
-                            Log.d(TAG, "No results found so we will create a user");
-                            this.firestore.collection(FIREBASE_COLLECTION_USERS)
-                                    .document(firebaseUser.getUid())
-                                    .set(new User(firebaseUser.getUid()));
-                        }
-                    });
-        }
+                    if (snapshot != null && snapshot.exists()) {
+                        Log.d(TAG, "Current data: " + snapshot.getData());
+                        User user = snapshot.toObject(User.class);
+                        setUser(user);
+                    } else {
+                        Log.d(TAG, "No results found so we will create a user");
+                        this.firestore.collection(FIREBASE_COLLECTION_USERS)
+                                .document(firebaseUser.getUid())
+                                .set(new User(firebaseUser.getUid()));
+                    }
+                });
     }
 
 

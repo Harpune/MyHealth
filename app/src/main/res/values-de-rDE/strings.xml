@@ -233,4 +233,7 @@
     <string name="general_gamification">Gamification</string>
     <string name="general_gamification_summary">Wähle die Aufgaben aus, die aktiviert werden sollen</string>
     <string name="general_greeting_summary">Ein kleiner Willkommensgruß</string>
+    <string name="remove">Entfernen</string>
+    <string name="remove_gamification_title">Eintrag löschen?</string>
+    <string name="remove_gamification_message">Entferne dieses Gamification-Element vom Startbildschirm. Ihr Fortschritt geht nicht verloren.</string>
 </resources>

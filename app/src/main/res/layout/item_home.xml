@@ -13,10 +13,15 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_item_root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp">
 
         <ImageView
             android:id="@+id/imageView"
@@ -29,46 +34,54 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/info_text"
+        <LinearLayout
+            android:id="@+id/gamification_progress_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:text="@{gamification.description}"
-            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
-            app:layout_constraintBottom_toTopOf="@id/progress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageView" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:max="@{Math.round(gamification.goal)}"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:progress="@{Math.round(gamification.value)}"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="@id/imageView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/imageView"
-            app:layout_constraintTop_toTopOf="@id/imageView" />
+            app:layout_constraintTop_toTopOf="@id/imageView">
 
-        <TextView
-            android:id="@+id/stat_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingStart="8dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="4dp"
-            android:text="@{gamification.description}"
-            android:textAppearance="@android:style/TextAppearance.Material.Caption"
-            app:layout_constraintEnd_toStartOf="@id/value_text"
-            app:layout_constraintStart_toEndOf="@id/imageView"
-            app:layout_constraintTop_toBottomOf="@id/progress" />
+
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:text="@{gamification.description}"
+                android:textAppearance="@android:style/TextAppearance.Material.Subhead" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="@{Math.round(gamification.goal)}"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp"
+                android:progress="@{Math.round(gamification.value)}" />
+
+
+        </LinearLayout>
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/stat_text"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:gravity="center_vertical"-->
+        <!--            android:paddingStart="8dp"-->
+        <!--            android:paddingTop="4dp"-->
+        <!--            android:paddingEnd="8dp"-->
+        <!--            android:paddingBottom="4dp"-->
+        <!--            android:text="@{Math.subtractExact(Math.round(gamification.goal), Math.round(gamification.value)}"-->
+        <!--            android:textAppearance="@android:style/TextAppearance.Material.Caption"-->
+        <!--            app:layout_constraintEnd_toStartOf="@id/value_text"-->
+        <!--            app:layout_constraintStart_toEndOf="@id/imageView"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/progress" />-->
 
         <TextView
             android:id="@+id/value_text"
@@ -76,14 +89,11 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:paddingStart="8dp"
-            android:paddingTop="4dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="4dp"
             android:text="@{gamification.id.equalsIgnoreCase(`glasses`) ? StatsFragment.getDurationFormat(gamification.value) + `/` + StatsFragment.getDurationFormat(gamification.goal) : String.valueOf(gamification.value) + `/` +String.valueOf(gamification.goal)}"
             android:textAppearance="@android:style/TextAppearance.Material.Caption"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/stat_text"
-            app:layout_constraintTop_toBottomOf="@id/progress" />
+            app:layout_constraintTop_toBottomOf="@id/gamification_progress_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
