@@ -175,10 +175,7 @@ public class HomeFragment extends Fragment {
 
         this.mAllHealthSessions.observe(getViewLifecycleOwner(), this::handleHealthSessions);
 
-        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> {
-
-            this.mHomeAdapter.setData(gamifications);
-        });
+        this.mGamifications.observe(getViewLifecycleOwner(), gamifications -> this.mHomeAdapter.setData(gamifications));
 
     }
 
