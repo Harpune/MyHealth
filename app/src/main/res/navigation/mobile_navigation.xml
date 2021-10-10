@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_nav_questionnaires_to_nav_questionnaire"
             app:destination="@id/nav_questionnaire" />
+        <action
+            android:id="@+id/action_nav_questionnaires_item_to_nav_chat_item"
+            app:destination="@id/nav_chat_item" />
     </fragment>
 
     <fragment
@@ -83,5 +86,11 @@
         android:name="de.dbis.myhealth.ui.information.InformationFragment"
         android:label="information_fragment"
         tools:layout="@layout/fragment_information" />
+
+    <fragment
+        android:id="@+id/nav_chat_item"
+        android:name="de.dbis.myhealth.ui.questionnaires.ChatFragment"
+        android:label="chat_fragment"
+        tools:layout="@layout/fragment_chat" />
 
 </navigation>
