@@ -7,7 +7,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.preference.PowerPreference;
@@ -18,15 +17,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import de.dbis.myhealth.ApplicationConstants;
-import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.Question;
+import de.dbis.myhealth.models.QuestionResult;
 import de.dbis.myhealth.models.Questionnaire;
 import de.dbis.myhealth.models.QuestionnaireResult;
 import de.dbis.myhealth.models.QuestionnaireSetting;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_QUESTIONNAIRES;
-import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_RESULTS;
 
 public class QuestionnairesViewModel extends AndroidViewModel {
     private final static String TAG = "QuestionnairesViewModel";
@@ -37,6 +34,7 @@ public class QuestionnairesViewModel extends AndroidViewModel {
     private final MutableLiveData<Questionnaire> mSelectedQuestionnaire;
     private final MutableLiveData<List<QuestionnaireResult>> mAllQuestionnaireResults;
     private final MutableLiveData<QuestionnaireSetting> mQuestionnaireSetting;
+    private final MutableLiveData<List<QuestionResult>> mQuestionResults;
 
     // Firestore
     private final FirebaseFirestore firestore;
@@ -52,6 +50,7 @@ public class QuestionnairesViewModel extends AndroidViewModel {
         this.mAllQuestionnaireResults = new MutableLiveData<>();
         this.mSelectedQuestionnaire = new MutableLiveData<>();
         this.mQuestionnaireSetting = new MutableLiveData<>();
+        this.mQuestionResults = new MutableLiveData<>();
 
         // firestore
         this.firestore = FirebaseFirestore.getInstance();
@@ -127,7 +126,20 @@ public class QuestionnairesViewModel extends AndroidViewModel {
                 });
     }
 
-//    private void generateTHI() {
+
+    public void addQuestionResult(QuestionResult questionResult) {
+        List<QuestionResult> questionResults = this.mQuestionResults.getValue();
+        if (questionResults == null) {
+            questionResults = new ArrayList<>();
+        }
+
+        if (questionResults.stream().anyMatch(questionResult1 -> questionResult.getQuestionNumber() == questionResult1.getQuestionNumber())) {
+
+        }
+
+    }
+
+    //    private void generateTHI() {
 //        String[] questionStrings = getApplication().getResources().getStringArray(R.array.thi_survey_questions);
 //        List<Question> questions = new ArrayList<>();
 //        for (int i = 0; i < questionStrings.length; i++) {

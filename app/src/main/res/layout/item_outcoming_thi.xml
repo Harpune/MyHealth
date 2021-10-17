@@ -8,17 +8,36 @@
     android:layout_marginRight="16dp"
     android:layout_marginBottom="32dp">
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/slider_0_100_chat"
+    <RadioGroup
+        android:id="@+id/group_yes_no_sometimes_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:stepSize="10"
-        android:valueFrom="0"
-        android:valueTo="100"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
+        <RadioButton
+            android:id="@+id/yes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/yes" />
+
+        <RadioButton
+            android:id="@+id/sometimes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sometimes" />
+
+        <RadioButton
+            android:id="@+id/no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/no" />
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

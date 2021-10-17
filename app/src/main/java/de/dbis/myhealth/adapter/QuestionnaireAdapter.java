@@ -98,7 +98,7 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
                     questionnaire.getId(),
                     QuestionnaireSetting.class,
                     new QuestionnaireSetting(questionnaire.getId(), new ArrayList<>()));
-
+            
             // save questiionnaire and its setting in liveData to observe
             this.mQuestionnairesViewModel.select(questionnaire);
             this.mQuestionnairesViewModel.setQuestionnaireSetting(questionnaireSetting);
