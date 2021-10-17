@@ -173,7 +173,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         mQuestionResults = this.questions.stream()
                 .map(question -> new QuestionResult(
                         null,
-                        null,
+                        0L,
                         counter.getAndIncrement(),
                         !this.enabledChatMessages.contains(question)))
                 .collect(Collectors.toList());
@@ -186,7 +186,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         this.toolbar.getMenu().clear();
         this.toolbar.inflateMenu(R.menu.menu_questionnaire_control);
         this.toolbar.setOnMenuItemClickListener(item -> {
-            this.mStopWatch.suspend();
+            mStopWatch.suspend();
 
             if (item.getItemId() == R.id.questionnaire_simple_control) {
 

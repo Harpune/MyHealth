@@ -202,8 +202,8 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (sharedText != null) {
                     // get track Id
-                    String[] lines = sharedText.split("\\r?\\n");
-                    Uri uri = Uri.parse(lines[1]);
+//                    String[] lines = sharedText.split("\\r?\\n");
+                    Uri uri = Uri.parse(sharedText);
 
                     // check if its a track
                     if (uri.getPathSegments().contains("track")) {

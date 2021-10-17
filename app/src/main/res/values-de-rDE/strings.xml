@@ -236,4 +236,7 @@
     <string name="remove">Entfernen</string>
     <string name="remove_gamification_title">Eintrag löschen?</string>
     <string name="remove_gamification_message">Entferne dieses Gamification-Element vom Startbildschirm. Ihr Fortschritt geht nicht verloren.</string>
+    <string name="questionnaire_chat">Fragebogen im Chat-Format</string>
+    <string name="profile_saved">Dein Profil wurde gespeichert.</string>
+    <string name="profile_saved_failed">Dein Profil konnte nicht gespeichert werden.</string>
 </resources>
