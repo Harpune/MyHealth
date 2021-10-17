@@ -198,7 +198,7 @@
     <string name="download_spotify_confirmation">Um Musik einzubinden, müssen Sie Spotify herunterladen</string>
     <string name="login_spotify_confirmation">Sie sind nicht in Ihrer Spotify-App angemeldet.</string>
     <string name="track_already_saved">Dieser Song ist bereits in MyHealth gespeichert.</string>
-    <string name="enable_spotify">Aktivieren Sie Spotify der App</string>
+    <string name="enable">Aktivieren Sie Spotify der App</string>
     <string name="enable_spotify_confirmation">Sie müssen MyHealth den Zugriff auf Spotify erlauben, bevor Sie fortfahren.</string>
     <string name="enable_spotify_canceled">Es konnte ohne Ihre Erlaubnis keine Verbindung zu Spotify hergestellt werden</string>
     <string name="get_track_error">Konnte die notwendigen Daten nicht erhalten, um den Spotify-Titel in die App aufzunehmen.</string>
@@ -239,4 +239,5 @@
     <string name="questionnaire_chat">Fragebogen im Chat-Format</string>
     <string name="profile_saved">Dein Profil wurde gespeichert.</string>
     <string name="profile_saved_failed">Dein Profil konnte nicht gespeichert werden.</string>
+    <string name="remove_questions_chat">Wollen Sie diese %d Fragen entfernen?</string>
 </resources>

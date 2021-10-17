@@ -95,7 +95,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                     this.connectToApiOrAuth();
                 } else {
                     new MaterialAlertDialogBuilder(this)
-                            .setTitle(getString(R.string.enable_spotify))
+                            .setTitle(getString(R.string.enable))
                             .setMessage(getString(R.string.enable_spotify_confirmation))
                             .setCancelable(false)
                             .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
