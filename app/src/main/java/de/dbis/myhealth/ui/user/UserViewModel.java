@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.Date;
 
+import de.dbis.myhealth.R;
 import de.dbis.myhealth.models.User;
 
 import static de.dbis.myhealth.ApplicationConstants.FIREBASE_COLLECTION_SESSIONS;
@@ -120,8 +121,8 @@ public class UserViewModel extends AndroidViewModel {
             this.firestore.collection(FIREBASE_COLLECTION_USERS)
                     .document(user.getUserId())
                     .set(user)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(getApplication().getApplicationContext(), "Your profile was saved", Toast.LENGTH_LONG).show())
-                    .addOnFailureListener(e -> Toast.makeText(getApplication().getApplicationContext(), "Failed saving your profile", Toast.LENGTH_LONG).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(getApplication().getApplicationContext(), getApplication().getString(R.string.profile_saved), Toast.LENGTH_LONG).show())
+                    .addOnFailureListener(e -> Toast.makeText(getApplication().getApplicationContext(), getApplication().getString(R.string.profile_saved_failed), Toast.LENGTH_LONG).show());
         }
     }
 }

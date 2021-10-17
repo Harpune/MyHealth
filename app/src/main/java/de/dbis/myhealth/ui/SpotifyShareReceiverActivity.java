@@ -95,7 +95,7 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                     this.connectToApiOrAuth();
                 } else {
                     new MaterialAlertDialogBuilder(this)
-                            .setTitle(getString(R.string.enable_spotify))
+                            .setTitle(getString(R.string.enable))
                             .setMessage(getString(R.string.enable_spotify_confirmation))
                             .setCancelable(false)
                             .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
@@ -202,8 +202,8 @@ public class SpotifyShareReceiverActivity extends AppCompatActivity {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (sharedText != null) {
                     // get track Id
-                    String[] lines = sharedText.split("\\r?\\n");
-                    Uri uri = Uri.parse(lines[1]);
+//                    String[] lines = sharedText.split("\\r?\\n");
+                    Uri uri = Uri.parse(sharedText);
 
                     // check if its a track
                     if (uri.getPathSegments().contains("track")) {

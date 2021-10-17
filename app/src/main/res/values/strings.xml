@@ -279,7 +279,7 @@
     <string name="login_spotify_confirmation">You are not logged in you Spotify app.</string>
     <string name="login">Login</string>
     <string name="track_already_saved">This song is already saved in MyHealth.</string>
-    <string name="enable_spotify">Enable Spotify in the app</string>
+    <string name="enable">Enable Spotify in the app</string>
     <string name="enable_spotify_confirmation">You have to allow MyHealth to access Spotify before continuing.</string>
     <string name="enable_spotify_canceled">Could\'t connect to Spotify without your permission.</string>
     <string name="get_track_error">Could not get necessary data to include Spotify track into the app.</string>
@@ -323,7 +323,9 @@
     <string name="remove_gamification_message">Remove this gamification item from the home screen. Your prggress will not be lost.</string>
     <string name="remove">Remove</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="questionnaire_chat_key">questionnaire_chat_key</string>
+    <string name="questionnaire_chat_key" translatable="false">questionnaire_chat_key</string>
     <string name="questionnaire_chat">Chat-like questionnaire</string>
+    <string name="profile_saved">Your profile was saved</string>
+    <string name="profile_saved_failed">Failed saving your profile</string>
+    <string name="remove_questions_chat">Dou you want to disable %d questions?</string>
 </resources>

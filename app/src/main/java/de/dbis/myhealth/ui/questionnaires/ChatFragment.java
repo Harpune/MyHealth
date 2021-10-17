@@ -1,7 +1,6 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -173,7 +172,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         mQuestionResults = this.questions.stream()
                 .map(question -> new QuestionResult(
                         null,
-                        null,
+                        0L,
                         counter.getAndIncrement(),
                         !this.enabledChatMessages.contains(question)))
                 .collect(Collectors.toList());
@@ -186,7 +185,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         this.toolbar.getMenu().clear();
         this.toolbar.inflateMenu(R.menu.menu_questionnaire_control);
         this.toolbar.setOnMenuItemClickListener(item -> {
-            this.mStopWatch.suspend();
+            mStopWatch.suspend();
 
             if (item.getItemId() == R.id.questionnaire_simple_control) {
 
@@ -200,7 +199,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle(getString(R.string.deleted_questions))
                         .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
-                        .setPositiveButton("Enable", (dialogInterface, i) -> {
+                        .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
                             for (int j = 0; j < enabled.length; j++) {
                                 if (enabled[j]) {
                                     this.mQuestionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
@@ -217,7 +216,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
 
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle(getString(R.string.deleted_questions))
-                        .setMessage("Wollen Sie diese " + this.mMessagesListAdapter.getSelectedMessages().size() + " löschen?")
+                        .setMessage(getString(R.string.remove_questions_chat, this.mMessagesListAdapter.getSelectedMessages().size()))
                         .setPositiveButton(getString(R.string.yes), (dialogInterface, i) -> {
 
                             if (this.mQuestionnaireSetting == null) {
