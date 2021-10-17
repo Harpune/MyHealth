@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
+import com.preference.PowerPreference;
+import com.preference.Preference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,6 +37,7 @@ import de.dbis.myhealth.databinding.FragmentHomeBinding;
 import de.dbis.myhealth.models.Gamification;
 import de.dbis.myhealth.models.HealthSession;
 import de.dbis.myhealth.models.Questionnaire;
+import de.dbis.myhealth.models.QuestionnaireSetting;
 import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 import de.dbis.myhealth.ui.spotify.SpotifyViewModel;
 import de.dbis.myhealth.ui.stats.GamificationViewModel;
@@ -45,6 +48,7 @@ public class HomeFragment extends Fragment {
     private final static String TAG = "HomeFragment";
 
     private SharedPreferences mSharedPreferences;
+    private Preference mPreference;
     private HomeAdapter mHomeAdapter;
 
     // View Models
@@ -71,6 +75,7 @@ public class HomeFragment extends Fragment {
 
         // shared preferences
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+        this.mPreference = PowerPreference.getDefaultFile();
 
         // view models
         this.mHomeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
@@ -124,10 +129,22 @@ public class HomeFragment extends Fragment {
             } else if (questionnaires == null) {
                 Toast.makeText(getContext(), getString(R.string.no_questionnaire_available), Toast.LENGTH_LONG).show();
             } else {
-                Optional<Questionnaire> questionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
-                if (questionnaire.isPresent()) {
-                    this.mQuestionnairesViewModel.select(questionnaire.get());
-                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                Optional<Questionnaire> optionalQuestionnaire = questionnaires.stream().filter(tmp -> tmp.getId().equalsIgnoreCase(questionnairePref)).findFirst();
+                if (optionalQuestionnaire.isPresent()) {
+                    Questionnaire questionnaire = optionalQuestionnaire.get();
+                    QuestionnaireSetting questionnaireSetting = this.mPreference.getObject(
+                            questionnaire.getId(),
+                            QuestionnaireSetting.class,
+                            new QuestionnaireSetting(questionnaire.getId(), new ArrayList<>()));
+
+                    this.mQuestionnairesViewModel.setQuestionnaireSetting(questionnaireSetting);
+                    this.mQuestionnairesViewModel.select(optionalQuestionnaire.get());
+
+                    if (this.mSharedPreferences.getBoolean(getString(R.string.questionnaire_chat_key), false)) {
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_chat_item);
+                    } else {
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_questionnaire);
+                    }
                 } else {
                     Toast.makeText(getContext(), getString(R.string.could_not_find_questionnaire), Toast.LENGTH_LONG).show();
                 }

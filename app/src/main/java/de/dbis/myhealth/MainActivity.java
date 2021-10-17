@@ -211,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (destination.getId() == R.id.nav_user_item) {
                 this.mFab.show();
                 this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_save_24));
+            } else if (destination.getId() == R.id.nav_chat_item) {
+                this.mFab.show();
+                this.mFab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_keyboard_arrow_down_24));
             } else {
                 this.mFab.hide();
             }
@@ -218,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
             // setup bottomAppBar depending on destination
             if (destination.getId() == R.id.nav_questionnaire) {
                 this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_END);
+            } else if (destination.getId() == R.id.nav_chat_item) {
+                this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
             } else {
                 this.mBottomAppBar.setFabAlignmentMode(BottomAppBar.FAB_ALIGNMENT_MODE_CENTER);
             }

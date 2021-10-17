@@ -72,11 +72,14 @@ public class QuestionnaireFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         de.dbis.myhealth.databinding.FragmentQuestionnaireBinding mFragmentQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
+
         View root = mFragmentQuestionnaireBinding.getRoot();
 
         Toolbar toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setSubtitleTextColor(Color.WHITE);
+
+        mFragmentQuestionnaireBinding.setLifecycleOwner(getViewLifecycleOwner());
 
         this.mSharedPreferences = requireActivity().getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
 

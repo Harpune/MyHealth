@@ -1,7 +1,7 @@
 package de.dbis.myhealth.adapter;
 
 import android.content.Context;
-import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -30,6 +30,7 @@ import de.dbis.myhealth.ui.questionnaires.QuestionnairesViewModel;
 public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdapter.QuestionnairesViewHolder> {
 
     private final Preference mPreference;
+    private final SharedPreferences mSharedPreferences;
 
     private final MainActivity mActivity;
     private List<Questionnaire> mQuestionnaires;
@@ -65,6 +66,7 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
         this.mActivity = activity;
         this.mQuestionnairesViewModel = new ViewModelProvider(activity).get(QuestionnairesViewModel.class);
         this.mQuestionnairesViewModel.getAllQuestionnaires().observe(activity, this::setData);
+        this.mSharedPreferences = activity.getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
         this.mPreference = PowerPreference.getDefaultFile();
     }
 
@@ -96,15 +98,17 @@ public class QuestionnaireAdapter extends RecyclerView.Adapter<QuestionnaireAdap
                     questionnaire.getId(),
                     QuestionnaireSetting.class,
                     new QuestionnaireSetting(questionnaire.getId(), new ArrayList<>()));
-
+            
             // save questiionnaire and its setting in liveData to observe
             this.mQuestionnairesViewModel.select(questionnaire);
             this.mQuestionnairesViewModel.setQuestionnaireSetting(questionnaireSetting);
 
             // Nav to questionnaire
-            Bundle bundle = new Bundle();
-            bundle.putString("questionnaire_id", questionnaire.getId());
-            Navigation.findNavController(view).navigate(R.id.action_nav_questionnaires_to_nav_questionnaire, bundle);
+            if (this.mSharedPreferences.getBoolean(mActivity.getString(R.string.questionnaire_chat_key), false)) {
+                Navigation.findNavController(view).navigate(R.id.action_nav_questionnaires_item_to_nav_chat_item);
+            } else {
+                Navigation.findNavController(view).navigate(R.id.action_nav_questionnaires_to_nav_questionnaire);
+            }
         });
         return new QuestionnairesViewHolder(itemBinding);
     }

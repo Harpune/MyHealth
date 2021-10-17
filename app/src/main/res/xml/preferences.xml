@@ -55,10 +55,16 @@
         <ListPreference
             app:entries="@array/questionnaire_entries_keys"
             app:entryValues="@array/questionnaire_entries_keys"
-            app:icon="@drawable/ic_baseline_question_answer_24"
+            app:icon="@drawable/ic_baseline_local_fire_department_24"
             app:key="@string/questionnaire_fast_start_key"
             app:title="@string/questionnaire_fast_start"
             app:useSimpleSummaryProvider="true" />
+
+        <CheckBoxPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_question_answer_24"
+            app:key="@string/questionnaire_chat_key"
+            app:title="@string/questionnaire_chat"/>
 
     </PreferenceCategory>
 

@@ -322,4 +322,8 @@
     <string name="remove_gamification_title">Remove item?</string>
     <string name="remove_gamification_message">Remove this gamification item from the home screen. Your prggress will not be lost.</string>
     <string name="remove">Remove</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="questionnaire_chat_key">questionnaire_chat_key</string>
+    <string name="questionnaire_chat">Chat-like questionnaire</string>
 </resources>
