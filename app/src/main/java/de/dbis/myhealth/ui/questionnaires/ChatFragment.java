@@ -24,6 +24,7 @@ import com.google.android.material.slider.Slider;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.commons.ViewHolder;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
@@ -56,6 +57,8 @@ import de.dbis.myhealth.ui.stats.StatsViewModel;
 import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class ChatFragment extends Fragment implements MessageHolders.ContentChecker<ChatMessage> {
+
+    private static final int TYPE_CAROUSEL = 1;
 
     private SharedPreferences mSharedPreferences;
 
@@ -153,16 +156,13 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
 
         this.enabledChatMessagesQueue = new ArrayList<>(this.allChatMessages);
 
-        if (questionnaireSetting != null) {
-
-            // remove all chatMessages containing question (this includes the answer)
-            List<Question> removedQuestions = questionnaireSetting.getRemovedQuestions();
-            this.enabledChatMessagesQueue = this.allChatMessages.stream()
-                    .filter(chatMessage -> !removedQuestions.contains(chatMessage.getQuestion()))
-                    .collect(Collectors.toList());
-            this.mMessagesListAdapter.unselectAllItems();
-            this.mMessagesListAdapter.clear(true);
-        }
+        // remove all chatMessages containing question (this includes the answer)
+        List<Question> removedQuestions = questionnaireSetting.getRemovedQuestions();
+        this.enabledChatMessagesQueue = this.allChatMessages.stream()
+                .filter(chatMessage -> !removedQuestions.contains(chatMessage.getQuestion()))
+                .collect(Collectors.toList());
+        this.mMessagesListAdapter.unselectAllItems();
+        this.mMessagesListAdapter.clear(true);
 
 
         this.enabledChatMessages = new ArrayList<>(this.enabledChatMessagesQueue);
@@ -235,7 +235,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
     }
 
     private void setupTHI() {
-        String[] thi = getActivity().getResources().getStringArray(R.array.thi_survey_questions);
+        String[] thi = requireActivity().getResources().getStringArray(R.array.thi_survey_questions);
 
         AtomicInteger i = new AtomicInteger();
         this.questions = Arrays.stream(thi)
@@ -266,13 +266,21 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                 .setOutcomingTextLayout(R.layout.item_outcoming_thi);
 
         ImageLoader mImageLoader = (imageView, url, payload) -> Picasso.get().load(url).into(imageView);
-        this.mMessagesListAdapter = new MessagesListAdapter<>(this.mChatUser.getId(), messageHolders, mImageLoader);
+        this.mMessagesListAdapter = new MessagesListAdapter<ChatMessage>(this.mChatUser.getId(), messageHolders, mImageLoader) {
+            @Override
+            public void onBindViewHolder(ViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.setIsRecyclable(false);
+            }
+        };
+
         this.mMessagesListAdapter.enableSelectionMode(count -> this.toolbar.getMenu().findItem(R.id.questionnaire_simple_delete).setVisible(count > 0));
+        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
         this.mMessagesList.setAdapter(this.mMessagesListAdapter);
     }
 
     private void setupTFI() {
-        String[] tfi = getActivity().getResources().getStringArray(R.array.tfi_survey_questions);
+        String[] tfi = requireActivity().getResources().getStringArray(R.array.tfi_survey_questions);
 
         AtomicInteger i = new AtomicInteger();
         this.questions = Arrays.stream(tfi)
@@ -305,7 +313,13 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                 .setOutcomingTextLayout(R.layout.item_outcoming_tfi);
 
         ImageLoader mImageLoader = (imageView, url, payload) -> Picasso.get().load(url).into(imageView);
-        this.mMessagesListAdapter = new MessagesListAdapter<>(this.mChatUser.getId(), messageHolders, mImageLoader);
+        this.mMessagesListAdapter = new MessagesListAdapter<ChatMessage>(this.mChatUser.getId(), messageHolders, mImageLoader) {
+            @Override
+            public void onBindViewHolder(ViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+                holder.setIsRecyclable(false);
+            }
+        };
         this.mMessagesListAdapter.enableSelectionMode(count -> this.toolbar.getMenu().findItem(R.id.questionnaire_simple_delete).setVisible(count > 0));
         this.mMessagesList.setAdapter(this.mMessagesListAdapter);
     }
@@ -387,7 +401,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
     public static <T> ArrayList<T> merge(Collection<T> a, Collection<T> b) {
         Iterator<T> itA = a.iterator();
         Iterator<T> itB = b.iterator();
-        ArrayList<T> result = new ArrayList<T>();
+        ArrayList<T> result = new ArrayList<>();
 
         while (itA.hasNext() || itB.hasNext()) {
             if (itA.hasNext()) result.add(itA.next());
@@ -451,19 +465,24 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         public OutcomingTFIMessageViewHolder(View itemView, Object payload) {
             super(itemView, payload);
             this.slider = itemView.findViewById(R.id.slider_0_100_chat);
+
             this.slider.addOnChangeListener((slider, value, fromUser) -> {
+                this.chatMessage.getQuestion().setResult(Math.round(value));
                 updateValue(chatMessage, Math.round(value));
             });
         }
 
+
         @Override
         public void onBind(ChatMessage message) {
             super.onBind(message);
-            this.chatMessage = message;
+            if (this.chatMessage == null) {
+                this.chatMessage = message;
+            }
+            QuestionResult result = mQuestionResults.get(message.getPosition());
 
-            Integer result = message.getQuestion().getResult();
-            if (result != null) {
-                this.slider.setValue(result);
+            if (result.getValue() != null) {
+                this.slider.setValue(result.getValue());
             }
         }
     }
@@ -491,16 +510,18 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         @Override
         public void onBind(ChatMessage message) {
             super.onBind(message);
-            this.chatMessage = message;
+            if (this.chatMessage == null) {
+                this.chatMessage = message;
+            }
+            QuestionResult result = mQuestionResults.get(message.getPosition());
 
-            Integer result = message.getQuestion().getResult();
-            if (result != null) {
-                this.radioGroup.clearCheck();
-                if (result == 1) {
+            this.radioGroup.clearCheck();
+            if (result.getValue() != null) {
+                if (result.getValue() == 1) {
                     ((RadioButton) this.radioGroup.getChildAt(0)).setChecked(true);
-                } else if (result == 2) {
+                } else if (result.getValue() == 2) {
                     ((RadioButton) this.radioGroup.getChildAt(2)).setChecked(true);
-                } else if (result == -1) {
+                } else if (result.getValue() == -1) {
                     ((RadioButton) this.radioGroup.getChildAt(1)).setChecked(true);
                 }
             }
