@@ -35,6 +35,7 @@ import de.dbis.myhealth.ApplicationConstants;
 import de.dbis.myhealth.MainActivity;
 import de.dbis.myhealth.R;
 import de.dbis.myhealth.adapter.QuestionAdapter;
+import de.dbis.myhealth.databinding.FragmentQuestionnaireBinding;
 import de.dbis.myhealth.models.Question;
 import de.dbis.myhealth.models.QuestionResult;
 import de.dbis.myhealth.models.Questionnaire;
@@ -45,6 +46,9 @@ import de.dbis.myhealth.ui.user.UserViewModel;
 
 public class QuestionnaireFragment extends Fragment {
     private final static String TAG = "QuestionnaireFragment";
+
+    // Views
+    private Toolbar mToolbar;
 
     // Questionnaire related
     private QuestionnairesViewModel mQuestionnairesViewModel;
@@ -71,13 +75,14 @@ public class QuestionnaireFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        de.dbis.myhealth.databinding.FragmentQuestionnaireBinding mFragmentQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
+        FragmentQuestionnaireBinding mFragmentQuestionnaireBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_questionnaire, container, false);
 
         View root = mFragmentQuestionnaireBinding.getRoot();
 
-        Toolbar toolbar = root.findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setSubtitleTextColor(Color.WHITE);
+        // Setup toolbar
+        this.mToolbar = root.findViewById(R.id.questionnaireToolbar);
+        this.mToolbar.setTitleTextColor(Color.WHITE);
+        this.mToolbar.setSubtitleTextColor(Color.WHITE);
 
         mFragmentQuestionnaireBinding.setLifecycleOwner(getViewLifecycleOwner());
 
@@ -93,45 +98,7 @@ public class QuestionnaireFragment extends Fragment {
         this.mQuestionnairesLiveData.observe(getViewLifecycleOwner(), mFragmentQuestionnaireBinding::setQuestionnaire);
 
         // Get questionnaire setting
-        this.mQuestionnairesViewModel.getQuestionnaireSetting().observe(getViewLifecycleOwner(), questionnaireSetting -> {
-            this.mQuestionnaireSetting = questionnaireSetting;
-
-            // reset toolbar
-            toolbar.getMenu().clear();
-
-            // only show icon in toolbar if questions where removed
-            if (this.mQuestionnaireSetting != null && !this.mQuestionnaireSetting.getRemovedQuestions().isEmpty()) {
-
-                // Get remove questions and update boolean array with deletion information
-                String[] removedQuestionTitles = this.mQuestionnaireSetting.getRemovedQuestions().stream()
-                        .map(Question::getText)
-                        .sorted()
-                        .toArray(String[]::new);
-                boolean[] enabled = new boolean[removedQuestionTitles.length];
-
-                // setup menu
-                toolbar.inflateMenu(R.menu.menu_questionnaire_control);
-                toolbar.setOnMenuItemClickListener(item -> {
-                    this.mStopWatch.suspend();
-                    new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(getString(R.string.deleted_questions))
-                            .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
-                            .setPositiveButton("Enable", (dialogInterface, i) -> {
-                                for (int j = 0; j < enabled.length; j++) {
-                                    if (enabled[j]) {
-                                        this.mQuestionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
-                                        this.mQuestionnairesViewModel.setQuestionnaireSetting(this.mQuestionnaireSetting);
-                                        this.mQuestionAdapter.notifyDataSetChanged();
-                                    }
-                                }
-                            })
-                            .setOnDismissListener(dialogInterface -> this.mStopWatch.resume())
-                            .show();
-
-                    return false;
-                });
-            }
-        });
+        this.mQuestionnairesViewModel.getQuestionnaireSetting().observe(getViewLifecycleOwner(), this::applyQuestionnaireSetting);
 
         // Create recyclerview
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -149,6 +116,47 @@ public class QuestionnaireFragment extends Fragment {
         ((MainActivity) requireActivity()).setFabClickListener(mFabClickListener);
 
         return root;
+    }
+
+    private void applyQuestionnaireSetting(QuestionnaireSetting questionnaireSetting) {
+        this.mQuestionnaireSetting = questionnaireSetting;
+
+
+        // only show icon in toolbar if questions where removed
+        if (this.mQuestionnaireSetting != null && !this.mQuestionnaireSetting.getRemovedQuestions().isEmpty()) {
+
+            // Get remove questions and update boolean array with deletion information
+            String[] removedQuestionTitles = this.mQuestionnaireSetting.getRemovedQuestions().stream()
+                    .map(Question::getText)
+                    .sorted()
+                    .toArray(String[]::new);
+            boolean[] enabled = new boolean[removedQuestionTitles.length];
+
+            // setup menu
+            this.mToolbar.getMenu().clear();
+            this.mToolbar.inflateMenu(R.menu.menu_questionnaire_control);
+            this.mToolbar.setOnMenuItemClickListener(item -> {
+                this.mStopWatch.suspend();
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.deleted_questions))
+                        .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
+                        .setPositiveButton(getString(R.string.enable), (dialogInterface, i) -> {
+                            for (int j = 0; j < enabled.length; j++) {
+                                if (enabled[j]) {
+                                    this.mQuestionnaireSetting.reAddQuestion(removedQuestionTitles[j]);
+                                    this.mQuestionnairesViewModel.setQuestionnaireSetting(this.mQuestionnaireSetting);
+                                    this.mQuestionAdapter.notifyDataSetChanged();
+                                }
+                            }
+                            this.mStopWatch.resume();
+                        })
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> this.mStopWatch.resume())
+                        .setCancelable(false)
+                        .show();
+
+                return false;
+            });
+        }
     }
 
     private void save(View view) {

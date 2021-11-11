@@ -94,6 +94,8 @@ public class StatsViewModel extends AndroidViewModel {
             healthSessions.add(healthSession);
         }
 
+//        healthSessions.sort((h1, h2) -> h1.getDate().compareTo(h2.getDate()));
+
 
         this.setAllHealthSessions(healthSessions);
     }
