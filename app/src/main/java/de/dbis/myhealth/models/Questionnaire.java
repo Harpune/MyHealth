@@ -1,7 +1,5 @@
 package de.dbis.myhealth.models;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.firestore.Exclude;
 
 import java.util.List;

@@ -1,6 +1,7 @@
 package de.dbis.myhealth.ui.questionnaires;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -206,8 +207,11 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                                     this.mQuestionnairesViewModel.setQuestionnaireSetting(this.mQuestionnaireSetting);
                                 }
                             }
+
+                            mStopWatch.resume();
                         })
-                        .setOnDismissListener(dialogInterface -> mStopWatch.resume())
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> mStopWatch.resume())
+                        .setCancelable(false)
                         .show();
 
             }
@@ -224,9 +228,10 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                             }
                             this.mMessagesListAdapter.getSelectedMessages().forEach(chatMessage -> this.mQuestionnaireSetting.addRemovedQuestions(chatMessage.getQuestion()));
                             this.mQuestionnairesViewModel.setQuestionnaireSetting(this.mQuestionnaireSetting);
-
+                            mStopWatch.resume();
                         })
-                        .setOnDismissListener(dialogInterface -> mStopWatch.resume())
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> mStopWatch.resume())
+                        .setCancelable(false)
                         .show();
             }
 
@@ -239,7 +244,9 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
 
         AtomicInteger i = new AtomicInteger();
         this.questions = Arrays.stream(thi)
-                .map(question -> new ChatMessage(UUID.randomUUID().toString(), question,
+                .map(question -> new ChatMessage(
+                        UUID.randomUUID().toString(),
+                        question,
                         mMyHealthChatUser,
                         new Date(),
                         i.getAndIncrement(),
@@ -321,6 +328,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
             }
         };
         this.mMessagesListAdapter.enableSelectionMode(count -> this.toolbar.getMenu().findItem(R.id.questionnaire_simple_delete).setVisible(count > 0));
+        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
         this.mMessagesList.setAdapter(this.mMessagesListAdapter);
     }
 
@@ -501,7 +509,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
                     updateValue(chatMessage, 1);
                 } else if (checkedId == R.id.no) {
                     updateValue(chatMessage, 2);
-                } else {
+                } else if (checkedId == R.id.sometimes) {
                     updateValue(chatMessage, -1);
                 }
             });
@@ -539,6 +547,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         if (duration == null) {
             duration = 0L;
         }
+
         mStopWatch.split();
         long split = mStopWatch.getSplitTime();
         long interval = (split - mLastSplit);
