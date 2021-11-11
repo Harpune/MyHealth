@@ -184,7 +184,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
 
     private void handleToolbar() {
         this.toolbar.getMenu().clear();
-        this.toolbar.inflateMenu(R.menu.menu_questionnaire_control);
+        this.toolbar.inflateMenu(R.menu.menu_chat_control);
         this.toolbar.setOnMenuItemClickListener(item -> {
             mStopWatch.suspend();
 
@@ -282,7 +282,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
         };
 
         this.mMessagesListAdapter.enableSelectionMode(count -> this.toolbar.getMenu().findItem(R.id.questionnaire_simple_delete).setVisible(count > 0));
-        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
+//        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
         this.mMessagesList.setAdapter(this.mMessagesListAdapter);
     }
 
@@ -328,7 +328,7 @@ public class ChatFragment extends Fragment implements MessageHolders.ContentChec
             }
         };
         this.mMessagesListAdapter.enableSelectionMode(count -> this.toolbar.getMenu().findItem(R.id.questionnaire_simple_delete).setVisible(count > 0));
-        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
+//        this.mMessagesList.getRecycledViewPool().setMaxRecycledViews(TYPE_CAROUSEL, 0);
         this.mMessagesList.setAdapter(this.mMessagesListAdapter);
     }
 

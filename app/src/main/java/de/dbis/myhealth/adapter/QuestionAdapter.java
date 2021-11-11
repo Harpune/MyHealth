@@ -323,7 +323,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     @Override
     public void onBindViewHolder(@NonNull QuestionViewHolder holder, int position) {
         Question question = this.mSelectedQuestions.get(position);
-        holder.setIsRecyclable(false);
         holder.bind(question);
         holder.inflate(question.getQuestionType());
     }
