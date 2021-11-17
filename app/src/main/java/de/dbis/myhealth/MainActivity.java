@@ -28,6 +28,7 @@ import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -134,9 +135,11 @@ public class MainActivity extends AppCompatActivity {
         this.mPreference = PowerPreference.getDefaultFile();
 //        this.mPreference.clear();
 
-        this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
-//        this.mSharedPreferences.edit().clear().apply();
 
+        PreferenceManager.setDefaultValues(getApplication(), ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE, R.xml.preferences, true);
+        this.mSharedPreferences = getSharedPreferences(ApplicationConstants.PREFERENCES, Context.MODE_PRIVATE);
+
+//        this.mSharedPreferences.edit().clear().apply();
         if (!this.mSharedPreferences.getBoolean(getString(R.string.pref_on_boarding), false)) {
             startActivity(new Intent(this, IntroActivity.class));
         }
