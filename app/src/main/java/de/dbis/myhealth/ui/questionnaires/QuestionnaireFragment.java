@@ -140,7 +140,7 @@ public class QuestionnaireFragment extends Fragment {
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle(getString(R.string.deleted_questions))
                         .setMultiChoiceItems(removedQuestionTitles, enabled, (dialogInterface, i, b) -> enabled[i] = b)
-                        .setPositiveButton(getString(R.string.enable), (dialogInterface, i) -> {
+                        .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
                             for (int j = 0; j < enabled.length; j++) {
                                 if (enabled[j]) {
                                     this.mQuestionnaireSetting.reAddQuestion(removedQuestionTitles[j]);

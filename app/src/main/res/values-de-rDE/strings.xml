@@ -222,10 +222,10 @@
     <string name="information_questionnaire_description_fast_start"><b>Schnellstart</b>\nUm schnell den gewünschten Fragebogen ausfüllen zu können, gibt es die Möglichkeit in den Einstellungen einen der beiden für den Schnellstart auszuwählen.\n</string>
     <string name="information_questionnaire_description_delete_questions"><b>Fragen löschen</b>\nDa einige Fragen für Sie unwichtig sein können oder ihnen redundant erscheinen, können Sie Fragen aus den Fragebögen entfernen, indem sie lange auf die jeweilige Frage klicken.</string>
     <string name="spotify_volume">Lautstärke beim Starten</string>
-    <string name="information_caption">Hier ist eine kurze Übersicht über die Funktionaläten der Anwendung.</string>
-    <string name="app_intro_slide_1_description">Mit MyHealth können Sie ihre Tinnitus-Fragebögen schnell und bequem auf Ihrem Smartphone ausfüllen. Durch verschiedenste Einstellungsmöglichkeiten können Sie die App nach Ihrem belieben einrichten und Ihren Wünschen anpassen.</string>
+    <string name="information_caption">Hier ist eine kurze Übersicht über die Funktionalitäten der Anwendung.</string>
+    <string name="app_intro_slide_1_description">MyHealth kann zu einem besseren Verständnis der mobilen Medizin führen. Durch verschiedenste Einstellungsmöglichkeiten können Sie die App nach Ihren Wünschen anpassen.</string>
     <string name="app_intro_slide_3_description">Damit Sie sich auf das Ausfüllen der Fragebögen konzentrieren  können ohne die Ablenkung durch Ihren Tinnitus, können Sie Lieder, Geräusche und Laute hinzufügen, die nach dem Öffnen über Spotify gestartet werden.</string>
-    <string name="app_intro_slide_2_description">Füllen Sie Ihre Fragebögen in der App aus und senden Sie sie direkt ab.</string>
+    <string name="app_intro_slide_2_description">Füllen Sie Fragebögen in der App aus und senden Sie sie direkt ab, um in der Erforschung von Tinnitus einen Beitrag zu leisten.</string>
     <string name="app_intro_slide_4_description">Für einen guten Überblick und ein direktes Feedback, schließen sie Herausforderungen ab und sehen Sie den Ihren Verlauf in der Tinnituswahrnemung an.</string>
     <string name="questionnaires_caption">Klicken sie lange auf einen Fragebogen, um ihn als Schnellstart zu verwenden.</string>
     <string name="general_start_questionnaire">Starte mit der Fragebogenauswahl</string>
