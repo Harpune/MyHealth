@@ -78,7 +78,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 String delete = view.getContext().getString(R.string.delete);
                 new MaterialAlertDialogBuilder(view.getContext())
                         .setTitle(delete)
-                        .setMessage("Do you really want to remove this question from the questionnaire? You can add it back later by click +")
+                        .setMessage(this.binding.getRoot().getContext().getString(R.string.delete_question))
                         .setPositiveButton(delete, (dialogInterface, i) -> {
 //                            binding.getQuestion().setResult(null);
                             removeAt(getLayoutPosition());

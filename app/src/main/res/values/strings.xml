@@ -328,4 +328,5 @@
     <string name="profile_saved">Your profile was saved</string>
     <string name="profile_saved_failed">Failed saving your profile</string>
     <string name="remove_questions_chat">Dou you want to disable %d questions?</string>
+    <string name="delete_question">Do you really want to remove this question from the questionnaire? You can add it back later by clicking +</string>
 </resources>
